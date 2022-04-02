@@ -2,7 +2,7 @@
 
 namespace App\Repositories\FOLDER;
 
-use Gomee\Repositories\Base\BaseRepository;
+use Gomee\Repositories\BaseRepository;
 
 class NAMERepository extends BaseRepository
 {

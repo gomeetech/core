@@ -4,7 +4,7 @@
  * @copyright 2018-2019
  */
 
-namespace Gomee\Repositories\Base;
+namespace Gomee\Repositories;
 
 use Gomee\Models\Model;
 

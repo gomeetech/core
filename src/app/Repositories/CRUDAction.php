@@ -1,5 +1,5 @@
 <?php
-namespace Gomee\Repositories\Base;
+namespace Gomee\Repositories;
 
 use Gomee\Validators\Base\ExampleValidator;
 

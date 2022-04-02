@@ -2,7 +2,7 @@
 namespace App\MasksSUB;
 
 use App\Models\MODEL;
-use Gomee\Magic\Mask;
+use Gomee\Masks\Mask;
 
 class NAMEMask extends Mask
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gomee\Repositories\Base;
+namespace Gomee\Repositories;
 
 /**
  * các phương thúc với owner

@@ -1,7 +1,7 @@
 <?php
 namespace App\MasksSUB;
 
-use Gomee\Magic\MaskCollection;
+use Gomee\Masks\MaskCollection;
 
 class NAMECollection extends MaskCollection
 {
