@@ -85,7 +85,7 @@ if(!function_exists('make_controller')){
         $master = ucfirst($t);
         $prectr = $master;
         if($master){
-            $prectr = $master;
+            $prectr = $folders[$t]."\\".$master;
         }
         $sub = null;
         if($folder){
