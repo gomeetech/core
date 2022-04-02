@@ -9,7 +9,7 @@ trait DirMethods{
     protected $basePath = null;
     public function dirInit()
     {
-        $this->_dir = dirname(dirname(dirname(__FILE__)));
+        $this->_dir = BASE_PATH;
         $this->basePath = $this->_dir;
     }
 
@@ -18,7 +18,7 @@ trait DirMethods{
         return $this->_dir.($dir?'/'.ltrim($dir):'');
     }
 
-    public function publicPath()
+    public function publicPath($dir = null)
     {
         return $this->basePath.'/public'.($dir?'/'.ltrim($dir):'');
     }
