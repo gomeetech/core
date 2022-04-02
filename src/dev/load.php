@@ -1,5 +1,5 @@
 <?php
-
+if(!defined('BASE_PATH')) define('BASE_PATH', dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 define('BASEDIR', defined('BASE_PATH')?BASE_PATH:dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 
 define('DEVPATH', dirname(__FILE__));
