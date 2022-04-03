@@ -28,6 +28,16 @@ class Schema {
         }
     }
 
+    /**
+     * xóa bảng
+     *
+     * @param string $table
+     * @return void
+     */
+    public static function dropIfExists($table)
+    {
+        # code...
+    }
 
 
     public static function get($table)

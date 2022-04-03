@@ -505,3 +505,68 @@ function make($object = null, ...$params){
     
     // else make_modules($object, $p['params'], ...$p['args']);
 }
+
+
+function create_table($params = [], $table = null, ...$args){
+    if(!$table){
+        echo "Tham so:\n\$name -- Ten bảng\n...\$args -- tham số\n";
+        return null;
+    }
+    $table = Str::tableName($table);
+    $find = ['TABLE_NAME', '// COLUMN HERE'];
+    $columns = [];
+    if((isset($params['softdelete']) && $params['softdelete'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')){
+        $columns[] = "\$table->softDeletes();";
+    }
+    
+    if(!(isset($params['timestamps']) && $params['timestamps'] == 'false')){
+        $columns[] = "\$table->timestamps();";
+    }
+    $replace = [$table, getFields($table, true), implode("\n            ", $columns)];
+    $filemanager = new Filemanager();
+    $template = file_get_contents(DEVPATH.'/templates/create-table.php');
+    $filemanager->setDir(base_path('database/migrations/'));
+    $code = str_replace($find, $replace, $template);
+    $fn = date('Y-m-d_His')."_create_{$table}_table.php";
+    if($a = $filemanager->save($fn, $code, 'php')){
+        echo "Tạo bảng {$table} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+    }else{
+        echo "Lỗi không xác định\n";
+    }
+    // if(is_array($args)){
+    //     foreach ($args as $i => $col) {
+    //         $name = '';
+    //         $type = '';
+    //         $length = null;
+    //         $default = '';
+    //         $props = [];
+    //         if($t = count($c = explode(':', $col))){
+    //             $name = trim(array_shift($c));
+    //             if($t >= 2){
+    //                 $ty = array_shift($c);
+                    
+    //             }else{
+    //                 $type = 'string';
+    //             }
+
+
+    //         }
+    //     }
+    // }
+
+}
+
+function create($item, ...$params){
+    if(!$item){
+        die("Please select item to create (table, view)");
+    }
+    $p = get_args_params($params);
+
+    if($item == 'table'){
+        create_table($p['params'], ...$p['args']);
+    }elseif(is_callable('make_'.$object)){
+        $args = array_merge([$p['params']], $p['args']);
+        call_user_func_array('make_'.$object, $args);
+    }
+    
+}
