@@ -1,4 +1,5 @@
 <?php
+
 if(!defined('BASE_PATH')) define('BASE_PATH', dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 define('BASEDIR', defined('BASE_PATH')?BASE_PATH:dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 
@@ -38,13 +39,19 @@ function schema($table)
                         $ex = array_pop($fs);
                         $fc = $fs[0];
                         if($ex == 'php'){
-                            require_once $dir.'/'.$file;
-                            $fcl = str_replace(' ', '', ucwords(str_replace('_', ' ', substr($fc, 18))));
-                            if(class_exists($fcl)){
-                                $rc = new ReflectionClass($fcl);
-                                $a = $rc->newInstanceArgs( [] );
-                                $a->up();
+                            $mig = require_once $dir.'/'.$file;
+                            if($mig && is_a($mig, Illuminate\Database\Migrations\Migration::class)){
+                                $mig->up();
                             }
+                            else{
+                                $fcl = str_replace(' ', '', ucwords(str_replace('_', ' ', substr($fc, 18))));
+                                if(class_exists($fcl)){
+                                    $rc = new ReflectionClass($fcl);
+                                    $a = $rc->newInstanceArgs( [] );
+                                    $a->up();
+                                }
+                            }
+                            
 
                         }
                     

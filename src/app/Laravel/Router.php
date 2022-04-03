@@ -9,7 +9,7 @@
 
 namespace Gomee\Laravel;
 
-use Route;
+use Illuminate\Support\Facades\Route;
 
 class Router{
     //
