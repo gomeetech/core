@@ -200,8 +200,12 @@ function make_model($args = [], $name = null, $table = null)
 
 
     $params = $args;
-    if(isset($params['softdelete'])){
+    print_r($params);
+    if((isset($params['softdelete']) && $params['softdelete'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')){
         $props[] = "protected \$deleteMode = 'soft';";
+    }
+    if(isset($params['timestamps']) && $params['timestamps'] == 'false'){
+        $props[] = "public \$timestamps = false;";
     }
 
 
@@ -500,5 +504,5 @@ function make($object = null, ...$params){
         call_user_func_array('make_'.$object, $args);
     }
     
-    else make_modules($object, $p['params'], ...$p['args']);
+    // else make_modules($object, $p['params'], ...$p['args']);
 }
