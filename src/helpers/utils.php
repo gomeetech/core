@@ -21,6 +21,18 @@ if(!function_exists('get_domain')){
     }
 }
 
+if (!function_exists('json_path')) {
+    /**
+     * lấy dường dẫn từ thư mục json
+     * @param string $path
+     * @return string
+     */
+    function json_path($path = null)
+    {
+        return base_path('json') . ($path ? '/' . ltrim($path, '/') : '');
+    }
+}
+
 if (!function_exists('is_email')) {
     /**
      * kiểm tra giá trị nhập vào có phải email hay không
