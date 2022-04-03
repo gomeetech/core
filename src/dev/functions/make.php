@@ -522,7 +522,7 @@ function create_table($params = [], $table = null, ...$args){
     if(!(isset($params['timestamps']) && $params['timestamps'] == 'false')){
         $columns[] = "\$table->timestamps();";
     }
-    $replace = [$table, getFields($table, true), implode("\n            ", $columns)];
+    $replace = [$table, implode("\n            ", $columns)];
     $filemanager = new Filemanager();
     $template = file_get_contents(DEVPATH.'/templates/create-table.php');
     $filemanager->setDir(base_path('database/migrations/'));
