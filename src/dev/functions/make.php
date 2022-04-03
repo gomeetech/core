@@ -527,7 +527,7 @@ function create_table($params = [], $table = null, ...$args){
     $template = file_get_contents(DEVPATH.'/templates/create-table.php');
     $filemanager->setDir(base_path('database/migrations/'));
     $code = str_replace($find, $replace, $template);
-    $fn = date('Y-m-d_His')."_create_{$table}_table.php";
+    $fn = date('Y_m_d_His')."_create_{$table}_table.php";
     if($a = $filemanager->save($fn, $code, 'php')){
         echo "Tạo bảng {$table} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
     }else{
