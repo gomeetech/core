@@ -200,7 +200,6 @@ function make_model($args = [], $name = null, $table = null)
 
 
     $params = $args;
-    print_r($params);
     if((isset($params['softdelete']) && $params['softdelete'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')){
         $props[] = "protected \$deleteMode = 'soft';";
     }
