@@ -3,7 +3,7 @@
 namespace Gomee\Commands;
 
 use Illuminate\Console\Command;
-
+use Core\Package;
 class GomeeCommand extends Command
 {
     /**
@@ -31,12 +31,13 @@ class GomeeCommand extends Command
      */
     public function handle()
     {
-        $command = $this->argument('cmd');
+        $command = strtolower($this->argument('cmd'));
+        $psckage = $this->argument('package');
         if($command == 'none'){
             $this->error('Vui lòng chọn lệnh! Ví dụ: install, update, remove, v.v..');
         }
         elseif($command == 'install'){
-            $psckage = $this->argument('package');
+            
             if($psckage == 'none'){
                 $this->info('');
                 $this->error('                             ');
@@ -57,7 +58,10 @@ class GomeeCommand extends Command
                 $this->info('   composer require gomeetech/'.$psckage);
                 
             }
+        }elseif(in_array($command, ['packages', 'packagelist', 'pkglst', 'list']) || ($command == 'show' && in_array($psckage, ['packages', 'modules']))){
+            print_r(Package::all());
         }
+        
         return 0;
     }
 }
