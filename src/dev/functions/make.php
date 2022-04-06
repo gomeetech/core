@@ -556,17 +556,54 @@ function create_table($params = [], $table = null, ...$args){
 
 }
 
-function create($item, ...$params){
-    if(!$item){
-        die("Please select item to create (table, view)");
-    }
-    $p = get_args_params($params);
 
-    if($item == 'table'){
-        create_table($p['params'], ...$p['args']);
-    }elseif(is_callable('make_'.$object)){
-        $args = array_merge([$p['params']], $p['args']);
-        call_user_func_array('make_'.$object, $args);
+function alter_table($params = [], $table = null, ...$args){
+    if(!$table){
+        echo "Tham so:\n\$name -- Ten bảng\n...\$args -- tham số\n";
+        return null;
+    }
+    // $table = Str::tableName($table);
+    if(!Schema::hasTable($table)) die('Bang nay ko da ton tai');
+    $find = ['TABLE_NAME'];
+    $replace = [$table];
+    $filemanager = new Filemanager();
+    $template = file_get_contents(DEVPATH.'/templates/alter-table.php');
+    $filemanager->setDir(base_path('database/migrations/'));
+    $code = str_replace($find, $replace, $template);
+    $a = $args?('_'.implode('_', $args)):'';
+    $fn = date('Y_m_d_His')."_alter_table_{$table}{$a}.php";
+    if($a = $filemanager->save($fn, $code, 'php')){
+        echo "Tạo bảng {$table} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+    }else{
+        echo "Lỗi không xác định\n";
+    }
+}
+function create_provider($params = [], $name = null, ...$args){
+    if(!$name){
+        echo "Tham so:\n\$name -- Provieder\n...\$args -- tham số\n";
+        return null;
+    }
+    $name = ucfirst($name);
+    $find = ['NAME'];
+    $columns = [];
+
+    if((isset($params['f']) && $params['f'] != 'false') || (isset($params['full']) && $params['full'] != 'false') || (!isset($params['s']) || $params['f'] == 'false') || (!isset($params['short']) || $params['short'] == 'false')){
+        $name.='ServiceProvider';
     }
     
+    if(!(isset($params['timestamps']) && $params['timestamps'] == 'false')){
+        $columns[] = "\$table->timestamps();";
+    }
+    $replace = [$name];
+    $filemanager = new Filemanager();
+    $template = file_get_contents(DEVPATH.'/templates/provider.php');
+    $filemanager->setDir(base_path('app/Providers/'));
+    $code = str_replace($find, $replace, $template);
+    $fn = "{$name}.php";
+    if($a = $filemanager->save($fn, $code, 'php')){
+        registerProvider("Gomee\\Providers\\$name");
+        echo "Tạo Provider {$name} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+    }else{
+        echo "Lỗi không xác định\n";
+    }
 }

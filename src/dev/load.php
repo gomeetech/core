@@ -1,7 +1,7 @@
 <?php
 
 if(!defined('BASE_PATH')) define('BASE_PATH', dirname(dirname(dirname(dirname(dirname(__FILE__))))));
-define('BASEDIR', defined('BASE_PATH')?BASE_PATH:dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+define('BASEDIR', BASE_PATH);
 
 define('DEVPATH', dirname(__FILE__));
 require_once __DIR__.'/libs/Inflector.php';
@@ -23,47 +23,48 @@ require_once __DIR__.'/functions.php';
 
 require_once __DIR__.'/functions/make.php';
 
+require_once __DIR__.'/Illuminate/Schema.php';
+require_once __DIR__.'/Illuminate/Blueprint.php';
+require_once __DIR__.'/Illuminate/Migration.php';
+
+
+$dir = BASEDIR.'/database/migrations';
+if (is_string($dir) && is_dir($dir)) {
+    try{
+        if ($dh = opendir($dir)) {
+            while (($file = readdir($dh)) !== false) {
+                $fs = explode('.',$file);
+                $ex = array_pop($fs);
+                $fc = $fs[0];
+                if($ex == 'php'){
+                    $mig = require_once $dir.'/'.$file;
+                    if($mig && is_a($mig, Illuminate\Database\Migrations\Migration::class)){
+                        $mig->up();
+                    }
+                    else{
+                        $fcl = str_replace(' ', '', ucwords(str_replace('_', ' ', substr($fc, 18))));
+                        if(class_exists($fcl)){
+                            $rc = new ReflectionClass($fcl);
+                            $a = $rc->newInstanceArgs( [] );
+                            $a->up();
+                        }
+                    }
+                    
+
+                }
+            
+                
+            }
+            closedir($dh);
+        }
+    }catch(exception $e){
+        // $this->errors[__METHOD__] = $e->getMessage();
+    }
+}
 
 function schema($table)
 {
-    if(!class_exists('Illuminate\Support\Facades\Schema')){
-        require_once __DIR__.'/Illuminate/Schema.php';
-        require_once __DIR__.'/Illuminate/Blueprint.php';
-        require_once __DIR__.'/Illuminate/Migration.php';
-        $dir = BASEDIR.'/database/migrations';
-        if (is_string($dir) && is_dir($dir)) {
-            try{
-                if ($dh = opendir($dir)) {
-                    while (($file = readdir($dh)) !== false) {
-                        $fs = explode('.',$file);
-                        $ex = array_pop($fs);
-                        $fc = $fs[0];
-                        if($ex == 'php'){
-                            $mig = require_once $dir.'/'.$file;
-                            if($mig && is_a($mig, Illuminate\Database\Migrations\Migration::class)){
-                                $mig->up();
-                            }
-                            else{
-                                $fcl = str_replace(' ', '', ucwords(str_replace('_', ' ', substr($fc, 18))));
-                                if(class_exists($fcl)){
-                                    $rc = new ReflectionClass($fcl);
-                                    $a = $rc->newInstanceArgs( [] );
-                                    $a->up();
-                                }
-                            }
-                            
 
-                        }
-                    
-                        
-                    }
-                    closedir($dh);
-                }
-            }catch(exception $e){
-                // $this->errors[__METHOD__] = $e->getMessage();
-            }
-        }
-    }
     return Illuminate\Support\Facades\Schema::get($table);
 
 }
@@ -75,3 +76,5 @@ if(count($files = $filemanager->getList(null, 'php'))){
         require $file->path;
     }
 }
+
+require_once '__call__.php';

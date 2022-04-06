@@ -391,7 +391,7 @@ trait FileMethods{
     public function saveJson($filename = null, $data = null)
     {
         if(is_array($data) || is_object($data)){
-            return $this->save($filename, json_encode($data), 'json');
+            return $this->save($filename, json_encode($data, JSON_PRETTY_PRINT), 'json');
         }
         return false;
     }
