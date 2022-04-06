@@ -28,6 +28,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "7.4-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Gomee\\Providers\\CoreServiceProvider"
+            ]
         }
     }
 }
