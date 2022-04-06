@@ -601,7 +601,6 @@ function create_provider($params = [], $name = null, ...$args){
     $code = str_replace($find, $replace, $template);
     $fn = "{$name}.php";
     if($a = $filemanager->save($fn, $code, 'php')){
-        registerProvider("Gomee\\Providers\\$name");
         echo "Tạo Provider {$name} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
     }else{
         echo "Lỗi không xác định\n";
