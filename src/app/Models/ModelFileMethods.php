@@ -13,6 +13,6 @@ trait ModelFileMethods
      */
     public function getSecretPath($path = null)
     {
-        return ltrim($path);
+        return 'static/resources'. ($path?'/'.ltrim($path):'');
     }
 }
