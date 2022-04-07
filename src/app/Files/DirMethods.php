@@ -153,7 +153,7 @@ trait DirMethods
      */
     public function checkDirAccepted(string $dir)
     {
-        $base = rtrim(rtrim(base_path(''), "\\"), '/');
+        $base = rtrim(rtrim(Helper::basePath(''), "\\"), '/');
         if (count(explode($base, $dir)) == 2) return true;
         return false;
     }
@@ -168,7 +168,7 @@ trait DirMethods
     {
         $dir = rtrim(str_replace("\\", "/", $dir), '/');
         $ban_list = [
-            rtrim(str_replace("\\", "/", base_path('')), '/'),
+            rtrim(str_replace("\\", "/", Helper::basePath('')), '/'),
             rtrim(str_replace("\\", "/", Helper::publicPath('')), '/'),
         ];
         if (in_array($dir, $ban_list)) return false;
