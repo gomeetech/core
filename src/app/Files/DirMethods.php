@@ -2,6 +2,7 @@
 
 namespace Gomee\Files;
 
+use Gomee\Engines\Helper;
 use Gomee\Helpers\Arr;
 use Illuminate\Support\Facades\File;
 
@@ -11,7 +12,7 @@ trait DirMethods
 
     public function dirInit()
     {
-        $this->_dir = base_path();
+        $this->_dir = Helper::basePath();
     }
     /**
      * thiết lập dường dẫn để quản lý file
@@ -25,7 +26,7 @@ trait DirMethods
         if ($dir && is_string($dir)) {
             $dir = rtrim(rtrim($dir, "\\"), '/');
             // nếu không bắt dầu từ thư mục gốc
-            if (!$this->checkDirAccepted($dir)) $dir = public_path($dir);
+            if (!$this->checkDirAccepted($dir)) $dir = Helper::public_path($dir);
             $dir = rtrim(rtrim($dir, "\\"), '/');
 
             if (is_dir($dir)) {
@@ -80,7 +81,7 @@ trait DirMethods
             $date = date('Y-m-d');
 
             // nếu không bắt dầu từ thư mục gốc
-            if (!$this->checkDirAccepted($dir)) $dir = public_path($dir);
+            if (!$this->checkDirAccepted($dir)) $dir =Helper::publicPath($dir);
             $parseDir = rtrim(str_replace("\\",  "/",  $dir), '/');
             // chia thành các part
 
@@ -133,7 +134,7 @@ trait DirMethods
     {
         if ($dir && is_string($dir)) {
             // nếu không bắt dầu từ thư mục gốc
-            if (!$this->checkDirAccepted($dir)) $dir = public_path($dir);
+            if (!$this->checkDirAccepted($dir)) $dir =Helper::publicPath($dir);
 
             $d = str_replace("\\", "/", $dir);
             if (is_dir($d)) {
@@ -168,7 +169,7 @@ trait DirMethods
         $dir = rtrim(str_replace("\\", "/", $dir), '/');
         $ban_list = [
             rtrim(str_replace("\\", "/", base_path('')), '/'),
-            rtrim(str_replace("\\", "/", public_path('')), '/'),
+            rtrim(str_replace("\\", "/", Helper::publicPath('')), '/'),
         ];
         if (in_array($dir, $ban_list)) return false;
         return true;
@@ -446,7 +447,7 @@ trait DirMethods
                         // }
                         if (!file_exists($dst . '/' . $file->name)) {
                             $msg .= 'fail';
-                            $mng->append("\n" . $msg, storage_path('crazy/logs/' . $date . '.log'));
+                            $mng->append("\n" . $msg, Helper::storage_path('crazy/logs/' . $date . '.log'));
                         }
                     }
                 }

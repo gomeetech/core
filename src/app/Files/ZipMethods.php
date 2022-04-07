@@ -1,6 +1,7 @@
 <?php
 namespace Gomee\Files;
 
+use Gomee\Engines\Helper;
 use Gomee\Helpers\Any;
 use ZipArchive;
 use RecursiveIteratorIterator;
@@ -29,7 +30,7 @@ trait ZipMethods{
         if($this->getType($filename)!='application/zip') return false;
         // kiểm tra và chỉnh sửa dường dẫn giải nén
         if(!$dir) $dir = $this->_dir.'/'.str_slug(preg_replace('/\.'.$this->_extension.'$/i', '', $this->_filename));
-        elseif(!$this->checkDirAccepted($dir)) $dir = public_path($dir);
+        elseif(!$this->checkDirAccepted($dir)) $dir = Helper::publicPath($dir);
         // tạo dường dẫn nếu ko tồn tại
         
         if(!is_dir($dir)){
@@ -93,7 +94,7 @@ trait ZipMethods{
             $archive_file = array_pop($a);
         }
         if($this->checkDirAccepted($archive_file)) $archive_path = $archive_file;
-        else $archive_path = public_path($archive_file);
+        else $archive_path = Helper::publicPath($archive_file);
         if(!preg_match('/\.zip$/i', $archive_file)) $archive_path.='.zip';
         $zip = $this->_zip;
 
