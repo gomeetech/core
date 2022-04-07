@@ -490,11 +490,11 @@ trait BaseQuery
                                 }else{
                                     $query->whereNull($prefix.$softDeleteColumn);
                                 }
-                            }elseif(in_array('deleted', $this->_model->__get_fields())){
+                            }elseif(in_array('trashed_status', $this->_model->__get_fields())){
                                 if($vl){
-                                    $query->where($prefix.'deleted', 1);
+                                    $query->where($prefix.'trashed_status', 1);
                                 }else{
-                                    $query->where($prefix.'deleted', 0);
+                                    $query->where($prefix.'trashed_status', 0);
                                 }
                             }
                             break;

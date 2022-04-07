@@ -210,9 +210,9 @@ trait ModelEventMethods
     public function moveToTrash()
     {
         if(!$this->canMoveToTrash()) return false;
-        if(in_array('deleted', $this->fillable)){
+        if(in_array('trashed_status', $this->fillable)){
             $this->beforeMoveToTrash();
-            $this->deleted = 1;
+            $this->trashed_status = 1;
             $this->save();
             $this->afterMoveToTrash();
             return true;
@@ -252,9 +252,9 @@ trait ModelEventMethods
      */
     public function restore()
     {
-        if(in_array('deleted', $this->fillable) && !$this->isSoftDeleteMode()){
+        if(in_array('trashed_status', $this->fillable) && !$this->isSoftDeleteMode()){
             $this->beforeRestore();
-            $this->deleted = 0;
+            $this->trashed_status = 0;
             $this->save();
             $this->afterRestore();
             return true;
