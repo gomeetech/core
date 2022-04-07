@@ -51,7 +51,7 @@ trait ModuleMethods
      * Chuẩn hóa module thoe mguyen6 mẫu Crazy CMS 
      */
     protected $flashMode = false;
-    
+
     /**
      * @var string $modulePath
      */
@@ -76,12 +76,12 @@ trait ModuleMethods
      */
     public function moduleInit()
     {
-        if(!$this->moduleBlade) $this->moduleBlade = $this->module;
-        
-        $this->repository->notTrashed();
+        if (!$this->moduleBlade) $this->moduleBlade = $this->module;
 
-        $this->modulePath = $this->scope.'/modules/'.str_replace('.', '/', $this->module);
+        if ($this->repository)
+            $this->repository->notTrashed();
 
+        $this->modulePath = $this->scope . '/modules/' . str_replace('.', '/', $this->module);
     }
 
     /**
@@ -89,7 +89,7 @@ trait ModuleMethods
      */
     public function activeMenu($activeKey = null)
     {
-        Menu::addActiveKey($this->menuName, $activeKey?$activeKey:$this->module);
+        Menu::addActiveKey($this->menuName, $activeKey ? $activeKey : $this->module);
     }
 
     /**
@@ -101,9 +101,9 @@ trait ModuleMethods
      */
     public function getRouteUrl($routeName = null, array $params = [])
     {
-        if(!is_string($routeName) || !strlen($routeName)) return null;
-        if (Router::getByName($this->routeNamePrefix.$routeName)) {
-            return \route($this->routeNamePrefix.$routeName, $params);
+        if (!is_string($routeName) || !strlen($routeName)) return null;
+        if (Router::getByName($this->routeNamePrefix . $routeName)) {
+            return \route($this->routeNamePrefix . $routeName, $params);
         }
         return null;
     }
@@ -117,7 +117,7 @@ trait ModuleMethods
      */
     public function getModuleRoute($routeName = null, array $params = [])
     {
-        return $this->getRouteUrl($this->module.'.'.$routeName, $params);
+        return $this->getRouteUrl($this->module . '.' . $routeName, $params);
     }
 
     /**
@@ -134,9 +134,9 @@ trait ModuleMethods
             ]
         ];
         $data = [];
-        if($buttons){
-            foreach($buttons as $i => $button){
-                if(isset($btns[$button])){
+        if ($buttons) {
+            foreach ($buttons as $i => $button) {
+                if (isset($btns[$button])) {
                     $data[] = $btns[$button];
                 }
             }
@@ -145,7 +145,7 @@ trait ModuleMethods
     }
 
 
-    
+
     /**
      * lấy dữ liệu list
      * @param Arr $config
@@ -155,13 +155,11 @@ trait ModuleMethods
     {
         $data = [];
         // nếu sử dụng flash mode
-        if($this->flashMode){
-            $file = $this->modulePath.'/list';
+        if ($this->flashMode) {
+            $file = $this->modulePath . '/list';
             $data = $this->getJsonData($file);
         }
 
         return $data;
     }
-
-
 }

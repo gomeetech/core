@@ -213,10 +213,32 @@ trait ModelEventMethods
         if(in_array('trashed_status', $this->fillable)){
             $this->beforeMoveToTrash();
             $this->trashed_status = 1;
-            $this->save();
-            $this->afterMoveToTrash();
-            return true;
-        }else{
+            $sd = $this->save();
+            if ($this->isSoftDeleteMode()) {
+                // $this->beforeMoveToTrash();
+                $delete = parent::delete();
+                if ($delete) {
+                    $sd = $delete;
+                }
+            }
+            if($sd){
+                $this->afterMoveToTrash();
+                return true;
+            }
+            
+            
+            return false;
+        }
+        else if($this->isSoftDeleteMode())
+        {
+            $this->beforeMoveToTrash();
+            $delete = parent::delete();
+            if($delete){
+                $this->afterMoveToTrash();
+            }
+           
+        }
+        else{
             return $this->delete();
         }
     }
@@ -252,10 +274,13 @@ trait ModelEventMethods
      */
     public function restore()
     {
-        if(in_array('trashed_status', $this->fillable) && !$this->isSoftDeleteMode()){
+        if(in_array('trashed_status', $this->fillable)){
             $this->beforeRestore();
             $this->trashed_status = 0;
             $this->save();
+            if($this->isSoftDeleteMode()){
+                $this->sysRestore();
+            }
             $this->afterRestore();
             return true;
         }

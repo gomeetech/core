@@ -9,7 +9,7 @@ use Gomee\Files\Filemanager;
 use Gomee\Files\Image;
 use Storage;
 use File;
-
+use Gomee\Engines\Helper;
 /**
  * các thuộc tính và phương thức của form sẽ được triển trong ManagerController
  */
@@ -33,14 +33,14 @@ trait FileMethods
             $p = $this->storagePath;
         }
         else{
-            $p = \public_path();
+            $p = Helper::public_path();
         }
         return rtrim($p, '/') . '/' . ltrim($path);
     }
 
     public function fileInit()
     {
-        if(!$this->storagePath) $this->storagePath = \storage_path('uploads');
+        if(!$this->storagePath) $this->storagePath = Helper::storage_path('uploads');
         $this->filemanager = new Filemanager();
     }
 
@@ -78,7 +78,7 @@ trait FileMethods
      */
     public function savePublicFile($dir = null, $filename = null, $content = null, $mime_type = null)
     {
-        return $this->saveFile(public_path($dir), $filename, $content, $mime_type);
+        return $this->saveFile(Helper::public_path($dir), $filename, $content, $mime_type);
     }
 
     /**

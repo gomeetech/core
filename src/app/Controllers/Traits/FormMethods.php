@@ -2,6 +2,7 @@
 
 namespace Gomee\Controllers\Traits;
 
+use Gomee\Engines\Helper;
 use Gomee\Helpers\Arr;
 use Gomee\Laravel\Router;
 
@@ -215,8 +216,8 @@ trait FormMethods
 
     public function updateFormDir()
     {
-        $this->jsonFormDir = json_path($this->formDir);
-        $this->phpFormDir = storage_path('crazy/'. ltrim($this->formDir, '/'));
+        $this->jsonFormDir = Helper::json_path($this->formDir);
+        $this->phpFormDir = Helper::storage_path('crazy/'. ltrim($this->formDir, '/'));
         $this->realFormDir = $this->jsonFormDir;
     }
 
@@ -680,7 +681,7 @@ trait FormMethods
 
         $form_config = array_merge([
             'title' => $this->getFormTitle($action),
-            'can_edit_form_config' => ($this->hasConfigFile && !get_owner_id()),
+            'can_edit_form_config' => $this->hasConfigFile?true:false,
             'save_button_text' => $this->getSaveButtonText($action),
             'cancel_button_text' => $this->getCancelButtonText(),
             'cancel_button_url' => $this->getCancelButtonUrl(),
@@ -692,7 +693,7 @@ trait FormMethods
             'css' => $css
         ], $array_config, $c->all(), compact('layout_type', 'form_groups'));
         
-        if($this->hasConfigFile && !get_owner_id()){
+        if($this->hasConfigFile){
             if(Router::getByName($this->routeNamePrefix.$this->module . '.form.config.edit')){
                 $form_config['edit_form_config_url'] = route($this->routeNamePrefix.$this->module . '.form.config.edit');
             }else{
