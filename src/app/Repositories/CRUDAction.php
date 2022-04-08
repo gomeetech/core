@@ -1,7 +1,7 @@
 <?php
 namespace Gomee\Repositories;
 
-use Gomee\Validators\Base\ExampleValidator;
+use Gomee\Validators\ExampleValidator;
 
 use ReflectionClass;
 
@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 trait CRUDAction
 {
     /**
-     * @var $validatorClass
+     * @var string $validatorClass
      * full class name 
      */
     protected $validatorClass = 'Base\ExampleValidator';
@@ -22,6 +22,8 @@ trait CRUDAction
     protected $validateAttrs = [];
     
     protected $validatorNamespace = 'Gomee\Validators';
+    protected $appNamespace = 'App\Validators';
+
 
     protected $actor = null;
 
@@ -50,14 +52,18 @@ trait CRUDAction
      */
     public function setValidatorClass($validatorClass)
     {
-        if(class_exists($this->validatorNamespace."\\".$validatorClass)){
-            $this->validatorClass = $this->validatorNamespace."\\".$validatorClass;
-        }elseif(class_exists($this->validatorNamespace."\\".$validatorClass.'Validator')){
-            $this->validatorClass = $this->validatorNamespace."\\".$validatorClass.'Validator';
-        }elseif(class_exists($validatorClass)){
+        if(class_exists($validatorClass)){
             $this->validatorClass = $validatorClass;
         }elseif(class_exists($validatorClass.'Validator')){
             $this->validatorClass = $validatorClass.'Validator';
+        }elseif(class_exists($this->appNamespace."\\".$validatorClass)){
+            $this->validatorClass = $this->appNamespace."\\".$validatorClass;
+        }elseif(class_exists($this->appNamespace."\\".$validatorClass.'Validator')){
+            $this->validatorClass = $this->appNamespace."\\".$validatorClass.'Validator';
+        }elseif(class_exists($this->validatorNamespace."\\".$validatorClass)){
+            $this->validatorClass = $this->validatorNamespace."\\".$validatorClass;
+        }elseif(class_exists($this->validatorNamespace."\\".$validatorClass.'Validator')){
+            $this->validatorClass = $this->validatorNamespace."\\".$validatorClass.'Validator';
         }
         return $this;
     }
@@ -86,10 +92,11 @@ trait CRUDAction
                 $c = $class;
             }
             else{
-                $c = 'Gomee\Validators\Base\ExampleValidator';
+                $c = 'Gomee\Validators\ExampleValidator';
             }
-            $rc = new ReflectionClass($c);
-            return $rc->newInstanceArgs( [$request, $this] );
+            return app($c, [$request, $this]);
+            // $rc = new ReflectionClass($c);
+            // return $rc->newInstanceArgs( [$request, $this] );
         }
         return new ExampleValidator($request, $this);
     }
