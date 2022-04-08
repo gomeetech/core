@@ -83,7 +83,7 @@ abstract class BaseRepository
     {
         $this->setModel();
         $this->_primaryKeyName = $this->_model->getKeyName();
-        $this->ownerInit();
+        // $this->ownerInit();
         
         $this->init();
     }
