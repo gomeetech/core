@@ -19,9 +19,22 @@ trait CRUDAction
      */
     protected $validatorClass = 'Base\ExampleValidator';
     
+    /**
+     *
+     * @var array
+     */
     protected $validateAttrs = [];
-    
+    /**
+     * validator namespace
+     *
+     * @var string
+     */
     protected $validatorNamespace = 'Gomee\Validators';
+    /**
+     * app validator namespace
+     *
+     * @var string
+     */
     protected $appNamespace = 'App\Validators';
 
 
@@ -94,9 +107,8 @@ trait CRUDAction
             else{
                 $c = 'Gomee\Validators\ExampleValidator';
             }
-            return app($c, [$request, $this]);
-            // $rc = new ReflectionClass($c);
-            // return $rc->newInstanceArgs( [$request, $this] );
+            $rc = new ReflectionClass($c);
+            return $rc->newInstanceArgs( [$request, $this] );
         }
         return new ExampleValidator($request, $this);
     }
