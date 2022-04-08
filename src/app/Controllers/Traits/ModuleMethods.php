@@ -15,7 +15,7 @@ use Gomee\Laravel\Router;
 trait ModuleMethods
 {
     /**
-     * @var \Gomee\Repositories\Base\BaseRepository
+     * @var \Gomee\Repositories\BaseRepository
      */
     public $repository;
 

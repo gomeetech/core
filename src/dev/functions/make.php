@@ -530,6 +530,10 @@ function create_table($params = [], $table = null, ...$args){
     $fn = date('Y_m_d_His')."_create_{$table}_table.php";
     if($a = $filemanager->save($fn, $code, 'php')){
         echo "Tạo bảng {$table} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+        $m = isset($params['model']) && $params['model'] ?$params['model'] : (isset($params['m']) && $params['m'] ?$params['m'] : null);
+        if($m){
+            make('model', $m, $table);
+        }
     }else{
         echo "Lỗi không xác định\n";
     }
