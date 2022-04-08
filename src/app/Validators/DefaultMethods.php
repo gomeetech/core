@@ -273,7 +273,7 @@ trait DefaultMethods{
 
         static::extend('privacy', function($prop, $value){
             if(is_null($value)) return true;
-            return in_array(strtolower($value), ['private', 'public']);
+            return in_array(strtolower($value), ['private', 'public', 'publish', 'published']);
         });
 
         static::extend('name_slug', function($attr, $value){
