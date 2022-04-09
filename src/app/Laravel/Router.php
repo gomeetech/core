@@ -35,18 +35,19 @@ class Router{
      */
     public static function getRouteInfo($route)
     {
-        $routeArr = ['uri'=>'','methods'=>null,'name'=>null, 'prefix'=>null];
+        $routeArr = ['uri'=>'','methods'=>null,'name'=>null, 'prefix'=>null, 'controller' => null, 'uses' => null];
         $inarr = ['uri','methods'];
         foreach($route as $k => $v){
             if (in_array($k,$inarr)) {
                 $routeArr[$k] = $v;
             }elseif($k=='action'){
-                if(array_key_exists('prefix',$v)){
-                    $routeArr['prefix'] = $v['prefix'];
+                foreach ($v as $_k => $_v) {
+                    if($k == 'as'){
+                        $routeArr['name'] = $_v;
+                    }elseif(array_key_exists($_k, $routeArr)){
+                        $routeArr[$_k] = $_v;
+                    }
                 }
-                if(array_key_exists('as',$v)){
-                    $routeArr['name'] = $v['as'];
-                }    
             }
         }
         return($routeArr);
