@@ -6,6 +6,7 @@ use ReflectionClass;
 use Gomee\Masks\Mask;
 use Gomee\Masks\MaskCollection;
 use Gomee\Helpers\Arr;
+use Gomee\Masks\ExampleCollection;
 use Gomee\Models\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -99,7 +100,7 @@ trait FilterAction
     protected $paginate = true;
 
 
-    protected $resourceNamespace = 'Gomee\Http\Resources';
+    protected $resourceNamespace = 'App\Http\Resources';
 
     /**
      * @var string $resource
@@ -117,6 +118,14 @@ trait FilterAction
      * @var string
      */
     protected $maskNamespace = 'Gomee\Masks';
+
+
+    /**
+     * namespace của mặt nạ
+     *
+     * @var string
+     */
+    protected $appMaskNamespace = 'App\Masks';
 
     /**
      * tên class mặt nạ. Thược có tiền tố [tên thư mục] + \ vá hậu tố Mask
@@ -442,6 +451,8 @@ trait FilterAction
         if(!$class) $class = $this->maskClass;
         if(class_exists($class)){
             return $class;
+        }elseif(class_exists($c = $this->appMaskNamespace. "\\".$class)){
+            return $c;
         }elseif(class_exists($c = $this->maskNamespace. "\\".$class)){
             return $c;
         }
@@ -453,6 +464,8 @@ trait FilterAction
         if(!$class) $class = $this->maskCollectionClass;
         if(class_exists($class)){
             return $class;
+        }elseif(class_exists($c = $this->appMaskNamespace. "\\".$class)){
+            return $c;
         }elseif(class_exists($c = $this->maskNamespace. "\\".$class)){
             return $c;
         }
@@ -491,7 +504,7 @@ trait FilterAction
             $rc = new ReflectionClass($collectionClass);
             return $rc->newInstanceArgs( [$data, $total] );
         }
-        return new MaskCollection($data);
+        return new ExampleCollection($data, $total);
     }
 
 
