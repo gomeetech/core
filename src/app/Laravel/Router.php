@@ -42,7 +42,7 @@ class Router{
                 $routeArr[$k] = $v;
             }elseif($k=='action'){
                 foreach ($v as $_k => $_v) {
-                    if($k == 'as'){
+                    if($_k == 'as'){
                         $routeArr['name'] = $_v;
                     }elseif(array_key_exists($_k, $routeArr)){
                         $routeArr[$_k] = $_v;
