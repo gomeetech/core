@@ -583,7 +583,7 @@ trait BaseQuery
                         // nếu value là mảng sẽ gọi where in
                         $query->whereIn($f, $vl);
                     } else {
-                        if($f == 'parent_id') die(static::class . '-'. $f);    
+                        // if($f == 'parent_id') die(static::class . '-'. $f);    
                         $query->where($f, $vl);
                     }
                 }
