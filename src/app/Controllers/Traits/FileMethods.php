@@ -513,8 +513,8 @@ trait FileMethods
 
     public function makeSocialImage(Arr $data, $folder = null)
     {
-        if ($data->feature_image && $folder) {
-            $image = new Image($this->parsePath($folder . DIRECTORY_SEPARATOR . $data->feature_image));
+        if ($data->featured_image && $folder) {
+            $image = new Image($this->parsePath($folder . DIRECTORY_SEPARATOR . $data->featured_image));
             $sw = $this->socialImageWidth;
             $sh = $this->socialImageHeight;
             $imgW = $image->getWidth();
@@ -539,7 +539,7 @@ trait FileMethods
                 $this->featureImageWidth = $image->getWidth();
                 $this->featureImageHeight = $image->getHeight();
             }
-            $image->save($this->parsePath($folder . '/social/' . $data->feature_image));
+            $image->save($this->parsePath($folder . '/social/' . $data->featured_image));
         }
     }
 
