@@ -84,6 +84,11 @@ trait FilterAction
     protected $withable = [];
 
     /**
+     * @var array $withCountable
+     */
+    protected $withCountable = [];
+
+    /**
      * @var array $loadable
      */
     protected $loadable = [];
@@ -586,6 +591,12 @@ trait FilterAction
                 $this->with($rela);
             }
         }
+        if(count($this->withCountable)){
+            foreach ($this->withCountable as $key => $rela) {
+                $this->withCount($rela);
+            }
+        }
+        
         if(count($this->loadable)){
             foreach ($this->loadable as $key => $rela) {
                 $this->load($rela);
@@ -1044,6 +1055,13 @@ trait FilterAction
     {
         foreach ($relas as $key => $value) {
             $this->withable[] = $value;
+        }
+        return $this;
+    }
+    public function setWithCount(...$relas)
+    {
+        foreach ($relas as $key => $value) {
+            $this->withCountable[] = $value;
         }
         return $this;
     }
