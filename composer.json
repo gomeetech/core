@@ -19,6 +19,7 @@
         ]
     },
     "require": {
+        "laravel/framework": "^9.2",
         "guzzlehttp/guzzle": "7.x"
     },
     "config": {
