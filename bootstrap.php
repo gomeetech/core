@@ -1,5 +1,2 @@
 <?php
-use Core\Package;
-if(class_exists('Core\Package')){
-    Package::register('core', __DIR__);
-}
+require __DIR__.'/vendor/autoload.php';
