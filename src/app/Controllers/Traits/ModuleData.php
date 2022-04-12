@@ -57,7 +57,7 @@ trait ModuleData{
     */
     public function checkJsonData($file)
     {
-        return file_exists(json_path($file.'.json'));
+        return file_exists($this->jsonPath($file.'.json'));
     }
 
     /**
@@ -65,9 +65,9 @@ trait ModuleData{
      */
     public function getJsonData($file)
     {
-        $path = json_path($file.'.json');
+        $path = $this->jsonPath($file.'.json');
         
-        if(file_exists($path = json_path($file.'.json'))){
+        if(file_exists($path = $this->jsonPath($file.'.json'))){
             $data = json_decode(file_get_contents($path),true);
         }
         else{
@@ -79,7 +79,7 @@ trait ModuleData{
     public function checkConvertStorageDataCache($file)
     {
         $file = ltrim($file,'/');
-        if(file_exists($json_path = json_path($file.'.json'))){
+        if(file_exists($json_path = $this->jsonPath($file.'.json'))){
             $time = filemtime($json_path);
             $php_filename = md5($file.'-'.$time).'.php';
             $path = storage_path('crazy/cache/'.$php_filename);

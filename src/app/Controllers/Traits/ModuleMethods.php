@@ -59,6 +59,10 @@ trait ModuleMethods
 
     protected $scope = '';
 
+    
+    protected $mode = 'system';
+    
+
     /**
      * lấy dữ liệu damg5 danh sách
      * @param Request $request

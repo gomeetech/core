@@ -88,13 +88,14 @@ trait ViewMethods
      * view
      * @param string $bladePath
      * @param array $data
-     * @return ViewEngin
+     * @return ViewEngine
      */
     public function view(string $bladePath, array $data = [])
     {
         $d = $this->viewFolder . '.';
 
         $bp = $d . $bladePath;
+
 
         $a = explode('.', $bp);
         $b = array_pop($a);

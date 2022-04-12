@@ -26,6 +26,11 @@ trait FileMethods
 
     public $storagePath = '';
 
+    public function jsonPath($path = null)
+    {
+        return Helper::jsonPath($path);
+    }
+
     public function parsePath($path)
     {
         if($path == substr($base = base_path(), 0, strlen($path))) return $path;
