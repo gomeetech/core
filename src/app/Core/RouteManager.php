@@ -62,29 +62,23 @@ class RouteManager{
     ];
     
     protected static $__package = '';
-    protected $name = '';
+    protected $__name = '';
 
     protected $params = [];
 
-    /**
-     * get filemanager with path
-     *
-     * @param string $path
-     * @return Filemanager
-     */
-    public static function fm($path)
+    public function __construct($packageName)
     {
-        if(!static::$filemanager){
-            static::$filemanager = new Filemanager();
+        if($packageName){
+            $this->__name = $packageName;
         }
-        static::$filemanager->setDir($path);
-        return static::$filemanager;
     }
-
 
     public function __call($name, $arguments)
     {
         $this->params[$name] = $arguments;
+        if(!in_array($this, static::$routes[$this->__name])){
+            static::$routes[$this->__name][] = $this;
+        }
     }
 
     /**
@@ -97,15 +91,15 @@ class RouteManager{
     {
         static::$__package = $packageName;
         if(!array_key_exists($packageName, static::$routes)) static::$routes[$packageName] = [];
-        $router = new static();
-        static::$routes[$packageName][] = $router;
+        $router = new static(static::$__package);
+        // static::$routes[$packageName][] = $router;
         return $router;
     }
 
     public static function __callStatic($name, $arguments)
     {
         if(!array_key_exists(static::$__package, static::$routes)) static::$routes[static::$__package] = [];
-        $router = new static();
+        $router = new static(static::$__package);
         static::$routes[static::$__package][] = $router;
         return call_user_func_array([$router, $name], $arguments);
         
