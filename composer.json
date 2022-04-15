@@ -14,7 +14,6 @@
             "Gomee\\": "src/app/"
         },
         "files": [
-            "bootstrap.php",
             "src/helpers/utils.php"
         ]
     },
