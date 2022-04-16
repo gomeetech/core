@@ -120,15 +120,18 @@ class System{
                             }
                             else{
                                 $f = $file;
+                                $mw = '';
                                 if(count($p = explode(':', $f)) == 2){
-                                    
+                                    $mw = explode(',', str_replace(' ', '', $p[1]));
+                                    $f = $p[0];
                                 }
-                                if (is_file($routePath . $scope . '/' . $file)) {
+                                if (is_file($routePath . $scope . '/' . $f)) {
                                 
                                     $r = [
                                         'prefix' => is_numeric($key)?'':$key,
-                                        'group' => $routePath . $scope . '/' . $file,
-                                        'middleware' => ''
+                                        'group' => $routePath . $scope . '/' . $f,
+                                        'middleware' => '',
+                                        'name' => is_numeric($key)?'':$key
                                     ];
     
                                     if(!array_key_exists($scope, $data)) $data[$scope] = [];
