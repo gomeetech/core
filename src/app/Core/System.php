@@ -130,7 +130,7 @@ class System{
                                     $r = [
                                         'prefix' => is_numeric($key)?'':$key,
                                         'group' => $routePath . $scope . '/' . $f,
-                                        'middleware' => '',
+                                        'middleware' => $mw,
                                         'name' => is_numeric($key)?'':$key
                                     ];
     
