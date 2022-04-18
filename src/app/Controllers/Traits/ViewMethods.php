@@ -94,7 +94,6 @@ trait ViewMethods
 
         $bp = $d . $bladePath;
 
-        dd($this->package . ':' . $bp);
         if ($this->isViewForm) {
             if (!view()->exists($bp) && $this->mode == 'package') {
                 $d = $this->package . ':' . $d;
