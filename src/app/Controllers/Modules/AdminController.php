@@ -33,10 +33,6 @@ class AdminController extends Controller
     protected $mode = 'package';
 
 
-    protected $packagePath = null;
-
-    protected $package = null;
-
     
     /**
      * thuc thi mot so thiet lap
@@ -59,12 +55,6 @@ class AdminController extends Controller
         return $this->packagePath .'/src/json' . ($path?'/' .ltrim($path):'');
     }
     
-    public function packageInit()
-    {
-        if($path = System::getPackagePath($this->package)){
-            $this->packagePath = $path;
-        }
-    }
 
     public function updateFormDir()
     {

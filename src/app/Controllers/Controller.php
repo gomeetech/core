@@ -21,6 +21,8 @@ class Controller extends BaseController
         Traits\ModuleMethods,
         // tap hop cac thuoc tinh va ham lien quan den view
         Traits\ModuleData,
+        // Package
+        Traits\PackageMethods,
         // tap hop cac thuoc tinh va ham lien quan den view
         Traits\ViewMethods,
         // tap hop cac thuoc tinh va ham lien quan den form
