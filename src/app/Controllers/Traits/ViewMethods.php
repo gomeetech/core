@@ -96,12 +96,12 @@ trait ViewMethods
 
         if ($this->isViewForm) {
             if (!view()->exists($bp) && $this->mode == 'package') {
-                $d = $this->package . ':' . $d;
-                $bp = $this->package . ':' . $bp;
+                $d = $this->package . '::' . $d;
+                $bp = $this->package . '::' . $bp;
             }
-        }elseif($this->mode == 'package' && view()->exists($this->package . ':' . $bp)){
-            $d = $this->package . ':' . $d;
-            $bp = $this->package . ':' . $bp;
+        }elseif($this->mode == 'package' && view()->exists($this->package . '::' . $bp)){
+            $d = $this->package . '::' . $d;
+            $bp = $this->package . '::' . $bp;
         }
 
 
