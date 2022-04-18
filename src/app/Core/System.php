@@ -57,6 +57,11 @@ class System{
                         'path' => $path['path'],
                         'routes' => [
                             'admin' => [],
+                            'client' => [],
+                            'api' => []
+                        ],
+                        'menus' => [
+                            'admin' => [],
                             'client' => []
                         ]
                     ], is_array($path)?$path:[], is_array($data)?$data:[], ['path' => $path['path']]));
@@ -66,6 +71,11 @@ class System{
                     static::$packages[$name] = new Arr(array_merge([
                         'path' => $path['dir'],
                         'routes' => [
+                            'admin' => [],
+                            'client' => [],
+                            'api' => []
+                        ],
+                        'menus' => [
                             'admin' => [],
                             'client' => []
                         ]
@@ -77,6 +87,11 @@ class System{
                 static::$packages[$name] = new Arr(array_merge([
                     'path' => $path,
                     'routes' => [
+                        'admin' => [],
+                        'client' => [],
+                        'api' => []
+                    ],
+                    'menus' => [
                         'admin' => [],
                         'client' => []
                     ]
@@ -92,6 +107,50 @@ class System{
         
     }
 
+    /**
+     * them package
+     *
+     * @param string $name
+     * @param string|array $path
+     * @param array $data
+     * @return bool
+     */
+    public static function register($name, $path, $data = []):bool
+    {
+        return static::addPackage($name, $path, $data);
+    }
+
+    public static function getPackagePath($package)
+    {
+        return array_key_exists($package, static::$packages)?static::$packages[$package]['path']:null;
+    }
+    public static function getPackageDir($package)
+    {
+        return array_key_exists($package, static::$packages)?static::$packages[$package]['path']:null;
+    }
+
+
+
+    public static function installPackage($package){
+        //
+    }
+
+    public static function updatePackage($package)
+    {
+        # code...
+    }
+
+    public static function uninstallPackage($package)
+    {
+        # code...
+    }
+
+ 
+    /**
+     * lấy route của các package
+     *
+     * @return array<string,array<string,array>>
+     */
     public static function getAllRoutes()
     {
         // $routes = [];
@@ -148,45 +207,40 @@ class System{
         return static::$routes;
     }
 
-    /**
-     * them package
-     *
-     * @param string $name
-     * @param string|array $path
-     * @param array $data
-     * @return bool
-     */
-    public static function register($name, $path, $data = []):bool
+    public static function getMenus()
     {
-        return static::addPackage($name, $path, $data);
+        $menus = [
+            'admin' => [],
+            'client' => []
+        ];
+        foreach (static::$packages as $slug => $package) {
+            // if(array_key_exists($slug, static::$routes)) continue;
+            $path = $package->path;
+            $jsonPath = $path . '/src/json/';
+
+            $menus = $package->menus;
+            if(count($menus)){
+                foreach ($menus as $scope => $scopeMenus) {
+                    if(is_array($scopeMenus)){
+                        foreach ($scopeMenus as $key => $value) {
+                            if(is_array($value)){
+                                $menus[$scope][$key] = $value;
+                            }else{
+                                if(is_file($path = $jsonPath . $scope .'/menus/'. $value) && $data = json_decode(file_get_contents($path), true)){
+                                    $menus[$scope] = $data;
+                                }
+                            }
+                        }
+                    }elseif(is_file($path = $jsonPath . $scope .'/menus/'. $scopeMenus) && $data = json_decode(file_get_contents($path), true)){
+                        $menus[$scope] = $data;
+                    }
+                }
+            }
+            
+        }
+        return $menus;
     }
-
-    public static function getPackagePath($package)
-    {
-        return array_key_exists($package, static::$packages)?static::$packages[$package]:null;
-    }
-    public static function getPackageDir($package)
-    {
-        return array_key_exists($package, static::$packages)?static::$packages[$package]:null;
-    }
-
-
-
-    public static function installPackage($package){
-        //
-    }
-
-    public static function updatePackage($package)
-    {
-        # code...
-    }
-
-    public static function uninstallPackage($package)
-    {
-        # code...
-    }
-
-    
+   
 
 
 }
