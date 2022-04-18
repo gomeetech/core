@@ -1,10 +1,12 @@
 <?php
+
 namespace Gomee\Core;
 
 use Gomee\Files\Filemanager;
 use Gomee\Helpers\Arr;
 
-class System{
+class System
+{
     /**
      * Undocumented variable
      *
@@ -16,11 +18,11 @@ class System{
      *
      * @var array<string, Arr>
      */
-    protected static $packages = [
-        
-    ];
-    
+    protected static $packages = [];
+
     protected static $routes = [];
+
+    protected static $menus = [];
     /**
      * get filemanager with path
      *
@@ -29,7 +31,7 @@ class System{
      */
     public static function fm($path)
     {
-        if(!static::$filemanager){
+        if (!static::$filemanager) {
             static::$filemanager = new Filemanager();
         }
         static::$filemanager->setDir($path);
@@ -46,13 +48,12 @@ class System{
      */
     public static function addPackage($name, $path, $data = []): bool
     {
-        if(array_key_exists($name, static::$packages)){
-            static::$packages[$name] = static::$packages[$name]->merge(is_array($path)?$path:$data);
+        if (array_key_exists($name, static::$packages)) {
+            static::$packages[$name] = static::$packages[$name]->merge(is_array($path) ? $path : $data);
             return true;
-        }
-        else{
-            if(is_array($path)){
-                if(array_key_exists('path', $path) && is_dir($path['path'])){
+        } else {
+            if (is_array($path)) {
+                if (array_key_exists('path', $path) && is_dir($path['path'])) {
                     static::$packages[$name] = new Arr(array_merge([
                         'path' => $path['path'],
                         'routes' => [
@@ -64,10 +65,9 @@ class System{
                             'admin' => [],
                             'client' => []
                         ]
-                    ], is_array($path)?$path:[], is_array($data)?$data:[], ['path' => $path['path']]));
+                    ], is_array($path) ? $path : [], is_array($data) ? $data : [], ['path' => $path['path']]));
                     return true;
-                }
-                elseif (array_key_exists('dir', $path) && is_dir($path['dir'])) {
+                } elseif (array_key_exists('dir', $path) && is_dir($path['dir'])) {
                     static::$packages[$name] = new Arr(array_merge([
                         'path' => $path['dir'],
                         'routes' => [
@@ -79,11 +79,10 @@ class System{
                             'admin' => [],
                             'client' => []
                         ]
-                    ], is_array($path)?$path:[], is_array($data)?$data:[], ['path' => $path['dir']]));
+                    ], is_array($path) ? $path : [], is_array($data) ? $data : [], ['path' => $path['dir']]));
                     return true;
                 }
-            }
-            elseif (is_string($path) && is_dir($path)) {
+            } elseif (is_string($path) && is_dir($path)) {
                 static::$packages[$name] = new Arr(array_merge([
                     'path' => $path,
                     'routes' => [
@@ -95,16 +94,13 @@ class System{
                         'admin' => [],
                         'client' => []
                     ]
-                ], is_array($data)?$data:[], [
+                ], is_array($data) ? $data : [], [
                     'path' => $path
                 ]));
                 return true;
             }
-
-            
         }
         return false;
-        
     }
 
     /**
@@ -115,23 +111,24 @@ class System{
      * @param array $data
      * @return bool
      */
-    public static function register($name, $path, $data = []):bool
+    public static function register($name, $path, $data = []): bool
     {
         return static::addPackage($name, $path, $data);
     }
 
     public static function getPackagePath($package)
     {
-        return array_key_exists($package, static::$packages)?static::$packages[$package]['path']:null;
+        return array_key_exists($package, static::$packages) ? static::$packages[$package]['path'] : null;
     }
     public static function getPackageDir($package)
     {
-        return array_key_exists($package, static::$packages)?static::$packages[$package]['path']:null;
+        return array_key_exists($package, static::$packages) ? static::$packages[$package]['path'] : null;
     }
 
 
 
-    public static function installPackage($package){
+    public static function installPackage($package)
+    {
         //
     }
 
@@ -145,7 +142,7 @@ class System{
         # code...
     }
 
- 
+
     /**
      * lấy route của các package
      *
@@ -156,48 +153,46 @@ class System{
         // $routes = [];
 
         foreach (static::$packages as $slug => $package) {
-            if(array_key_exists($slug, static::$routes)) continue;
+            if (array_key_exists($slug, static::$routes)) continue;
             $path = $package->path;
             $routePath = $path . '/src/routes/';
-            if($package->routes){
+            if ($package->routes) {
                 $routes = $package->routes;
                 $data = [];
                 foreach ($routes as $scope => $route) {
-                    if(is_array($route)){
+                    if (is_array($route)) {
                         foreach ($route as $key => $file) {
-                            if(is_array($file)){
-                                if(array_key_exists('file', $file) && is_file($routePath . $scope . '/' . $file['file'])){
+                            if (is_array($file)) {
+                                if (array_key_exists('file', $file) && is_file($routePath . $scope . '/' . $file['file'])) {
                                     $r = [
-                                        'prefix' => is_numeric($key)?'':$key,
+                                        'prefix' => is_numeric($key) ? '' : $key,
                                         'group' => $routePath . $scope . '/' . $file['file'],
-                                        'middleware' => array_key_exists('middleware', $file)?$file['middleware']:'',
-                                        'name' => array_key_exists('name', $file)?$file['name']:(array_key_exists('as', $file)?$file['as']:'')
+                                        'middleware' => array_key_exists('middleware', $file) ? $file['middleware'] : '',
+                                        'name' => array_key_exists('name', $file) ? $file['name'] : (array_key_exists('as', $file) ? $file['as'] : '')
                                     ];
-                                    if(!array_key_exists($scope, $data)) $data[$scope] = [];
+                                    if (!array_key_exists($scope, $data)) $data[$scope] = [];
                                     $data[$scope][] = $r;
                                 }
-                            }
-                            else{
+                            } else {
                                 $f = $file;
                                 $mw = '';
-                                if(count($p = explode(':', $f)) == 2){
+                                if (count($p = explode(':', $f)) == 2) {
                                     $mw = explode(',', str_replace(' ', '', $p[1]));
                                     $f = $p[0];
                                 }
                                 if (is_file($routePath . $scope . '/' . $f)) {
-                                
+
                                     $r = [
-                                        'prefix' => is_numeric($key)?'':$key,
+                                        'prefix' => is_numeric($key) ? '' : $key,
                                         'group' => $routePath . $scope . '/' . $f,
                                         'middleware' => $mw,
-                                        'name' => is_numeric($key)?'':$key
+                                        'name' => is_numeric($key) ? '' : $key
                                     ];
-    
-                                    if(!array_key_exists($scope, $data)) $data[$scope] = [];
-                                        $data[$scope][] = $r;
+
+                                    if (!array_key_exists($scope, $data)) $data[$scope] = [];
+                                    $data[$scope][] = $r;
                                 }
                             }
-                            
                         }
                     }
                 }
@@ -209,38 +204,37 @@ class System{
 
     public static function getMenus()
     {
-        $menus = [
-            'admin' => [],
-            'client' => []
-        ];
-        foreach (static::$packages as $slug => $package) {
-            // if(array_key_exists($slug, static::$routes)) continue;
-            $path = $package->path;
-            $jsonPath = $path . '/src/json/';
+        if (!static::$menus) {
+            $menus = [
+                'admin' => [],
+                'client' => []
+            ];
+            foreach (static::$packages as $slug => $package) {
+                // if(array_key_exists($slug, static::$routes)) continue;
+                $path = $package->path;
+                $jsonPath = $path . '/src/json/';
 
-            $menus = $package->menus;
-            if(count($menus)){
-                foreach ($menus as $scope => $scopeMenus) {
-                    if(is_array($scopeMenus)){
-                        foreach ($scopeMenus as $key => $value) {
-                            if(is_array($value)){
-                                $menus[$scope][$key] = $value;
-                            }else{
-                                if(is_file($path = $jsonPath . $scope .'/menus/'. $value) && $data = json_decode(file_get_contents($path), true)){
-                                    $menus[$scope] = $data;
+                $menus = $package->menus;
+                if (count($menus)) {
+                    foreach ($menus as $scope => $scopeMenus) {
+                        if (is_array($scopeMenus)) {
+                            foreach ($scopeMenus as $key => $value) {
+                                if (is_array($value)) {
+                                    $menus[$scope][$key] = $value;
+                                } else {
+                                    if (is_file($path = $jsonPath . $scope . '/menus/' . $value) && $data = json_decode(file_get_contents($path), true)) {
+                                        $menus[$scope] = $data;
+                                    }
                                 }
                             }
+                        } elseif (is_file($path = $jsonPath . $scope . '/menus/' . $scopeMenus) && $data = json_decode(file_get_contents($path), true)) {
+                            $menus[$scope] = $data;
                         }
-                    }elseif(is_file($path = $jsonPath . $scope .'/menus/'. $scopeMenus) && $data = json_decode(file_get_contents($path), true)){
-                        $menus[$scope] = $data;
                     }
                 }
             }
-            
+            static::$menus = $menus;
         }
-        return $menus;
+        return static::$menus;
     }
-   
-
-
 }
