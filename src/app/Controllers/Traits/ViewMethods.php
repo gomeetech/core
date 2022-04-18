@@ -95,11 +95,11 @@ trait ViewMethods
         $bp = $d . $bladePath;
 
         if ($this->isViewForm) {
-            if (!view()->exists($bp)) {
+            if (!view()->exists($bp) && $this->mode == 'package') {
                 $d = $this->package . ':' . $d;
                 $bp = $this->package . ':' . $bp;
             }
-        }elseif(view()->exists($this->package . ':' . $bp)){
+        }elseif($this->mode == 'package' && view()->exists($this->package . ':' . $bp)){
             $d = $this->package . ':' . $d;
             $bp = $this->package . ':' . $bp;
         }
@@ -115,7 +115,7 @@ trait ViewMethods
             'route_name_prefix' => $this->routeNamePrefix,
             'package' => $this->package
         ];
-        if (!$this->mode == 'package') {
+        if ($this->mode != 'package' || !$this->package) {
             $mdd = array_merge($mdd, [
                 '_component' => $d . '_components.', // blade path to folder contains all of components
                 '_template' => $d . '_templates.',

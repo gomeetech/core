@@ -13,8 +13,10 @@ trait PackageMethods{
     
     public function packageInit()
     {
+        if(!$this->package) return false;
         if($path = System::getPackagePath($this->package)){
             $this->packagePath = $path;
+            $this->mode = 'package';
         }
     }
     
