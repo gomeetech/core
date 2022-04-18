@@ -202,7 +202,13 @@ class System
         return static::$routes;
     }
 
-    public static function getMenus()
+    /**
+     * lấy danh sách menu của package
+     *
+     * @param string $menuScope
+     * @return array
+     */
+    public static function getMenus($menuScope = null)
     {
         if (!static::$menus) {
             $menus = [
@@ -234,6 +240,9 @@ class System
                 }
             }
             static::$menus = $menus;
+        }
+        if($menuScope){
+            return array_key_exists($menuScope, static::$menus)?static::$menus[$menuScope]:[];
         }
         return static::$menus;
     }
