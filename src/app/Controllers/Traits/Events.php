@@ -138,6 +138,18 @@ trait Events
      * @param mixed ...$params
      * @return mixed
      */
+    public function dispatchEvent($event, ...$params)
+    {
+        return static::callEvent($event, ...$params);
+    }
+
+    /**
+     * gọi sự kiện
+     *
+     * @param string $event
+     * @param mixed ...$params
+     * @return mixed
+     */
     public function fire($event, ...$params)
     {
         return static::callEvent($event, ...$params);

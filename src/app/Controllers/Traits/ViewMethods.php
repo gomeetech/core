@@ -21,13 +21,13 @@ use Illuminate\Http\Request;
  */
 trait ViewMethods
 {
-        
+
     /**
      * @var string $viewFolder thu muc chua view
      * khong nen thay doi lam gi
      */
     protected $viewFolder = null;
-    
+
     /**
      * @var string $index file do data cua ham index
      */
@@ -64,9 +64,7 @@ trait ViewMethods
     protected $error = 'errors';
 
 
-    protected $viewEvents = [
-        
-    ];
+    protected $viewEvents = [];
 
     /**
      * bắt sự kiện
@@ -76,7 +74,7 @@ trait ViewMethods
      */
     public function callViewEvent(string $event, ...$params)
     {
-        if(method_exists($this, $event)){
+        if (method_exists($this, $event)) {
             return call_user_func_array([$this, $event], $params);
         }
         $a = $this->fire($event, ...$params);
@@ -96,21 +94,38 @@ trait ViewMethods
 
         $bp = $d . $bladePath;
 
+        if ($this->isViewForm) {
+            if (!view()->exists($bp)) {
+                $d = $this->package . ':' . $d;
+                $bp = $this->package . ':' . $bp;
+            }
+        }elseif(view()->exists($this->package . ':' . $bp)){
+            $d = $this->package . ':' . $d;
+            $bp = $this->package . ':' . $bp;
+        }
+
 
         $a = explode('.', $bp);
         $b = array_pop($a);
         $current = implode('.', $a) . '.';
-        $viewdata = array_merge($data, [
-            '_component' => $d . '_components.', // blade path to folder contains all of components
-            '_template' => $d . '_templates.',
-            '_pagination' => $d . '_pagination.',
-            '_layout' => $d . '_layouts.',
+        $mdd = [
             '_current' => $current,
-            '_base' => $d,
             'module_slug' => $this->module,
             'module_name' => $this->moduleName,
-            'route_name_prefix' => $this->routeNamePrefix
-        ]);
+            'route_name_prefix' => $this->routeNamePrefix,
+            'package' => $this->package
+        ];
+        if (!$this->mode == 'package') {
+            $mdd = array_merge($mdd, [
+                '_component' => $d . '_components.', // blade path to folder contains all of components
+                '_template' => $d . '_templates.',
+                '_pagination' => $d . '_pagination.',
+                '_layout' => $d . '_layouts.',
+                '_base' => $d,
+
+            ]);
+        }
+        $viewdata = array_merge($data, $mdd);
         return view($bp, $viewdata);
     }
 
@@ -142,9 +157,8 @@ trait ViewMethods
         $viewData = $arrData->all();
         $viewData['config'] = $config;
         $viewShareData = array_merge(['list_group' => 'default'], $variable, $viewData);
-        
+
         return $this->view('_module.list', $viewShareData);
-    
     }
 
     /**
@@ -154,10 +168,10 @@ trait ViewMethods
      */
     public function getIndex(Request $request)
     {
-        if($this->flashMode){
+        if ($this->flashMode) {
             return $this->getFlashModeListData($request, [], ['list_group' => 'default']);
         }
-        
+
         $this->callViewEvent('beforeGetIndexData', $request);
         $data = [];
         $data['results'] = $this->getResults($request);
@@ -173,9 +187,10 @@ trait ViewMethods
      * @param Request $request
      * @return View
      */
-    function getList(Request $request) {
-        $this->activeMenu($this->module.'.list');
-        if($this->flashMode){
+    function getList(Request $request)
+    {
+        $this->activeMenu($this->module . '.list');
+        if ($this->flashMode) {
             return $this->getFlashModeListData($request, [], ['list_group' => 'default']);
         }
         $this->callViewEvent('beforeGetListData', $request);
@@ -183,26 +198,27 @@ trait ViewMethods
         $data['results'] = $this->getResults($request);
         $arrData = new Arr($data);
         $this->callViewEvent('beforeGetListView', $request, $arrData);
-        
+
         // co the code them =))))))
 
         return $this->viewModule($this->list, $arrData->all());
     }
 
-    
+
     /**
      * Hiển thị danh sách các kết quar tim dc
      * @param Request $request
      * @return View
      */
-    function getDetail(Request $request, $id = null) {
+    function getDetail(Request $request, $id = null)
+    {
         $this->repository->notTrashed();
-        if($this->flashMode){
+        if ($this->flashMode) {
             return $this->getFlashModeDetailData($request);
         }
         $this->callViewEvent('beforeGetDetailData', $request);
-        
-        if($id && $detail = $this->repository->getDetail(['id'=>$id])){
+
+        if ($id && $detail = $this->repository->getDetail(['id' => $id])) {
             $data = [];
             $data['detail'] = $detail;
             $arrData = new Arr($data);
@@ -220,21 +236,22 @@ trait ViewMethods
      * @param Request $request
      * @return View
      */
-    function getTrash(Request $request) {
-        $this->activeMenu($this->module.'.trash');
+    function getTrash(Request $request)
+    {
+        $this->activeMenu($this->module . '.trash');
         $this->repository->trashed(true);
 
         $this->callViewEvent('beforeGetTrashData', $request);
-        if($this->flashMode){
+        if ($this->flashMode) {
             return $this->getFlashModeListData($request, [], ['list_group' => 'trash']);
         }
-        
+
         // co the code them =))))))
         $data = [];
-        $data['results'] = $this->getResults($request,[]);
+        $data['results'] = $this->getResults($request, []);
         $arrData = new Arr($data);
         $this->callViewEvent('beforeGetTrashView', $request, $arrData);
-        
+
         // co the code them =))))))
 
         return $this->viewModule($this->trash, $arrData->all());
@@ -249,9 +266,9 @@ trait ViewMethods
      */
     public function getCreateForm(Request $request)
     {
-        $this->activeMenu($this->module.'.create');
+        $this->activeMenu($this->module . '.create');
         // return $this->viewModule('add-form');
-        return $this->getCrudForm($request, ['type'=>'create']);
+        return $this->getCrudForm($request, ['type' => 'create']);
     }
 
     /**
@@ -264,15 +281,15 @@ trait ViewMethods
     {
         $this->repository->notTrashed();
         $keyName = $this->repository->getKeyName();
-        if($request->id && $detail = $this->repository->getFormData([$keyName=>$request->id])){
+        if ($request->id && $detail = $this->repository->getFormData([$keyName => $request->id])) {
             $this->repository->setActiveID($detail->id);
-            $this->activeMenu($this->module.'.update');
-            return $this->getCrudForm($request, ['type'=>'update'], $detail);
+            $this->activeMenu($this->module . '.update');
+            return $this->getCrudForm($request, ['type' => 'update'], $detail);
         }
         return $this->showError($request, 404, "Mục này không tồn tại hoặc đã bị xóa");
     }
 
-    
+
     /**
      * hiển thị form thêm mới dữ liệu
      * @param Request
@@ -282,7 +299,7 @@ trait ViewMethods
      */
     public function getFreeForm(Request $request)
     {
-        return $this->getForm($request, ['type'=>'free']);
+        return $this->getForm($request, ['type' => 'free']);
     }
 
 
@@ -293,11 +310,11 @@ trait ViewMethods
      * @param string $message
      * @return View
      */
-    public function showError(Request $request, $code=404, $message = "")
+    public function showError(Request $request, $code = 404, $message = "")
     {
-        if(!$message && $request->message) $message = $request->message;
-        $code = in_array($code,[403, 404, 500])?$code:404;
-        return $this->view($this->error.'.'. $code, compact('message'));
+        if (!$message && $request->message) $message = $request->message;
+        $code = in_array($code, [403, 404, 500]) ? $code : 404;
+        return $this->view($this->error . '.' . $code, compact('message'));
     }
 
     /**
@@ -309,7 +326,4 @@ trait ViewMethods
     {
         return $this->view('alert.message', compact('message', 'type'));
     }
-
-    
-
 }

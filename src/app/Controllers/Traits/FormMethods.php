@@ -197,7 +197,7 @@ trait FormMethods
      */
     protected $btnSubmitEext = 'Xong';
 
-
+    protected $isViewForm = false;
 
 
     /**
@@ -460,9 +460,16 @@ trait FormMethods
         $v = new Arr($vars);
         // can thiep vao cac thong so config
         $this->callFormEvent('prepareGetCrudForm', $request, $c, $a, $v);
+        $this->fire('prepareGetCrudForm', $request, $c, $a, $v);
         $action = ucfirst($c->type);
-        if($c->type == 'create') $this->callFormEvent('prepareGetCreateForm', $request, $c, $a, $v);
-        elseif($c->type == 'update') $this->callFormEvent('prepareGetUpdateForm', $request, $c, $a, $v);
+        if($c->type == 'create') {
+            $this->callFormEvent('prepareGetCreateForm', $request, $c, $a, $v);
+            $this->fire('prepareGetCreateForm', $request, $c, $a, $v);
+        }
+        elseif($c->type == 'update') {
+            $this->callFormEvent('prepareGetUpdateForm', $request, $c, $a, $v);
+            $this->fire('prepareGetUpdateForm', $request, $c, $a, $v);
+        }
         
         extract($this->getFormConfigData($c,$a, $v, $data));
         // dd($form_inputs);
@@ -477,14 +484,23 @@ trait FormMethods
 
         // goi ham su kien
         $this->callFormEvent('beforeGetCrudForm', $request, $fg, $fi, $fd, $fa);
+        $this->fire('beforeGetCrudForm', $request, $fg, $fi, $fd, $fa);
         if($c->type == 'create') {
             $a = $this->callFormEvent('beforeGetCreateForm', $request, $fg, $fi, $fd, $fa);
+            if($a){
+                return $a;
+            }
+            $a = $this->fire('beforeGetCreateForm', $request, $fg, $fi, $fd, $fa);
             if($a){
                 return $a;
             }
         }
         elseif($c->type == 'update') {
             $b = $this->callFormEvent('beforeGetUpdateForm', $request, $fg, $fi, $fd, $fa);
+            if($b){
+                return $b;
+            }
+            $b = $this->fire('beforeGetUpdateForm', $request, $fg, $fi, $fd, $fa);
             if($b){
                 return $b;
             }
@@ -496,6 +512,7 @@ trait FormMethods
         $form_attrs = $fa->all();
 
         $data = array_merge($vars, compact('form_config', 'form_attrs', 'form_data', 'form_inputs'));
+        $this->isViewForm = true;
         return $this->view($blade, $data);
     }
 
@@ -519,6 +536,7 @@ trait FormMethods
         $v = new Arr($vars);
         // can thiep vao cac thong so config
         $this->callFormEvent('prepareGetForm', $request, $c, $a, $v);
+        $this->fire('prepareGetForm', $request, $c, $a, $v);
 
         
         extract($this->getFormConfigData($c,$a, $v, $data));
@@ -533,12 +551,13 @@ trait FormMethods
 
         // goi ham su kien
         $this->callFormEvent('beforeGetForm', $request, $fg, $fi, $fd, $fa);
+        $this->fire('beforeGetForm', $request, $fg, $fi, $fd, $fa);
         
         $form_config = $fg->all();
         $form_inputs = $fi->all();
         $form_data = $fd->all();
         $form_attrs = $fa->all();
-
+        $this->isViewForm = true;
         return $this->view($blade, array_merge(
             $vars,
             compact(
@@ -778,6 +797,7 @@ trait FormMethods
             $submit_url = $this->getRouteUrl($this->module.'.form.config.save');
         }
 
+        $this->isViewForm = true;
         return $this->view($blade, compact('form_config', 'form_inputs', 'submit_url'));
     }
 
