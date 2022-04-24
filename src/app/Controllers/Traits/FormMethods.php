@@ -505,13 +505,15 @@ trait FormMethods
                 return $b;
             }
         }
+
+        $model = $fd;
         
         $form_config = $fg->all();
         $form_inputs = $fi->all();
         $form_data = $fd->all();
         $form_attrs = $fa->all();
 
-        $data = array_merge($vars, compact('form_config', 'form_attrs', 'form_data', 'form_inputs'));
+        $data = array_merge($vars, compact('form_config', 'form_attrs', 'form_data', 'form_inputs', 'model'));
         $this->isViewForm = true;
         return $this->view($blade, $data);
     }
