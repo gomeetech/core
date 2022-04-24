@@ -451,7 +451,7 @@ trait FormMethods
      * 
      * @return View
      */
-    public function getCrudForm($request, array $config = [], $data = null, array $attrs = [], array $vars = [])
+    public function getCrudForm($request, array $config = [], $data = null, array $attrs = [], array $vars = [], $model = null)
     {
         
         // doi tuong noi dung forn
@@ -506,7 +506,7 @@ trait FormMethods
             }
         }
 
-        $model = $fd;
+        $model = $model?$model:$this->repository->model();
         
         $form_config = $fg->all();
         $form_inputs = $fi->all();
