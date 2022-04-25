@@ -217,6 +217,7 @@ trait FormMethods
     public function updateFormDir()
     {
         $this->jsonFormDir = $this->jsonPath($this->formDir);
+        
         $this->phpFormDir = Helper::storage_path('crazy/'. ltrim($this->formDir, '/'));
         $this->realFormDir = $this->jsonFormDir;
     }

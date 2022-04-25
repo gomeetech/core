@@ -721,6 +721,9 @@ trait InputTypes{
     public function prepareSEOData()
     {
         $this->template = 'seo';
+        
+        add_html_plugin('javascript', 'yoast-js');
+        add_html_plugin('css', 'yoast-css');
     }
     public function prepareContentSEOData()
     {
