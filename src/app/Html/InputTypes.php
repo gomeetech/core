@@ -59,7 +59,8 @@ trait InputTypes{
         'inputgroup'             => 'prepareInputGroup',
         'package'                => 'preparePackage',
         'frontend'               => 'prepareFrontendData',
-        'seo'                    => 'prepareSEOData'
+        'seo'                    => 'prepareSEOData',
+        'content-seo'            => 'prepareContentSEOData'
     ];
 
     protected $typeTemplates = [
@@ -82,7 +83,9 @@ trait InputTypes{
         'gallery'            => 'file',
         'media'              => 'file',
         'colorpicker'        => 'text',
-        'colorselect'        => 'radio'
+        'colorselect'        => 'radio',
+        'content-seo'        => 'content-seo',
+        'contentseo'         => 'content-seo'
     ];
 
     public function checkDefaultValueDynamic()
@@ -718,5 +721,12 @@ trait InputTypes{
     public function prepareSEOData()
     {
         $this->template = 'seo';
+    }
+    public function prepareContentSEOData()
+    {
+        $this->template = 'content-seo';
+        add_html_plugin('javascript', 'yoast-js');
+        add_html_plugin('css', 'yoast-css');
+        
     }
 }
