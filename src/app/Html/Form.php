@@ -564,7 +564,10 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
 
     public function toArray()
     {
-        return $this->data;
+        return array_merge($this->_attrs, [
+            'data' => $this->form_data,
+            'inputs' => $this->inputs()
+        ]);
     }
 
 
