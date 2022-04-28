@@ -2,7 +2,7 @@
 
 namespace App\Http\ControllersSUB;
 
-use App\Http\Controllers\PRECTRLController;
+#use controller;use App\Http\Controllers\PRECTRLController;
 
 use Illuminate\Http\Request;
 use Gomee\Helpers\Arr;
