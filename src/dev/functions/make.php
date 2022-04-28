@@ -74,6 +74,8 @@ if(!function_exists('make_controller')){
             'manager' => 'Manager',
             'branch' => 'Branch',
             'cpanel' => 'CPanel',
+            'frontend' => 'Frontend',
+            'backend' => 'Backend',
             'api' => 'Apis',
             'custom' => null
         ];
