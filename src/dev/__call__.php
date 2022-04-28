@@ -54,6 +54,12 @@ function __call__($args = [])
                                 case 'controller':
                                     call_user_func_array("make_controller", $args);
                                     break;
+                                case 'cmd':
+                                case 'cl':
+                                case 'command':
+                                case 'command-line':
+                                    call_user_func_array("make_command", $args);
+                                    break;
 
                                 case 'j':
                                 case 'jm':
@@ -64,10 +70,12 @@ function __call__($args = [])
 
 
                                 default:
-                                    echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - cmd, command";
+                                    echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - cmd, cl, command, command-line";
                                     break;
                             }
                         }
+                    } else {
+                        echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - cmd, command";
                     }
                     break;
 
@@ -82,8 +90,8 @@ function __call__($args = [])
                     }
                     break;
 
-                    default: 
-                        echo "What do you want to do?\n\t make or create somthing\n\t run command exists";
+                default:
+                    echo "What do you want to do?\n\t make or create somthing\n\t run command exists";
             }
         }
     }
