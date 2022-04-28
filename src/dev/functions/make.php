@@ -76,6 +76,10 @@ if(!function_exists('make_controller')){
             'cpanel' => 'CPanel',
             'frontend' => 'Frontend',
             'backend' => 'Backend',
+            'private' => 'Private',
+            'public' => 'Public',
+            'protected' => 'Protected',
+            'publish' => 'Publish',
             'api' => 'Apis',
             'custom' => null
         ];
