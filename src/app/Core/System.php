@@ -23,13 +23,20 @@ class System
     protected static $routes = [];
 
     protected static $menus = [];
+
+    /**
+     * app info
+     *
+     * @var Arr
+     */
+    protected static $_appinfo = null;
     /**
      * get filemanager with path
      *
      * @param string $path
      * @return Filemanager
      */
-    public static function fm($path)
+    public static function fm($path = null)
     {
         if (!static::$filemanager) {
             static::$filemanager = new Filemanager();
@@ -245,5 +252,25 @@ class System
             return array_key_exists($menuScope, static::$menus)?static::$menus[$menuScope]:[];
         }
         return static::$menus;
+    }
+
+    public static function appInfo()
+    {
+        if(!static::$_appinfo) static::$_appinfo = static::fm(base_path())->getJson('app.json', true);
+        return static::$_appinfo;
+    }
+
+    public static function updateAppInfo($key, $value = __RANDOM_VALUE__)
+    {
+        if(is_array($key)){
+            static::appInfo();
+            static::$_appinfo->merge($key);
+            static::fm(base_path())->saveJson('app.json', static::$_appinfo->all());
+        }
+        if($value != __RANDOM_VALUE__){
+            static::appInfo();
+            static::$_appinfo->set($key, $value);
+            static::fm(base_path())->saveJson('app.json', static::$_appinfo->all());
+        }
     }
 }
