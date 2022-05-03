@@ -30,7 +30,7 @@ use Illuminate\Contracts\Support\Arrayable;
  * @method static array match(array $array, string $key, \Closure|int|string $check) Kiểm tra phần tử theo key
  */
 Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable {
-    const DEFVAL = '<!----------Doãn-------Yêu-------Hiền--------s2--------2025----------->';
+    const DEFVAL = '<!-----------------s2--------2025----------->';
     /**
      * @var array $data
      */

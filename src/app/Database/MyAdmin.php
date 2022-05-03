@@ -34,6 +34,8 @@ class MyAdmin
 
     public $errorMessage = '';
 
+    protected $_chevked = false;
+
     protected $_isConnected = false;
 
     /**
@@ -43,11 +45,11 @@ class MyAdmin
      * @param string $user
      * @param string $pass
      */
-    function __construct($configHost = null, $user = null, $pass = '')
+    function __construct($configHost = null, $user = null, $pass = '', $doConnect = null)
     {
         if($configHost){
             $this->config($configHost, $user, $pass);
-            $this->connect();
+            if($doConnect !== false) $this->connect();
         }
     }
 
@@ -78,6 +80,8 @@ class MyAdmin
     
     public function connect()
     {
+        if($this->_chevked) return $this->_isConnected;
+        $this->_chevked = true;
         try {
             
             $this->db = new PDO("mysql:host=$this->host", $this->user, $this->pass);
@@ -86,7 +90,7 @@ class MyAdmin
         } catch (PDOException $th) {
             $this->errorMessage = $th->getMessage();
         }
-        
+        return $this->_isConnected;
     }
 
     /**
@@ -97,6 +101,7 @@ class MyAdmin
      */
     public function exec($query)
     {
+        $this->connect();
         if(!$this->db) return 0;
         try {
             $affected = $this->db->exec($query);
@@ -126,7 +131,7 @@ class MyAdmin
      */
     public function createDatabase($dbName, $collate = 'utf8')
     {
-        
+        $this->connect();
         if(!$dbName || !$this->db) return false;
         $query = "CREATE DATABASE $dbName CHARACTER SET $collate COLLATE {$collate}_general_ci;";
         return $this->exec($query);
@@ -138,9 +143,9 @@ class MyAdmin
      * @param string $dbName
      * @return int
      */
-    public function dropDatabase($dbName, $collate = 'utf8')
+    public function dropDatabase($dbName)
     {
-        
+        $this->connect();
         if(!$dbName || !$this->db) return false;
         // $query = "DROP DATABASE [IF EXISTS] $dbName;";
         $query = "DROP DATABASE $dbName;";
@@ -158,6 +163,7 @@ class MyAdmin
      */
     public function createUser($user, $pass = '', $dbs = null)
     {
+        $this->connect();
         if(!$this->db || !$user) return false;
         $query = "CREATE USER '$user'@'%' IDENTIFIED BY '$pass'";
         $rows = $this->exec($query);
@@ -175,6 +181,7 @@ class MyAdmin
      */
     public function dropUser($user)
     {
+        $this->connect();
         if(!$this->db || !$user) return false;
         $query = "DROP USER '$user'@'%';";
         $rows = $this->exec($query);
@@ -192,6 +199,7 @@ class MyAdmin
      */
     public function grant($user = null, $dbs = null)
     {
+        $this->connect();
         if(!$this->db || !$user) return 0;
         if(!$dbs) return 0;
         if(is_string($dbs)){
@@ -218,6 +226,17 @@ class MyAdmin
         }
     }
 
+    public function tableExists($db, $table)
+    {
+        if(!$this->connect()) return false;
+        $query = "SELECT * 
+        FROM information_schema.tables
+        WHERE table_schema = '$db' 
+            AND table_name = '$table'
+        LIMIT 1";
+        $rows = $this->db->exec($query);
+        return $rows;
+    }
     /**
      * @var string
      */
@@ -231,6 +250,7 @@ class MyAdmin
      */
     public function createDUG($database, $user, $password)
     {
+        $this->connect();
         if (!($createUser = $this->createDatabase($database))) {
             $this->dugError = 'Lỗi hệ thống không thể tạo database';
         } elseif (!($createDatabase = $this->createUser($user, $password))) {
@@ -250,6 +270,7 @@ class MyAdmin
 
     public function __get($name)
     {
+        $this->connect();
         $n = strtolower($name);
         if($n == 'isconnected') return $this->_isConnected;
         return null;
