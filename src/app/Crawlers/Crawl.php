@@ -124,7 +124,7 @@ trait Crawl{
             
             if($tagList = $this->tags->createTags($tags)){
                 foreach ($tagList as $t) {
-                    $tag_list[] = $t->id;
+                    $tag_list[] = $t->{MODEL_PRIMARY_KEY};
                 }
             }
         }

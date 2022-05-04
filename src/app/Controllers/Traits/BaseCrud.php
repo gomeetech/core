@@ -128,7 +128,7 @@ trait BaseCrud
         } elseif ($is_update) {
             $r = $redirect->back();
         } else {
-            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->id]);
+            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->{MODEL_PRIMARY_KEY}]);
         }
         if ($this->rederectData) {
             return $r->with($this->rederectData);
@@ -255,7 +255,7 @@ trait BaseCrud
                     
                     $this->fire('ajax' . $action . 'd', $this, $request, $model);
                     $this->fire('ajaxSaved', $this, $request, $model);
-                    $data = $this->repository->detail($model->id);
+                    $data = $this->repository->detail($model->{MODEL_PRIMARY_KEY});
                     if ($rss = $this->callCrudEvent('ajaxSaveSuccess', $request, $data)) {
                         return $rss;
                     }

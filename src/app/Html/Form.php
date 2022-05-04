@@ -120,7 +120,7 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
             $name = $input->name;
 
             // set id neu trong
-            if (!$input->id) {
+            if (!$input->{MODEL_PRIMARY_KEY}) {
                 $input->id = str_replace(['[', ']'], ['-', ''], $name);
             }
 

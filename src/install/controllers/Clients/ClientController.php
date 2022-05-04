@@ -169,7 +169,7 @@ class ClientController extends Controller
     public function cacheView(Request $request, $bladeName=null, $data = null, $key = null, $use_param = false)
     {
         // trường hợp không cache 
-        $id = ($user = $request->user()) ? $user->id : null;
+        $id = ($user = $request->user()) ? $user->{MODEL_PRIMARY_KEY} : null;
         if($id || $this->cacheViewTime <= 0) {
             if(is_array($data)) $viewData = $data;
             elseif (is_callable($data) && is_array($calledData = $data($request))) $viewData = $calledData;
@@ -267,7 +267,7 @@ class ClientController extends Controller
      */
     protected function cacheUrl(Request $request, $withQueryString = false, $callback = null)
     {
-        $id = ($user = $request->user()) ? $user->id : null;
+        $id = ($user = $request->user()) ? $user->{MODEL_PRIMARY_KEY} : null;
         if($id || $this->cacheViewTime <= 0) {
             if (is_callable($callback)) {
                 return $callback($request);
@@ -315,7 +315,7 @@ class ClientController extends Controller
      */
     public function cache(Request $request, $key, $callback = null)
     {
-        $id = ($user = $request->user()) ? $user->id : null;
+        $id = ($user = $request->user()) ? $user->{MODEL_PRIMARY_KEY} : null;
         if($id || $this->cacheViewTime <= 0) {
             if (is_callable($callback)) {
                 return $callback($request);

@@ -25,7 +25,7 @@ trait ApiCrud
         extract($this->apiDefaultData);
         $this->repository->resetDefaultParams('delwted');
         // gan id de sac minh la update hay them moi
-        $id = $request->id;
+        $id = $request->{MODEL_PRIMARY_KEY};
         // is update
         if($id){
             if($record = $this->repository->find($id)){

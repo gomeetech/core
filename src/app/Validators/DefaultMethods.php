@@ -336,7 +336,7 @@ trait DefaultMethods{
             }
         }
         if($result = $this->repository->first($data)){
-            if($this->id && $this->id == $result->id){
+            if($this->id && $this->id == $result->{MODEL_PRIMARY_KEY}){
                 return true;
             }
             return false;

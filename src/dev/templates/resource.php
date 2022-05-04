@@ -15,7 +15,7 @@ class NAMEResource extends JsonResource
     public function toArray($request)
     {
         $data = [
-            'id' => $this->id,$ELEMENTS
+            MODEL_PRIMARY_KEY => $this->{MODEL_PRIMARY_KEY},$ELEMENTS
         ];
         return $data;
     }
