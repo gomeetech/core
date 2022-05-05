@@ -358,7 +358,7 @@ trait DefaultMethods{
         }
         if($tb = $this->getRefSupport($ref))
         {
-            if(!DB::table($tb)->where('id',$ref_id)->first()) return false;
+            if(!DB::table($tb)->where(MODEL_PRIMARY_KEY,$ref_id)->first()) return false;
             return true;
         }
         return false;

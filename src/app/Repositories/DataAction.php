@@ -37,7 +37,7 @@ trait DataAction
             foreach ($list as $item) {
                 foreach($cols as $col){
                     $col = trim($col);
-                    if($col!='id' && isset($item->{$col})){
+                    if($col!=MODEL_PRIMARY_KEY && isset($item->{$col})){
                         $item->{$col} = str_replace($find, $replace, $item->{$col});
                         
                     }

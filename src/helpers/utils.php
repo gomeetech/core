@@ -5,7 +5,9 @@ use Carbon\Carbon;
 
 define('__RANDOM_VALUE__', md5(uniqid() . time() . rand(10000, 99999)));
 
-
+if(!defined('MODEL_PRIMARY_KEY')){
+    define('MODEL_PRIMARY_KEY', env('MODEL_PRIMARY_KEY', 'id'));
+}
 
 if(!function_exists('get_domain')){
     /**

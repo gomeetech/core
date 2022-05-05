@@ -65,7 +65,7 @@ abstract class BaseRepository
     // tự động kiểm tra owner
     protected $checkOwner = true;
 
-    protected $_primaryKeyName = 'id';
+    protected $_primaryKeyName = MODEL_PRIMARY_KEY;
     /**
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -143,7 +143,7 @@ abstract class BaseRepository
         if($t >= 2){
             return $this->countBy(...$args) ? true : false;
         }elseif($t == 1){
-            return $this->countBy('id', $args[0]) ? true : false;
+            return $this->countBy(MODEL_PRIMARY_KEY, $args[0]) ? true : false;
         }
         return false;
     }

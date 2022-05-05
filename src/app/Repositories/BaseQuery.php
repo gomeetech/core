@@ -15,7 +15,7 @@ trait BaseQuery
      * @var string
      */
 
-    protected $required = 'id';
+    protected $required = MODEL_PRIMARY_KEY;
 
     /**
      * @var integer
@@ -380,7 +380,7 @@ trait BaseQuery
 
     public function getFields()
     {
-        return array_merge(['id'], $this->_model->__get_fields());
+        return array_merge([MODEL_PRIMARY_KEY], $this->_model->__get_fields());
     }
 
     /**
@@ -569,7 +569,7 @@ trait BaseQuery
                         {
                             $f = $this->whereable[$ifield];
                         } 
-                        elseif (!in_array($ifield, $fields) && $ifield != 'id') continue;
+                        elseif (!in_array($ifield, $fields) && $ifield != MODEL_PRIMARY_KEY) continue;
                         else $f = $prefix . $ifield;
 
                         

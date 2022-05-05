@@ -245,7 +245,7 @@ trait GettingAction
      * @param string $textKey
      * @return array
      */
-    public function getDataOptions(array $args = [], $defaultFirst = null, $valueKey = 'id', $textKey = 'name') : array
+    public function getDataOptions(array $args = [], $defaultFirst = null, $valueKey = MODEL_PRIMARY_KEY, $textKey = 'name') : array
     {
         $a = array_filter($args, function($value){
             if(is_string($value) || is_numeric($value)){
@@ -284,7 +284,7 @@ trait GettingAction
      * @param string $textKey tên cộ sẽ hiển thị
      * @return array
      */
-    public function getRequestDataOptions($request, array $args = [], $defaultFirst = null, $valueKey = 'id', $textKey = 'name') : array
+    public function getRequestDataOptions($request, array $args = [], $defaultFirst = null, $valueKey = MODEL_PRIMARY_KEY, $textKey = 'name') : array
     {
         if($request->ignore && is_array($request->ignore)){
             $this->whereNotIn($valueKey, $request->ignore);

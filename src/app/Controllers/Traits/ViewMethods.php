@@ -218,7 +218,7 @@ trait ViewMethods
         }
         $this->callViewEvent('beforeGetDetailData', $request);
 
-        if ($id && $detail = $this->repository->getDetail(['id' => $id])) {
+        if ($id && $detail = $this->repository->getDetail([MODEL_PRIMARY_KEY => $id])) {
             $data = [];
             $data['detail'] = $detail;
             $arrData = new Arr($data);

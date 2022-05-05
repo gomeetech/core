@@ -67,7 +67,7 @@ trait CrudMethods
     /**
      * @var string $primaryKeyName ten khoa chinh
      */
-    protected $primaryKeyName = 'id';
+    protected $primaryKeyName = MODEL_PRIMARY_KEY;
 
     /**
      * @var array $apiDefaultData đử liệu mặc định trả về api
@@ -152,8 +152,8 @@ trait CrudMethods
     public function getIdListFromRequest(Request $request)
     {
         $ids = [];
-        $listKey = ['id', 'ids'];
-        if($this->primaryKeyName != 'id'){
+        $listKey = ['id', 'ids', MODEL_PRIMARY_KEY];
+        if($this->primaryKeyName != MODEL_PRIMARY_KEY){
             $listKey[] = $this->primaryKeyName;
         }
         foreach ($listKey as $key) {
