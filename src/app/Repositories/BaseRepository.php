@@ -84,7 +84,9 @@ abstract class BaseRepository
         $this->setModel();
         $this->_primaryKeyName = $this->_model->getKeyName();
         // $this->ownerInit();
-        
+        if($this->required){
+            $this->required = $this->_primaryKeyName;
+        }
         $this->init();
     }
 
