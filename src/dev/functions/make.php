@@ -212,6 +212,12 @@ function make_model($args = [], $name = null, $table = null)
     if(isset($params['timestamps']) && $params['timestamps'] == 'false'){
         $props[] = "public \$timestamps = false;";
     }
+    
+    if(isset($params['connection']) && $params['connection']){
+        $props[] = "protected \$connection = $params[connection];";
+    }
+
+    
 
 
     $replace = [$name, $table, getFields($table, true), implode("\n    ", $props)];
