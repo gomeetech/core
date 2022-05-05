@@ -143,7 +143,7 @@ abstract class BaseRepository
         if($t >= 2){
             return $this->countBy(...$args) ? true : false;
         }elseif($t == 1){
-            return $this->countBy(MODEL_PRIMARY_KEY, $args[0]) ? true : false;
+            return $this->countBy($this->_primaryKeyName, $args[0]) ? true : false;
         }
         return false;
     }

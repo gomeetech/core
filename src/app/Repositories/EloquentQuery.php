@@ -429,7 +429,7 @@ trait EloquentQuery{
 
     public function getFields()
     {
-        return array_merge([MODEL_PRIMARY_KEY], $this->_model->__get_fields());
+        return array_merge([$this->_primaryKeyName], $this->_model->__get_fields());
     }
 
 
@@ -559,7 +559,7 @@ trait EloquentQuery{
                     $hasPrefix = (count(explode('.',$field)) > 1);
                     if(!$hasPrefix){
                         // nếu không có prefix và ko có trong fillable thì bỏ qua
-                        if(!in_array($field, $this->getFields()) && $field!=MODEL_PRIMARY_KEY) continue;
+                        if(!in_array($field, $this->getFields()) && $field!=$this->_primaryKeyName) continue;
                         $f = $prefix . $field;
                     }
                     else $f = $field;
@@ -629,7 +629,7 @@ trait EloquentQuery{
 
 
     protected function doAction($actions, $query=null, $prefix=null){
-        if(!$query) $query = $this->_model->where(MODEL_PRIMARY_KEY,'!=',0);
+        if(!$query) $query = $this->_model->where($this->_primaryKeyName,'!=',0);
         if(is_array($actions)){
             
             foreach ($actions as $act) {

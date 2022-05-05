@@ -233,7 +233,7 @@ trait CRUDAction
         $model->fill($data);
         // dd($model);
         $model->save();
-        if($id && $id == $model->{MODEL_PRIMARY_KEY}){
+        if($id && $id == $model->{$this->_primaryKeyName}){
             $this->afterUpdate($model);
         }else{
             $this->afterCreate($model);
@@ -375,7 +375,7 @@ trait CRUDAction
             if(count($list)){
                 foreach ($list as $item) {
                     if(!$item->canDelete()) continue;
-                    $ids[] = $item->{MODEL_PRIMARY_KEY};
+                    $ids[] = $item->{$this->_primaryKeyName};
                     $item->delete();
                 }
             }
@@ -408,7 +408,7 @@ trait CRUDAction
             if(count($list)){
                 foreach ($list as $item) {
                     if(!$item->canForceDelete()) continue;
-                    $ids[] = $item->{MODEL_PRIMARY_KEY};
+                    $ids[] = $item->{$this->_primaryKeyName};
                     $item->forceDelete();
                 }
             }
@@ -421,7 +421,7 @@ trait CRUDAction
             if(count($list)){
                 foreach ($list as $item) {
                     if(!$item->canForceDelete()) continue;
-                    $ids[] = $item->{MODEL_PRIMARY_KEY};
+                    $ids[] = $item->{$this->_primaryKeyName};
                     $item->forceDelete();
                 }
             }

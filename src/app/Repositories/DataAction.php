@@ -37,7 +37,7 @@ trait DataAction
             foreach ($list as $item) {
                 foreach($cols as $col){
                     $col = trim($col);
-                    if($col!=MODEL_PRIMARY_KEY && isset($item->{$col})){
+                    if($col!=$this->_primaryKeyName && isset($item->{$col})){
                         $item->{$col} = str_replace($find, $replace, $item->{$col});
                         
                     }
@@ -69,7 +69,7 @@ trait DataAction
             $args['slug'] = $sl;
 
             if($pf = $this->first($args)){
-                if($id && $pf->{MODEL_PRIMARY_KEY} == $id){
+                if($id && $pf->{$this->_primaryKeyName} == $id){
                     $slug = $sl;
                     $s = false;
                     break;
@@ -97,7 +97,7 @@ trait DataAction
         $args['slug'] = $str;
 
         if($result = $this->first($args)){
-            if($id && $result->{MODEL_PRIMARY_KEY} == $id){
+            if($id && $result->{$this->_primaryKeyName} == $id){
                 return 1;
             }
             return 0;
