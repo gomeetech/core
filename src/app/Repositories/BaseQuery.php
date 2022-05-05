@@ -408,7 +408,8 @@ trait BaseQuery
 
         $prefix = '';
         $model = $this->model();
-        if ($pre = $this->getTable()) {
+        $modelType = $model::MODEL_TYPE;
+        if ($pre = $this->getTable() && $modelType == 'default') {
             $prefix = $pre . '.';
         }
         $fields = $this->getFields();
