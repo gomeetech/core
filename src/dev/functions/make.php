@@ -201,8 +201,9 @@ function make_model($args = [], $name = null, $table = null)
     }
     if(!$table) $table = Str::tableName($name);
 
-    $find = ['NAME','TABLE', 'FILLABLE', '//PROPS'];
+    $find = ['NAME','TABLE', 'FILLABLE', '//PROPS', 'MODEL_TYPE'];
     $props = [];
+    $MODELtYPE = '';
 
 
     $params = $args;
@@ -213,18 +214,38 @@ function make_model($args = [], $name = null, $table = null)
         $props[] = "public \$timestamps = false;";
     }
 
+    $connection = false;
+
     if(isset($params['connection']) && $params['connection']){
         $props[] = "protected \$connection = '$params[connection]';";
+        $collection = true;
         if($params['connection'] == 'mongodb'){
-            
             $props[] = "protected \$collection = '$table';";
         }
+        $MODELtYPE = 'Mongo';
     }
+    
+    $mt = strtolower(isset($params['modeltype']) && $params['modeltype'] ? $params['modeltype'] : (isset($params['modelType']) && $params['modelType'] ? $params['modelType'] : ''));
+    if($mt){
+        if($mt == 'mongo'){
+            if(!$collection){
+                $props[] = "protected \$connection = 'mongo';";
+                $props[] = "protected \$collection = '$table';";
+                $MODELtYPE = 'Mongo';
+            }
+        }
+        elseif($mt == 'sql'){
+            $props[] = "protected \$connection = 'sql';";
+            $MODELtYPE = 'SQL';
+        }
+        
+    }
+    
 
     
 
 
-    $replace = [$name, $table, getFields($table, true), implode("\n    ", $props)];
+    $replace = [$name, $table, getFields($table, true), implode("\n    ", $props), $MODELtYPE];
     $filemanager = new Filemanager();
     $template = file_get_contents(DEVPATH.'/templates/model.php');
     $filemanager->setDir(base_path('app/Models/'));

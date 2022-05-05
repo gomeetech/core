@@ -18,8 +18,9 @@
         ]
     },
     "require": {
-        "laravel/framework": "^9.2",
-        "guzzlehttp/guzzle": "7.x"
+        "guzzlehttp/guzzle": "7.x",
+        "jenssegers/mongodb": "dev-master",
+        "laravel/framework": "^9.2"
     },
     "config": {
         "allow-plugins": {
@@ -39,4 +40,3 @@
         }
     }
 }
-

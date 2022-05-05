@@ -609,10 +609,11 @@ trait ModelEventMethods
      */
     public function getQualifiedDeletedAtColumn()
     {
+        if(defined('static::MODEL_TYPE') && static::MODEL_TYPE == 'mongo') return $this->getDeletedAtColumn();
         return $this->qualifyColumn($this->getDeletedAtColumn());
     }
 
-
+    
     /**
      * phương thức sẽ được gọi trước khi xóa bản ghi
      * vui lòng override lại phương thức này nếu muốn sử dụng

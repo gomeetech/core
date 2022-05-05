@@ -8,5 +8,5 @@ class Model extends BaseModel
 {
     //
     use ModelEventMethods, ModelFileMethods;
-
+    const MODEL_TYPE = 'default';
 }
