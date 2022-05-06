@@ -1,7 +1,8 @@
 <?php
 
 namespace Gomee\Repositories;
-use DB;
+
+use Illuminate\Support\Facades\DB;
 
 trait EloquentQuery{
     

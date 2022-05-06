@@ -19,4 +19,26 @@ class SQLModel extends BaseModel
 
     const MODEL_TYPE = 'sql';
 
+    public function __getModelType__()
+    {
+        return static::MODEL_TYPE;
+    }
+
+    
+    /**
+     * các giá trị mặc định
+     *
+     * @var array
+     */
+    protected $defaultValues = [];
+
+    /**
+     * lấy về giá trị mặc định khi muốn fill để create data
+     *
+     * @return array<string, mixed>
+     */
+    public function getDefaultValues()
+    {
+        return $this->defaultValues;
+    }
 }

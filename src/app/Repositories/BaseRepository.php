@@ -7,6 +7,8 @@
 namespace Gomee\Repositories;
 
 use Gomee\Models\Model;
+use Gomee\Models\MongoModel;
+use Gomee\Models\SQLModel;
 
 /**
  * danh sách method
@@ -67,14 +69,16 @@ abstract class BaseRepository
 
     protected $_primaryKeyName = MODEL_PRIMARY_KEY;
     /**
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var Model|SQLModel|MongoModel
      */
     protected $_model;
 
     /**
-     * @var Model
+     * @var Model|SQLModel|MongoModel
      */
     static $__Model__;
+
+    protected $modelType = 'default';
 
     /**
      * EloquentRepository constructor.
@@ -84,9 +88,10 @@ abstract class BaseRepository
         $this->setModel();
         $this->_primaryKeyName = $this->_model->getKeyName();
         // $this->ownerInit();
-        if($this->required){
+        if($this->required == MODEL_PRIMARY_KEY){
             $this->required = $this->_primaryKeyName;
         }
+        $this->modelType = $this->_model->__getModelType__();
         $this->init();
     }
 

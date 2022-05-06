@@ -8,6 +8,9 @@ use Gomee\Masks\MaskCollection;
 use Gomee\Helpers\Arr;
 use Gomee\Masks\ExampleCollection;
 use Gomee\Models\Model;
+use Gomee\Models\MongoModel;
+use Gomee\Models\SQLModel;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -273,7 +276,7 @@ trait FilterAction
      * @param illuminate\Http\Request $request
      * @param array $args
      * 
-     * @return LengthAwarePaginator|MaskCollection|Model[]
+     * @return LengthAwarePaginator|MaskCollection|Model[]|SQLModel[]|MongoModel[]
      */
     public function getFilter($request, array $args = [])
     {
@@ -291,7 +294,7 @@ trait FilterAction
     /**
      * ham lấy và lọc dử liệu
      * 
-     * @return model
+     * @return Model|SQLModel|MongoModel
      */
     public function getDetail(array $args = [])
     {
@@ -306,7 +309,7 @@ trait FilterAction
     /**
      * ham lấy và lọc dử liệu
      * 
-     * @return model
+     * @return Model|SQLModel|MongoModel
      */
     public function getFormData(array $args = [])
     {
@@ -321,7 +324,7 @@ trait FilterAction
 
     /**
      * ham lấy và lọc dử liệu
-     * @param illuminate\Http\Request $request
+     * @param Request $request
      * @param array $args
      * 
      * @return Resource Collection 
@@ -374,7 +377,7 @@ trait FilterAction
     /**
      * chuẩn hóa chi tiết bản ghi
      *
-     * @param \Gomee\Models\Model $data
+     * @param Model|SQLModel|MongoModel $data
      * @return mixed
      */
     public function parseDetail($data)
@@ -419,7 +422,7 @@ trait FilterAction
 
     /**
      * tạo resource cho api
-     * @param \Gomee\Models\Model
+     * @param Model|SQLModel|MongoModel
      * @return resource
      */
     public function resource($data){
