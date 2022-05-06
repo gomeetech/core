@@ -12,11 +12,11 @@ class ColumnItem{
     protected static $moduleRoute = '';
     protected static $columnTag = 'td';
     protected static $baseView = 'admin';
-    
+    protected static $order = 0;
     /**
      * tao doi tuong hiển thị
      */
-    public static function show($item, $config, $options = [], $route = '', $base_view_path = 'admin', $columm_tag = null)
+    public static function show($item, $config, $options = [], $route = '', $base_view_path = 'admin', $columm_tag = null, $order = 0)
     {
         static::$item = $item;
         static::$config = $config;
@@ -26,6 +26,7 @@ class ColumnItem{
         if($columm_tag){
             static::$columnTag = $columm_tag;
         }
+        static::$order = $order;
         
         return static::render();
     }
@@ -42,6 +43,9 @@ class ColumnItem{
         $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data));
         if($type == 'text' || $options->text){
             $content = htmlentities(static::getDataFromString($options->text));
+        }
+        elseif($type == 'order' || $options->order){
+            $content = static::$order + ($options->order?$options->order:0);
         }
         elseif($type == 'data' && $options->data_key && $options->value_key){
             $vkey = static::getDataFromString($options->value_key);
