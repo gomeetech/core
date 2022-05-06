@@ -240,7 +240,7 @@ function make_model($args = [], $name = null, $table = null)
         }
         
     }
-    if((isset($params['defaultvalue']) && $params['defaultvalue'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')){
+    if((isset($params['defaultvalue']) && $params['defaultvalue'] != 'false') || (isset($params['defaultvalues']) && $params['defaultvalues'] != 'false')){
         $d = "protected \$defaultValues = [\n        ";
         $columns = getColumns($table);
         $d.= implode(",\n        ", array_map(function($c){return "'$c' => ''";}, $columns));
