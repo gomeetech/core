@@ -76,7 +76,7 @@ function __call__($args = [])
 
 
                                 default:
-                                    echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - cmd, cl, command, command-line";
+                                    echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line";
                                     break;
                             }
                         }
