@@ -441,6 +441,13 @@ trait InputTypes{
         $this->data('name', $this->name);
         $this->addClass('crazy-prop');
     }
+
+    public function prepareUserSelectData()
+    {
+        $this->data('id', $this->id);
+        $this->data('name', $this->name);
+        $this->addClass('user-select');
+    }
     /**
      * convert sang crazy tag
      *
