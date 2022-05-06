@@ -1,6 +1,9 @@
 <?php
 namespace Gomee\Repositories;
 
+use Gomee\Models\Model;
+use Gomee\Models\MongoModel;
+use Gomee\Models\SQLModel;
 use Gomee\Validators\ExampleValidator;
 
 use ReflectionClass;
@@ -281,7 +284,7 @@ trait CRUDAction
      * tao bản ghi mới
      * @param array
      * 
-     * @return false|\Gomee\Http\Resources\ExampleResource|\Gomee\Models\Model
+     * @return false|\Gomee\Http\Resources\ExampleResource|Model|MongoModel|SQLModel
      */
     public function create(array $data = [])
     {
@@ -298,6 +301,7 @@ trait CRUDAction
      * cập nhật dử liệu bản ghi
      * @param int $id
      * @param array $data
+     * @return Model|MongoModel|SQLModel|false
      */
     public function update(int $id, array $data = [])
     {

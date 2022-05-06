@@ -93,6 +93,9 @@ abstract class BaseRepository
         }
         $this->modelType = $this->_model->__getModelType__();
         $this->init();
+        if(!$this->defaultValues){
+            $this->defaultValues = $this->_model->getDefaultValues();
+        }
     }
 
     public function getKeyName()
