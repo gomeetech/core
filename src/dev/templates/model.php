@@ -2,7 +2,7 @@
 
 namespace App\Models;
 use Gomee\Models\MODEL_TYPEModel;
-class NAME extends Model
+class NAME extends MODEL_TYPEModel
 {
     public $table = 'TABLE';
     public $fillable = FILLABLE;
