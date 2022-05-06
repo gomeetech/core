@@ -10,7 +10,7 @@ function get_args_params($args = [])
         foreach ($args as $key => $param) {
             if(substr($param, 0, 2) == '--'){
                 $pc = explode('=', substr($param, 2));
-                $f = array_shift($pc);
+                $f = strtolower(array_shift($pc));
                 if(count($pc) >0){
                     $data['params'][$f] = implode('=', $pc);
                 }else{
@@ -239,6 +239,14 @@ function make_model($args = [], $name = null, $table = null)
             $MODELtYPE = 'SQL';
         }
         
+    }
+    if((isset($params['defaultvalue']) && $params['defaultvalue'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')){
+        $d = "protected \$defaultValues = [\n        ";
+        $columns = getColumns($table);
+        $d.= implode(",\n        ", array_map(function($c){return "'$c' => ''";}, $columns));
+        $d.= "\n    ];";
+
+        $props[] = $d;
     }
     
 

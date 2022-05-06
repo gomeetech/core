@@ -15,6 +15,12 @@ function getFields($table = null, $inline = false){
     return $table;
 
 }
+function getColumns($table = null){
+    $table = schema($table);
+    
+    return $table->getData();
+
+}
 
 function getResource($table = null){
     $fillable = schema($table)->getData();
