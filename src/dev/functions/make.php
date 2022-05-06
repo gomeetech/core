@@ -218,7 +218,7 @@ function make_model($args = [], $name = null, $table = null)
 
     if(isset($params['connection']) && $params['connection']){
         $props[] = "protected \$connection = '$params[connection]';";
-        $collection = true;
+        $connection = true;
         if($params['connection'] == 'mongodb'){
             $props[] = "protected \$collection = '$table';";
         }
@@ -228,7 +228,7 @@ function make_model($args = [], $name = null, $table = null)
     $mt = strtolower(isset($params['modeltype']) && $params['modeltype'] ? $params['modeltype'] : (isset($params['modelType']) && $params['modelType'] ? $params['modelType'] : ''));
     if($mt){
         if($mt == 'mongo'){
-            if(!$collection){
+            if(!$connection){
                 $props[] = "protected \$connection = 'mongo';";
                 $props[] = "protected \$collection = '$table';";
                 $MODELtYPE = 'Mongo';
