@@ -62,6 +62,7 @@ trait InputTypes{
         'seo'                    => 'prepareSEOData',
         'content-seo'            => 'prepareContentSEOData',
         'userselect'             => 'prepareUserSelectData',
+        'user-select'             => 'prepareUserSelectData',
     ];
 
     protected $typeTemplates = [
