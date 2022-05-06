@@ -54,6 +54,12 @@ function __call__($args = [])
                                 case 'controller':
                                     call_user_func_array("make_controller", $args);
                                     break;
+                                case 'v':
+                                case 'validator':
+                                case 'validate':
+                                    call_user_func_array("make_validator", $args);
+                                    break;
+
                                 case 'cmd':
                                 case 'cl':
                                 case 'command':
@@ -75,7 +81,7 @@ function __call__($args = [])
                             }
                         }
                     } else {
-                        echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - cmd, command";
+                        echo "what you want to make? \n\t - c, controller\n\t - m, model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, command";
                     }
                     break;
 
