@@ -39,6 +39,7 @@ class ColumnItem{
         $content = '';
         $options = new Arr(static::$options);
         $type = $options->type;
+        $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data));
         if($type == 'text' || $options->text){
             $content = htmlentities(static::getDataFromString($options->text));
         }
@@ -47,11 +48,12 @@ class ColumnItem{
             $content = static::$config->get('data.'.$options->data_key.'.'.$vkey);
         }
         elseif($options->data_access){
-            $key = str_eval($options->data_access, array_merge(static::$item->toArray(), static::parseTemplateData($options->data)), 0, '');
+            $key = str_eval($options->data_access, $mergData, 0, '');
             $content = static::$config->get('data.'.$key);
         }
         elseif($type == 'template' || $options->template){
-            $content = str_eval($options->template, array_merge(static::$item->toArray(), static::parseTemplateData($options->data)), 0, '');
+            $content = str_eval($options->template, $mergData, 0, '');
+            $content = str_eval($content, $mergData, 0, '');
         }
         elseif (in_array(str_replace('_', '', $type), ['html', 'htmldom', 'htmltag']) || $options->html) {
             $ob = new Arr($options->html);
@@ -62,7 +64,8 @@ class ColumnItem{
             $input = new Input($args);
             if($input->template && is_support_template($input->template, $input->type)){
                 $content = view(static::$baseView . 'forms.templates.' . $input->template, ['input' => $input])->render();
-            }else{
+            }
+            else{
                 $content = $input->render();
             }
         }
@@ -76,6 +79,22 @@ class ColumnItem{
         return $html->render();
     }
 
+    public static function parseAttributeData($data, $pre = '')
+    {
+        $newData = [];
+        if(!$pre) $pre = 'data:';
+        foreach ($data as $key => $value) {
+            if(is_array($value)){
+                $a = static::parseAttributeData($value, $pre.$key.'.');
+                $newData = array_merge($newData, $a);
+            }
+            else{
+                $newData[$pre.$key] = $value;
+            }
+            
+        }
+        return $newData;
+    }
     /**
      * duyệt thong tin cho template
      * @param array $data

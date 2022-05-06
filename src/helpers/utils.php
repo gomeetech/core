@@ -515,7 +515,24 @@ if (!function_exists('str_eval')) {
         }
 
         $txt = str_replace($find, $replace, $text);
-        $txt = preg_replace('/\{\$[A-z0-9_]\}/i', '', $txt);
+        $txt = str_replace($find, $replace, $txt);
+        $txt = str_replace($find, $replace, $txt);
+        $txt = str_replace($find, $replace, $txt);
+        $sEsc = [
+            '{' => '\{',
+            '{{' => '\{\{',
+            '[' => '\[',
+            '(' => '\('
+        ];
+        $eEsc = [
+            '}' => '\}',
+            '}}' => '\}\}',
+            ']' => '\]',
+            ')' => '\)'
+        ];
+        
+        $a = (array_key_exists($start, $sEsc)? $sEsc[$start]: $start) . ($char=='$'?'\$':$char) . '[A-z0-9_\:\.]' . array_key_exists($end, $eEsc)? $eEsc[$end]: $end ;
+        $txt = preg_replace('/'.$a.'/i', '', $txt);
 
         return $txt;
     }
