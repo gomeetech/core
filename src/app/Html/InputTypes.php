@@ -60,7 +60,8 @@ trait InputTypes{
         'package'                => 'preparePackage',
         'frontend'               => 'prepareFrontendData',
         'seo'                    => 'prepareSEOData',
-        'content-seo'            => 'prepareContentSEOData'
+        'content-seo'            => 'prepareContentSEOData',
+        'userselect'             => 'prepareUserSelectData',
     ];
 
     protected $typeTemplates = [
@@ -85,7 +86,9 @@ trait InputTypes{
         'colorpicker'        => 'text',
         'colorselect'        => 'radio',
         'content-seo'        => 'content-seo',
-        'contentseo'         => 'content-seo'
+        'contentseo'         => 'content-seo',
+        'userselect'         => 'user-select',
+        'user-select'        => 'user-select'
     ];
 
     public function checkDefaultValueDynamic()

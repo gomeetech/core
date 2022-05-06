@@ -229,13 +229,13 @@ function make_model($args = [], $name = null, $table = null)
     if($mt){
         if($mt == 'mongo'){
             if(!$connection){
-                $props[] = "protected \$connection = 'mongodb';";
+                // $props[] = "protected \$connection = 'mongodb';";
                 $props[] = "protected \$collection = '$table';";
                 $MODELtYPE = 'Mongo';
             }
         }
         elseif($mt == 'sql'){
-            $props[] = "protected \$connection = 'sql';";
+            // $props[] = "protected \$connection = 'sql';";
             $MODELtYPE = 'SQL';
         }
         
