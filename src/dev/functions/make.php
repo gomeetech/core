@@ -229,7 +229,7 @@ function make_model($args = [], $name = null, $table = null)
     if($mt){
         if($mt == 'mongo'){
             if(!$connection){
-                $props[] = "protected \$connection = 'mongo';";
+                $props[] = "protected \$connection = 'mongodb';";
                 $props[] = "protected \$collection = '$table';";
                 $MODELtYPE = 'Mongo';
             }
