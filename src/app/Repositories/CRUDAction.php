@@ -299,11 +299,11 @@ trait CRUDAction
 
     /**
      * cập nhật dử liệu bản ghi
-     * @param int $id
+     * @param int|string $id
      * @param array $data
      * @return Model|MongoModel|SQLModel|false
      */
-    public function update(int $id, array $data = [])
+    public function update($id, array $data = [])
     {
         if(!$this->find($id)) return false;
         if($model = $this->save($data, $id)){
@@ -351,7 +351,7 @@ trait CRUDAction
             $params = array_copy($data, $columns);
         }
         if($params && $d = $this->first($params)){
-            return $this->update($d->{$this->$this->_primaryKeyName}, $data);
+            return $this->update($d->{$this->_primaryKeyName}, $data);
         }
         return $this->create($data);
     }

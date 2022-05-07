@@ -167,6 +167,7 @@ trait InputTypes{
             $this->isPrepare = true;
         }
     }
+    
 
     /**
      * convert sang crazy select
