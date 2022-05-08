@@ -531,8 +531,8 @@ if (!function_exists('str_eval')) {
             ')' => '\)'
         ];
         
-        $a = (array_key_exists($start, $sEsc)? $sEsc[$start]: $start) . ($char=='$'?'\$':$char) . '[A-z0-9_\:\.]' . array_key_exists($end, $eEsc)? $eEsc[$end]: $end ;
-        $txt = preg_replace('/'.$a.'/i', '', $txt);
+        // $a = (array_key_exists($start, $sEsc)? $sEsc[$start]: $start) . ($char=='$'?'\$':$char) . '[A-z0-9_\:\.]' . array_key_exists($end, $eEsc)? $eEsc[$end]: $end ;
+        // $txt = preg_replace('/'.$a.'/i', '', $txt);
 
         return $txt;
     }

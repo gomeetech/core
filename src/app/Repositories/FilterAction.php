@@ -351,6 +351,7 @@ trait FilterAction
         }else{
             $d[$this->_primaryKeyName]=$args;
         }
+        
         if($data = $this->getDetail($d)){
             return $this->parseDetail($data);
         }
@@ -363,7 +364,7 @@ trait FilterAction
      * Chuẩn hóa thành mask hoặc resource
      *
      * @param LengthAwarePaginator $collection
-     * @return \Gomee\Magic\MaskCollectionExamples
+     * @return \Gomee\Masks\MaskCollectionExamples
      */
     public function parseCollection($collection)
     {

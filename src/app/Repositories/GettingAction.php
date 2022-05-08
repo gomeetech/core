@@ -104,6 +104,7 @@ trait GettingAction
             $collection = $query->get();
         }
 
+        // if($this->mode == 'mask') return $this->parseCollection($collection);
 
         return $collection;
     }

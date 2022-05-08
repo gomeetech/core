@@ -407,15 +407,14 @@ trait BaseQuery
         // pewfix 
 
         $prefix = '';
-        $model = $this->model();
-        $modelType = $model->__getModelType__();
+        $modelType = $this->_model->__getModelType__();
         if ($pre = $this->getTable() && $modelType == 'default') {
             $prefix = $pre . '.';
         }
         $fields = $this->getFields();
-        $required = $prefix . $this->required;
+        // $required = $prefix . $this->required;
         // tao query builder
-        $query = $model->whereNotNull($required);
+        $query = $this->_model->newQuery();
 
         if (count($this->defaultConditions)) {
             $this->doAction($this->defaultConditions, $query);
@@ -476,7 +475,7 @@ trait BaseQuery
                         case 'trashed':
                         case 'deleted': 
                             
-                            if($model->isSoftDeleteMode() && $softDeleteColumn = $model->getDeletedAtColumn()){
+                            if($this->_model->isSoftDeleteMode() && $softDeleteColumn = $this->_model->getDeletedAtColumn()){
                                 if($vl){
                                     if(is_numeric($vl) && $vl > 0){
                                         $date = date('Y-m-d', time() - 3600*24*$vl);
@@ -492,7 +491,7 @@ trait BaseQuery
                                     $query->whereNull($prefix.$softDeleteColumn);
                                 }
                             }
-                            if(in_array('trashed_status', $this->_model->__get_fields())){
+                            if(in_array('trashed_status', $fields)){
                                 if($vl){
                                     $query->where($prefix.'trashed_status', 1);
                                 }else{
@@ -1029,6 +1028,7 @@ trait BaseQuery
 
     public function __get($name)
     {
+        if(in_array(strtolower($name), ['primarykey', 'primarykeyname'])) return $this->_primaryKeyName;
         if (isset($this->params[$name])) return $this->params[$name];
         return null;
     }
