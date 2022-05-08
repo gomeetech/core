@@ -40,7 +40,7 @@ class ColumnItem{
         $content = '';
         $options = new Arr(static::$options);
         $type = $options->type;
-        $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data));
+        $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->data));
         if($type == 'text' || $options->text){
             $content = htmlentities(static::getDataFromString($options->text));
         }
@@ -127,7 +127,7 @@ class ColumnItem{
                         
                     }
                     else{
-                        $d[$key] = null;
+                        $d[$key] = static::parseTemplateData($value);
                     }
                 }
             }
