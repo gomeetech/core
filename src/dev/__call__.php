@@ -45,6 +45,12 @@ function __call__($args = [])
                                 case 'model':
                                     call_user_func_array("make_model", $args);
                                     break;
+                                case 'mm':
+                                case 'modelmongo':
+                                case 'mongomodel':
+                                    $args[0]['modelType'] = 'mongo';
+                                    call_user_func_array("make_model", $args);
+                                    break;
                                 case 'mk':
                                 case 'mask':
                                     call_user_func_array("make_mask", $args);
