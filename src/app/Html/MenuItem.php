@@ -477,7 +477,7 @@ class MenuItem extends HtmlDom
                 $tag->addClass($class);
             }
             // ko nếu sử dụng content
-            if(!$use_content){
+            elseif(!$use_content){
                 $tag->addClass($props->get("{$slug}_prefix_class").$data->get($slug));
             }
 
