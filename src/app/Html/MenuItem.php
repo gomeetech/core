@@ -471,13 +471,13 @@ class MenuItem extends HtmlDom
                 $props->get($slug.'_attrs') // thuoc tinh
             );
             
-
+            $class = $props->get("{$slug}_class")??$data->get("{$slug}_class");
             // nếu dc set loai class icon
-            if($class = $props->get("{$slug}_class")){
+            if($class){
                 $tag->addClass($class);
             }
             // ko nếu sử dụng content
-            elseif(!$use_content){
+            if(!$use_content && !$class){
                 $tag->addClass($props->get("{$slug}_prefix_class").$data->get($slug));
             }
 
