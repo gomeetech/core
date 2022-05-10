@@ -457,6 +457,11 @@ class MenuItem extends HtmlDom
         $data = new Arr($this->_data);
         // nếu có biểu tượng hoặc yêu cầu
         $icon = $data->get($slug);
+        if($slug == 'icon' && !$icon){
+            $fc = $this->attr("{$slug}_full_class");
+            // dd($fc);
+            $icon = $fc;
+        }
         if($props->get("use_$slug") || $icon || $required){
             // nếu sử dụng như nội dung
             $use_content = ($props->get($slug.'_data_type') == 'content');
@@ -470,16 +475,21 @@ class MenuItem extends HtmlDom
                 $use_content ? $content : null, // noi dung
                 $props->get($slug.'_attrs') // thuoc tinh
             );
-            
-            $class = $props->get("{$slug}_class")??$data->get("{$slug}_class");
             // nếu dc set loai class icon
-            if($class){
+            if($class = $props->get("{$slug}_class")){
                 $tag->addClass($class);
             }
             // ko nếu sử dụng content
-            if(!$use_content && !$class){
-                $tag->addClass($props->get("{$slug}_prefix_class").$data->get($slug));
+            if(!$use_content){
+                if(!$this->attr("{$slug}_full_class")){
+                    
+                    $tag->addClass($props->get("{$slug}_prefix_class").$data->get($slug));
+                }else{
+                    $tag->addClass($icon);
+                }
+                
             }
+            // if($classss) die($classss);
 
             // các vị trí chèn icon
             $insert_pos = ['before', 'after', 'prepend', 'append'];
@@ -518,7 +528,7 @@ class MenuItem extends HtmlDom
             }
         }
     }
-
+    
     /**
      * render
      * @param \Closure
