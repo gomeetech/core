@@ -64,12 +64,13 @@ abstract class Validator{
 
     /**
      * kiểm tra rrquest
-     *
+     * @param mixed $extraRules
      * @return bool
      */
-    public function check()
+    public function check($extraRules = null)
     {
         $rules = $this->getRules();
+        if(is_array($extraRules)) $rules = array_merge($rules, $extraRules);
         $messages = array_merge($this->defaultMessages,$this->messages());
         $inputs = $this->all();
         $checker = BaseValidator::make($inputs, $rules, $messages);

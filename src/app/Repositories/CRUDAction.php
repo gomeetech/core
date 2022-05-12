@@ -5,7 +5,7 @@ use Gomee\Models\Model;
 use Gomee\Models\MongoModel;
 use Gomee\Models\SQLModel;
 use Gomee\Validators\ExampleValidator;
-
+use Gomee\Validators\Validator;
 use ReflectionClass;
 
 use Illuminate\Http\Request;
@@ -50,7 +50,7 @@ trait CRUDAction
 
     public function setActor($actor = null)
     {
-        if(is_string($actor) && in_array($a = strtolower($actor), ['admin', 'manager', 'client'])){
+        if(is_string($actor) && in_array($a = strtolower($actor), ['admin', 'manager', 'client', 'private', 'public'])){
             $this->actor = $a;
         }
         return $this;
@@ -63,8 +63,8 @@ trait CRUDAction
 
     /**
      * dat validator class
-     * @param string
-     * @return object instance
+     * @param string $validatorClass tên class
+     * @return $this instance
      */
     public function setValidatorClass($validatorClass)
     {
@@ -119,12 +119,12 @@ trait CRUDAction
     /**
      *
      * lay doi tuong validator
-     * @return ExampleValidator
+     * @return Validator
      */
     public function validator(Request $request, $validatorClass = null)
     {
-        $validator = $this->getValidator($request, $validatorClass);
-        $validator->check();
+        $validator = $this->getValidator($request, is_string($validatorClass)?$validatorClass:null);
+        $validator->check(is_array($validatorClass)?$validatorClass:[]);
         return $validator;
     }
 
