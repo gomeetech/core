@@ -209,8 +209,10 @@ trait BaseCrud
         extract($this->apiDefaultData);
         $id = strtolower($action) != 'create' ? $request->id : null;
         // kiểm tra sự tồn tại của bản ghi qua id
-        if ($id && !$this->repository->find($id)) {
+        $result = null;
+        if ($id && !($result = $this->repository->find($id))) {
             $message = 'Thiếu thông tin';
+
         } else {
             $action = $id ? 'Update' : 'Create';
             // gọi phuong thuc bat su kien
@@ -238,10 +240,10 @@ trait BaseCrud
 
                 // xử lý dữ liệu
 
-                $this->callCrudEvent('beforeAjax' . $action, $request, $arrInput);
-                $this->callCrudEvent('beforeAjaxSave', $request, $arrInput);
-                $this->fire('ajax' . $action .'ing', $this, $request, $arrInput);
-                $this->fire('ajaxSaving', $this, $request, $arrInput);
+                $this->callCrudEvent('beforeAjax' . $action, $request, $arrInput, $result);
+                $this->callCrudEvent('beforeAjaxSave', $request, $arrInput, $result);
+                $this->fire('ajax' . $action .'ing', $this, $request, $arrInput, $result);
+                $this->fire('ajaxSaving', $this, $request, $arrInput, $result);
     
                 // lấy dữ liệu đã qua xử lý
                 $inputs = $arrInput->all();
