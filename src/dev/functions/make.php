@@ -614,7 +614,7 @@ function alter_table($params = [], $table = null, ...$args){
         return null;
     }
     // $table = Str::tableName($table);
-    if(!Schema::hasTable($table)) die('Bang nay ko da ton tai');
+    if(!Illuminate\Support\Facades\Schema::hasTable($table)) die('Bang nay ko da ton tai');
     $find = ['TABLE_NAME'];
     $replace = [$table];
     $filemanager = new Filemanager();

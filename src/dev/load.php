@@ -21,11 +21,11 @@ require_once __DIR__.'/Files/Filemanager.php';
 require_once __DIR__.'/tests/str.php';
 require_once __DIR__.'/functions.php';
 
-require_once __DIR__.'/functions/make.php';
-
 require_once __DIR__.'/Illuminate/Schema.php';
 require_once __DIR__.'/Illuminate/Blueprint.php';
 require_once __DIR__.'/Illuminate/Migration.php';
+require_once __DIR__.'/functions/make.php';
+
 
 
 $dir = BASEDIR.'/database/migrations';
@@ -68,8 +68,6 @@ function schema($table)
     return Illuminate\Support\Facades\Schema::get($table);
 
 }
-
-
 $filemanager = new Filemanager(__DIR__ . '/commands');
 if(count($files = $filemanager->getList(null, 'php'))){
     foreach($files as $file){
