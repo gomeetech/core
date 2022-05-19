@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
+
 function get_args_params($args = [])
 {
     $data = [

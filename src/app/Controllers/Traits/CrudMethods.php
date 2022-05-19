@@ -30,7 +30,7 @@ use Gomee\Laravel\Router;
  * @method mixed beforeAjaxCreate( Request $request, Arr $data ) 
  * @method mixed beforeStore( Request $request, Arr $data ) 
  * @method mixed beforeUpdate( Request $request, Arr $data, Model $model )
- * @method mixed beforeAjaxUpdate( Request $request, Arr $data, \Gomee\Models\Model $old = null )
+ * @method mixed beforeAjaxUpdate( Request $request, Arr $data, \Gomee\Models\Model $old )
  * @method mixed beforeMoveToTrash( Request $request, Arr $data ) 
  * @method mixed beforeRestore( Request $request)
  * @method mixed beforeDelete( Request $request)
