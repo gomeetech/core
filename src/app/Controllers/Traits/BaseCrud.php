@@ -99,11 +99,24 @@ trait BaseCrud
             return redirect()->back()->with('error', 'Lỗi không xác định');
         }
         // gọi các hàm sau khi luu bản ghi thành công
-        $this->callCrudEvent('after' . $action, $request, $model, $data);
-        $this->callCrudEvent('afterSave', $request, $model, $data);
+        
+        if ($rs = $this->callCrudEvent('after' . $action, $request, $model, $data)) {
+            return $rs;
+        }
+        if ($rs = $this->callCrudEvent('afterSave', $request, $model, $data)) {
+            return $rs;
+        }
+        
+        
+        if ($rs = $this->fire($action . 'd', $this, $request, $model, $data)) {
+            return $rs;
+        }
+        
+        if ($rs = $this->fire('saved', $this, $request, $model, $data)) {
+            return $rs;
+        }
+        
 
-        $this->fire($action . 'd', $this, $request, $model, $data);
-        $this->fire('saved', $this, $request, $model, $data);
 
 
         if ($is_update) {
