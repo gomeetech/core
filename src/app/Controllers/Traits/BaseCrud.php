@@ -89,9 +89,9 @@ trait BaseCrud
         $data = new Arr($validator->inputs());
         // goi cac ham su kien truoc khi luu
         $this->callCrudEvent('before' . $action, $request, $data, $result);
-        $this->callCrudEvent('beforeSave', $request, $data);
+        $this->callCrudEvent('beforeSave', $request, $data, $result);
         $this->fire($action.'ing', $this, $request, $data, $result);
-        $this->fire('saving', $this, $request, $data);
+        $this->fire('saving', $this, $request, $data, $result);
 
         // lấy thông tin bản ghi mới tạo
         $model = $this->repository->save($data->all(), $id);
@@ -128,7 +128,7 @@ trait BaseCrud
         } elseif ($is_update) {
             $r = $redirect->back();
         } else {
-            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->{MODEL_PRIMARY_KEY}]);
+            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->id]);
         }
         if ($this->rederectData) {
             return $r->with($this->rederectData);
