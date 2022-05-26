@@ -62,8 +62,8 @@ trait InputTypes
             && (
                 (is_string(static::$templateConfig[$template]['type']) && static::$templateConfig[$template]['type'] == $type
                 )
-                || (is_array(static::$templateConfig['type'][$template])
-                    && in_array($type, static::$templateConfig['type'][$template])
+                || (is_array(static::$templateConfig[$template]['type'])
+                    && in_array($type, static::$templateConfig[$template]['type'])
                 )
             )
         ) : false;
