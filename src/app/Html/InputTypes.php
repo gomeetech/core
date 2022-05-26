@@ -55,7 +55,7 @@ trait InputTypes
 
 
 
-    public function checkSupportTemplate($template, $type)
+    public static function checkSupportTemplate($template, $type)
     {
 
         return ($template && $type) ? (array_key_exists($template, static::$templateConfig)
