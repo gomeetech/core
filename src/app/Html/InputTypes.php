@@ -1,139 +1,148 @@
 <?php
+
 namespace Gomee\Html;
+
 use Gomee\Laravel\Router;
 use Gomee\Files\Filemanager;
 use Gomee\Helpers\Arr;
 
-trait InputTypes{
+trait InputTypes
+{
     /**
      * @var boolean
      */
     protected $isPrepare = false;
 
-
-    /**
-     * input-templaste
-     *
-     * @var array
-     */
-    protected static $inputTemplates = [
-        'switch',  'checklist', 'options', 'crazyslug', 'daterange', 'touchspin', 'cubeselect',
-        'deepselect', 'crazyselect', 'crazytag', 'multiselect', 'select2', 'cropit', 'crazyprop','specification',
-        'tinymce','gallery', 'attribute','product', 'variant-attribute', 'colorpicker', 'area',
-        'dateselect','media',
-        'inputgroup', 'seo'
-
-    ];
     protected $d = null;
 
+    protected static $templateConfig = [
+        'switch'             => ['type' => ['checkbox', 'switch'], 'prepare' => 'prepareCrazySwitchProp'],
+        'checklist'          => ['type' => ['checklist', 'select'], 'prepare' => 'prepareChecklistData'],
+        'options'            => ['type' => ['radio', 'option'], 'prepare' => ''],
+        'date'               => ['type' => ['text', 'date'], 'prepare' => ''],
+        'time'               => ['type' => ['text', 'time'], 'prepare' => ''],
+        'crazyslug'          => ['type' => ['text', 'slug', 'crazyslug'], 'prepare' => 'prepareCrazySlugData'],
+        'daterange'          => ['type' => ['text', 'date', 'daterange'], 'prepare' => ''],
+        'touchspin'          => ['type' => ['text', 'number', 'touchspin'], 'prepare' => ''],
+        'deepselect'         => ['type' => ['deepselect', 'select'], 'prepare' => ''],
+        'crazyselect'        => ['type' => ['crazyselect', 'select'], 'prepare' => 'prepareCrazySelectData'],
+        'dateselect'         => ['type' => ['date', 'text', 'dateselect'], 'prepare' => 'prepareDateSelectData'],
+        'crazytag'           => ['type' => ['crazytag', 'select'], 'prepare' => 'prepareCrazyTagData'],
+        'multiselect'        => ['type' => ['multiselect', 'select'], 'prepare' => ''],
+        'select2'            => ['type' => ['select', 'select2'], 'prepare' => ''],
+        'cropit'             => ['type' => ['file', 'imagefile'], 'prepare' => ''],
+        'crazyprop'          => ['type' => ['textarea', 'crazyprop', 'crazyInput', 'array'], 'prepare' => 'prepareCrazyPropData'],
+        'specification'      => ['type' => ['textarea', 'specification', 'crazySpecification', 'array'], 'prepare' => 'prepareCrazySpecificationData'],
+        'tinymce'            => ['type' => ['textarea', 'tinymce'], 'prepare' => ''],
+        'gallery'            => ['type' => ['inputgallery', 'crazygallery', 'gallery', 'image', 'file'], 'prepare' => 'prepareCrazyGalleryData'],
+        'videopreview'       => ['type' => ['text', 'url'], 'prepare' => ''],
+        'attribute'          => ['type' => ['attribute', 'select', 'textarea'], 'prepare' => 'prepareCrazyAttributeData'],
+        'variant-attribute'  => ['type' => ['attribute', 'select', 'textarea', 'variant-attribute'], 'prepare' => 'prepareCrazyVariantAttributeData'],
+        'product'            => ['type' => ['product', 'select', 'textarea'], 'prepare' => 'prepareCrazyProductData'],
+        'colorpicker'        => ['type' => ['text', 'colorpicker', 'color'], 'prepare' => 'prepareCrazyColorPicker'],
+        'iconpicker'         => ['type' => ['text', 'iconpicker', 'icon'], 'prepare' => 'prepareCrazyIconPicker'],
+        'checkmultilevel'    => ['type' => ['checkbox', 'checklist', 'checkmultilevel', 'textarea'], 'prepare' => 'prepareCheckMultiLevelData'],
+        'ckeditor'           => ['type' => ['textarea', 'ckeditor'], 'prepare' => ''],
+        'area'               => ['type' => ['textarea', 'area', 'hidden', 'text'], 'prepare' => 'prepareAreaData'],
+        'colorselect'        => ['type' => ['radio', 'colorselect'], 'prepare' => 'prepareColorSelectData'],
+        'affiliate'          => ['type' => ['text', 'textarea', 'affiliate'], 'prepare' => ''],
+        'media'              => ['type' => ['inputmedia', 'crazymedia', 'media', 'image', 'file'], 'prepare' => 'prepareCrazyMediaData'],
+        'seo'                => ['type' => ['inputseo', 'crazyseo', 'seo'], 'prepare' => 'prepareSEOData'],
+        'content-seo'        => ['type' => ['content-seo', 'contentseo', 'seocontent', 'seo-content'], 'prepare' => 'prepareContentSEOData'],
+        'user-select'        => ['type' => ['user-select', 'seo-content'], 'prepare' => 'prepareUserSelectData'],
+    ];
+
+
+
+
+    public function checkSupportTemplate($template, $type)
+    {
+
+        return ($template && $type) ? (array_key_exists($template, static::$templateConfig)
+            && (
+                (is_string(static::$templateConfig[$template]['type']) && static::$templateConfig[$template]['type'] == $type
+                )
+                || (is_array(static::$templateConfig['type'][$template])
+                    && in_array($type, static::$templateConfig['type'][$template])
+                )
+            )
+        ) : false;
+    }
+
+
     /**
-     * @var array $typeList
+     * thêm template
+     *
+     * @param string $template
+     * @param string|array<int, string> $type
+     * @param \Closure|string $prepare
+     * @return void
      */
-    protected $crazyInputMethods = [
-        'crazyselect'            => 'prepareCrazySelectData',
-        'dateselect'             => 'prepareDateSelectData',
-        'crazytag'               => 'prepareCrazyTagData',
-        'crazyslug'              => 'prepareCrazySlugData',
-        'crazyprop'              => 'prepareCrazyPropData',
-        'specification'          => 'prepareCrazySpecificationData',
-        'crazyswitch'            => 'prepareCrazySwitchProp',
-        'inputgallery'           => 'prepareCrazyGalleryData',
-        'galleryinput'           => 'prepareCrazyGalleryData',
-        'crazygallery'           => 'prepareCrazyGalleryData',
-        'gallery'                => 'prepareCrazyGalleryData',
+    public static function addTemplate($template, $type = null, $prepare = null)
+    {
+        if(!array_key_exists($template, static::$templateConfig)){
+            if(is_array($type)){
+                static::$templateConfig[$template]['type'] = array_merge(static::$templateConfig[$template]['type'], $type);
+            }elseif($type){
+                static::$templateConfig[$template]['type'][] = $type;
+            }
+            if($prepare){
+                if(!is_array(static::$templateConfig[$template]['prepare'])){
+                    static::$templateConfig[$template]['prepare'] = [static::$templateConfig[$template]['prepare'], $prepare];
+                }
+                else{
+                    static::$templateConfig[$template]['prepare'][] = $prepare;
+                }
+            }
+        }else{
+            static::$templateConfig[$template] = [
+                'type' => is_array($type) ? $type : [$type],
+                'prepare' => $prepare
+            ];
+        }
+    }
 
-        'inputmedia'             => 'prepareCrazyMediaData',
-        'mediainput'             => 'prepareCrazyMediaData',
-        'crazymedia'             => 'prepareCrazyMediaData',
-        'media'                  => 'prepareCrazyMediaData',
-
-        'colorpicker'            => 'prepareCrazyColorPicker',
-        'iconpicker'             => 'prepareCrazyIconPicker',
-        'attribute'              => 'prepareCrazyAttributeData',
-        'variant-attribute'      => 'prepareCrazyVariantAttributeData',
-        'product'                => 'prepareCrazyProductData',
-        'checkmultilevel'        => 'prepareCheckMultiLevelData',
-        'area'                   => 'prepareAreaData',
-        'checklist'              => 'prepareChecklistData',
-        'colorselect'            => 'prepareColorSelectData',
-        'inputgroup'             => 'prepareInputGroup',
-        'package'                => 'preparePackage',
-        'frontend'               => 'prepareFrontendData',
-        'seo'                    => 'prepareSEOData',
-        'content-seo'            => 'prepareContentSEOData',
-        'userselect'             => 'prepareUserSelectData',
-        'user-select'             => 'prepareUserSelectData',
-    ];
-
-    protected $typeTemplates = [
-        'switch'             => 'checkbox',
-        'date'               => 'date',
-        'time'               => 'time',
-        'crazyslug'          => 'text',
-        'daterange'          => 'date',
-        'touchspin'          => 'number',
-        'deepselect'         => 'select',
-        'crazyselect'        => 'select',
-        'dateselect'         => 'date',
-        'crazytag'           => 'select',
-        'multiselect'        => 'select',
-        'select2'            => 'select',
-        'cropit'             => 'file',
-        'crazyprop'          => 'textarea',
-        'specification'      => 'textarea',
-        'tinymce'            => 'textarea',
-        'gallery'            => 'file',
-        'media'              => 'file',
-        'colorpicker'        => 'text',
-        'colorselect'        => 'radio',
-        'content-seo'        => 'content-seo',
-        'contentseo'         => 'content-seo',
-        'userselect'         => 'user-select',
-        'user-select'        => 'user-select'
-    ];
 
     public function checkDefaultValueDynamic()
     {
-        if(!is_array($db = $this->hiddenData('defaultBy'))) return;
+        if (!is_array($db = $this->hiddenData('defaultBy'))) return;
         $b = new Arr($db);
         $cf = null;
-        if($a = $b->get('action')){
+        if ($a = $b->get('action')) {
             $cf = $a;
-        }
-        elseif($c = $b->get('call')){
+        } elseif ($c = $b->get('call')) {
             $cf = $c;
-        }elseif($f = $b->get('func')){
+        } elseif ($f = $b->get('func')) {
             $cf = $f;
-
         }
         $vl = null;
 
-        if(is_callable($cf)){
+        if (is_callable($cf)) {
 
-            if($p = $b->get('params')){
+            if ($p = $b->get('params')) {
                 // dd($p);
                 $params = [];
-                if(!is_array($p)) $p = [$p];
+                if (!is_array($p)) $p = [$p];
 
 
                 foreach ($p as $param) {
 
 
-                    if(is_string($param)){
+                    if (is_string($param)) {
 
                         $params[] = $this->getParamFromString($param);
-                    }elseif (is_array($param)) {
+                    } elseif (is_array($param)) {
                         $arg = [];
                         foreach ($param as $kn => $par) {
                             $arg[$kn] = $this->getParamFromString($par);
                         }
                         $params[] = $arg;
-                    }else{
+                    } else {
                         $params[] = $param;
                     }
                 }
-                $vl = call_user_func_array($cf,$params);
-            }else{
+                $vl = call_user_func_array($cf, $params);
+            } else {
                 $vl = call_user_func($cf);
             }
         }
@@ -147,27 +156,45 @@ trait InputTypes{
      */
     public function prepareCrazyInput()
     {
-        if($this->isPrepare) return false;
-        if(array_key_exists($this->type, static::$inputTemplates)) $this->template = $this->type;
+        if ($this->isPrepare) return false;
+        if (array_key_exists($this->type, static::$templateConfig)) $this->template = $this->type;
         $this->d = new Arr($this->hiddenData());
         // if(($this->defVal() == null) && $v = request($this->name)) $this->value = old($this->name, $v);
-        if(array_key_exists($this->type, $this->crazyInputMethods)){
-            call_user_func_array([$this, $this->crazyInputMethods[$this->type]], []);
+        if (array_key_exists($this->template, static::$templateConfig)) {
+            if(array_key_exists('prepare', static::$templateConfig[$this->template]) && static::$templateConfig[$this->template]['prepare']){
+                if(is_string(static::$templateConfig[$this->template]['prepare'])){
+                    call_user_func_array([$this, static::$templateConfig[$this->template]['prepare']], []);
+                }
+                elseif(is_array(static::$templateConfig[$this->template]['prepare'])){
+                    foreach (static::$templateConfig[$this->template]['prepare'] as $prepare) {
+                        if($prepare){
+                            if(is_string($prepare) && is_callable([$this, $prepare])){
+                                call_user_func_array([$this, $prepare], []);
+                            }elseif(is_callable($prepare)){
+                                call_user_func_array($prepare, []);
+                            }
+                        }
+                    }
+                }
+                elseif(is_callable(static::$templateConfig[$this->template]['prepare'])){
+                    call_user_func_array(static::$templateConfig[$this->template]['prepare'], [$this]);
+                }
+            }
+            
             $this->isPrepare = true;
-        }
-        else{
+        } else {
             $this->parseTypeTemplate();
         }
     }
 
     public function parseTypeTemplate()
     {
-        if(array_key_exists($this->type, $this->typeTemplates)){
+        if (array_key_exists($this->type, static::$templateConfig)) {
             $this->template = $this->type;
             $this->isPrepare = true;
         }
     }
-    
+
 
     /**
      * convert sang crazy select
@@ -177,62 +204,60 @@ trait InputTypes{
     {
 
         $this->template = 'crazyselect';
-        $this->id = $this->id?$this->id:$this->name;
+        $this->id = $this->id ? $this->id : $this->name;
         $this->data('id', $this->id);
         // nếu có search url trực tiếp
         $this->parseRouteUrl('search');
-        if($sf = $this->d->get('search-field')){
+        if ($sf = $this->d->get('search-field')) {
             $this->data('search-field', $sf);
-        }else{
+        } else {
             $this->data('search-field', 'search');
         }
         $this->parseDataEvent('change');
 
-        if($sp = $this->d->get('search-params')){
+        if ($sp = $this->d->get('search-params')) {
             $this->data('search-params', $sp);
         }
 
 
-        if($this->parseRouteUrl('add')){
-            if($af = $this->d->get('add-field')){
+        if ($this->parseRouteUrl('add')) {
+            if ($af = $this->d->get('add-field')) {
                 $this->data('add-field', $af);
-            }else{
+            } else {
                 $this->data('add-field', 'name');
             }
 
-            if($add_params = $this->d->get('add-params')){
+            if ($add_params = $this->d->get('add-params')) {
                 $arr = [];
-                if($params = $this->parseInputParams($add_params)){
+                if ($params = $this->parseInputParams($add_params)) {
                     $this->data('add-params', $params);
                 }
             }
         }
-        if(in_array(strtolower($type = $this->d->get('select-type')), ['dynamic','search'])){
+        if (in_array(strtolower($type = $this->d->get('select-type')), ['dynamic', 'search'])) {
             $this->data('select-type', $type);
             $this->data('advance-click', $this->d->get('advance-click'));
-            if($at = $this->d->get('advance-text')){
+            if ($at = $this->d->get('advance-text')) {
                 $this->data('advance-text', $at);
-            }else{
+            } else {
                 $this->data('advance-text', 'Thêm');
             }
-
-        }else{
+        } else {
             $this->data('select-type', 'static');
         }
 
-        if(in_array(strtolower($typ = $this->d->get('label-type')), ['header','value','label'])){
+        if (in_array(strtolower($typ = $this->d->get('label-type')), ['header', 'value', 'label'])) {
             $this->data('label-type', $typ);
-        }else{
+        } else {
             $this->data('label-type', 'label');
         }
 
-        if($cc = $this->d->get('confirm-change')){
+        if ($cc = $this->d->get('confirm-change')) {
             $this->data('confirm-change', $cc);
         }
-        if($dis = $this->d->get('disable-search')){
+        if ($dis = $this->d->get('disable-search')) {
             $this->data('disable-search', 'true');
         }
-
     }
 
 
@@ -245,16 +270,15 @@ trait InputTypes{
         $this->data('id', $this->id);
         $this->parseDataEvent('check');
 
-        if(in_array(strtolower($typ = $this->d->get('label-type')), ['header','value','label'])){
+        if (in_array(strtolower($typ = $this->d->get('label-type')), ['header', 'value', 'label'])) {
             $this->data('label-type', $typ);
-        }else{
+        } else {
             $this->data('label-type', 'label');
         }
 
-        if($cc = $this->d->get('confirm-change')){
+        if ($cc = $this->d->get('confirm-change')) {
             $this->data('confirm-change', $cc);
         }
-
     }
 
     public function prepareColorSelectData()
@@ -264,12 +288,11 @@ trait InputTypes{
         $this->data('id', $this->id);
         $this->parseDataEvent('check');
 
-        if(!$this->data){
-            if($colors = $this->hiddenData('colors')){
+        if (!$this->data) {
+            if ($colors = $this->hiddenData('colors')) {
                 $this->data = $colors;
             }
         }
-
     }
 
     public function prepareDateSelectData()
@@ -281,21 +304,19 @@ trait InputTypes{
         $this->parseDataEvent('day-change');
         $this->parseDataEvent('year-change');
         $this->parseDataEvent('month-change');
-        if($sortType = $this->d->get('sort-type')){
+        if ($sortType = $this->d->get('sort-type')) {
             $st = strtolower($sortType) == 'en' ? 'en' : 'vi';
             $this->data('sort-type', $st);
         }
-        if($dis = $this->d->get('disable-search')){
+        if ($dis = $this->d->get('disable-search')) {
             $this->data('disable-search', 'true');
         }
 
-        if($val = $this->defVal()){
-            if(is_string($val)){
+        if ($val = $this->defVal()) {
+            if (is_string($val)) {
                 $this->val(strtodate($val));
             }
         }
-
-
     }
 
 
@@ -327,12 +348,12 @@ trait InputTypes{
         // nếu có search url trực tiếp
         $this->parseRouteUrl('search');
 
-        if($sf = $this->d->get('search-field')){
+        if ($sf = $this->d->get('search-field')) {
             $this->data('search-field', $sf);
-        }else{
+        } else {
             $this->data('search-field', 'search');
         }
-        if($searchParams = $this->d->get('search-params')){
+        if ($searchParams = $this->d->get('search-params')) {
             $this->data('search-params', $searchParams);
         }
 
@@ -343,29 +364,29 @@ trait InputTypes{
 
 
 
-        if($this->parseRouteUrl('create')){
-            if($af = $this->d->get('create-field')){
+        if ($this->parseRouteUrl('create')) {
+            if ($af = $this->d->get('create-field')) {
                 $this->data('create-field', $af);
-            }else{
+            } else {
                 $this->data('create-field', 'name');
             }
 
-            if($create_params = $this->d->get('create-params')){
+            if ($create_params = $this->d->get('create-params')) {
                 $arr = [];
-                if($params = $this->parseInputParams($create_params)){
+                if ($params = $this->parseInputParams($create_params)) {
                     $this->data('create-params', $params);
                 }
             }
         }
 
-        if(in_array(strtolower($type = $this->d->get('type')), ['dynamic','search', 'default'])){
+        if (in_array(strtolower($type = $this->d->get('type')), ['dynamic', 'search', 'default'])) {
             $this->data('type', $type);
-        }else{
+        } else {
             $this->data('type', 'default');
         }
 
-        $this->data('value-key', $this->d->get('value-key')??'id');
-        $this->data('text-key', $this->d->get('text-key')??'name');
+        $this->data('value-key', $this->d->get('value-key') ?? 'id');
+        $this->data('text-key', $this->d->get('text-key') ?? 'name');
 
         $this->addClass($this->data('type'));
     }
@@ -378,7 +399,7 @@ trait InputTypes{
      */
     public function prepareCrazyAttributeData()
     {
-        $this->data('id', str_slug($this->id??$this->name, '-'));
+        $this->data('id', str_slug($this->id ?? $this->name, '-'));
         $this->data('name', $this->name);
         $this->addClass('crazy-attribute');
         $this->parseRouteUrl('load');
@@ -397,7 +418,7 @@ trait InputTypes{
      */
     public function prepareCrazyVariantAttributeData()
     {
-        $this->data('id', str_slug($this->id??$this->name, '-'));
+        $this->data('id', str_slug($this->id ?? $this->name, '-'));
         $this->data('name', $this->name);
         $this->addClass('crazy-attribute');
         $this->parseRouteUrl('load');
@@ -418,7 +439,7 @@ trait InputTypes{
      */
     public function prepareCrazyProductData()
     {
-        $this->data('id', str_slug($this->id??$this->name, '-'));
+        $this->data('id', str_slug($this->id ?? $this->name, '-'));
         $this->data('name', $this->name);
         $this->addClass('crazy-products');
 
@@ -442,7 +463,6 @@ trait InputTypes{
         $this->data('id', $this->id);
         $this->data('name', $this->name);
         $this->addClass('crazy-prop');
-        
     }
 
     public function prepareUserSelectData()
@@ -497,20 +517,20 @@ trait InputTypes{
         $this->data('id', $this->id);
         $this->data('name', $this->name);
         $this->addClass('crazy-slug');
-        $this->data('check-field', $this->d->get('check-field')??'custom_slug');
+        $this->data('check-field', $this->d->get('check-field') ?? 'custom_slug');
 
         $this->parseDataEvent('check');
         $this->data('extension', $this->d->get('extension'));
-        $this->data('slug-field', $this->d->get('slug-field')??'slug');
+        $this->data('slug-field', $this->d->get('slug-field') ?? 'slug');
         $this->data('source-id', $this->d->get('source-id'));
         $this->data('ajax-param-selectors', $this->d->get('ajax-param-selectors'));
         $this->data('ajax-get-name', $this->d->get('ajax-get-name'));
         $this->data('ajax-check-name', $this->d->get('ajax-check-name'));
         foreach (['get-slug', 'check-slug'] as $key) {
-            if($this->parseRouteUrl($key)){
-                if($slug_params = $this->d->get($key.'-params')){
-                    if($params = $this->parseInputParams($slug_params)){
-                        $this->data($key.'-params',$params);
+            if ($this->parseRouteUrl($key)) {
+                if ($slug_params = $this->d->get($key . '-params')) {
+                    if ($params = $this->parseInputParams($slug_params)) {
+                        $this->data($key . '-params', $params);
                     }
                 }
             }
@@ -525,7 +545,7 @@ trait InputTypes{
     public function prepareCrazySwitchProp()
     {
 
-        $this->data('id', str_slug($this->id??$this->name, '-'));
+        $this->data('id', str_slug($this->id ?? $this->name, '-'));
         $this->data('name', $this->name);
         $this->addClass('crazy-switch');
         $this->parseDataEvent('check');
@@ -556,45 +576,44 @@ trait InputTypes{
         $url = null;
 
         // nếu có search url trực tiếp
-        if($a = $this->d->get($key.'-url')){
+        if ($a = $this->d->get($key . '-url')) {
             $url = $a;
         }
         // nếu dùng route
-        elseif ($ar = $this->d->get($key.'-route')) {
-            if(Router::getByName($ar)){
-                if($arp = $this->d->get($key.'-route-params')){
-                    if(is_array($arp)){
+        elseif ($ar = $this->d->get($key . '-route')) {
+            if (Router::getByName($ar)) {
+                if ($arp = $this->d->get($key . '-route-params')) {
+                    if (is_array($arp)) {
                         $url = route($ar, $arp);
-                    }else{
+                    } else {
                         $url = route($ar, $this->parseRouteParams($arp));
                     }
-                }else{
+                } else {
                     $url = route($ar, $arp);
                 }
             }
-        }
-        elseif ($get_url = $this->d->get('get-'.$key.'-url')) {
-            if(is_callable($get_url)){
-                if($gp = $this->d->get('get-'.$key.'-url-param')){
+        } elseif ($get_url = $this->d->get('get-' . $key . '-url')) {
+            if (is_callable($get_url)) {
+                if ($gp = $this->d->get('get-' . $key . '-url-param')) {
                     $url = $get_url($this->getInputDataFromString($gp));
-                }elseif ($gps = $this->d->get('get-'.$key.'-url-params')) {
-                    if($gpsx = $this->parseInputParams($gps)){
-                        if(Arr::isNumericKeys($gpsx)){
+                } elseif ($gps = $this->d->get('get-' . $key . '-url-params')) {
+                    if ($gpsx = $this->parseInputParams($gps)) {
+                        if (Arr::isNumericKeys($gpsx)) {
                             $url = $get_url(...$gpsx);
-                        }else{
+                        } else {
                             $url = $get_url($gpsx);
                         }
-                    }else{
+                    } else {
                         $url = $get_url();
                     }
-                }else{
+                } else {
                     $url = $get_url();
                 }
             }
         }
 
-        if($url){
-            $this->data($key.'-url', $url);
+        if ($url) {
+            $this->data($key . '-url', $url);
         }
         return $url;
     }
@@ -609,14 +628,13 @@ trait InputTypes{
      */
     public function parseDataEvent($key)
     {
-        foreach ([$key, 'on'.ucfirst($key), 'on-'.$key, rtrim($key, 'e').'ed', $key.'-callback'] as $k) {
-            if($c = $this->d->get($k)){
-                $this->data('on-'.$key, $c);
+        foreach ([$key, 'on' . ucfirst($key), 'on-' . $key, rtrim($key, 'e') . 'ed', $key . '-callback'] as $k) {
+            if ($c = $this->d->get($k)) {
+                $this->data('on-' . $key, $c);
                 return true;
             }
         }
         return false;
-
     }
 
 
@@ -631,25 +649,25 @@ trait InputTypes{
     public function parseRouteParams($raw = null)
     {
         $data = [];
-        if(is_array($raw)){
+        if (is_array($raw)) {
             $data = $raw;
-        }elseif (is_callable($raw)) {
+        } elseif (is_callable($raw)) {
             $data = $raw();
-        }elseif (in_array($s = substr($raw,0,1), ['@', ':'])) {
-            if($s == '@' && $this->parent){
-                $inp = substr($raw,1);
+        } elseif (in_array($s = substr($raw, 0, 1), ['@', ':'])) {
+            if ($s == '@' && $this->parent) {
+                $inp = substr($raw, 1);
                 $prop = null;
-                if(count($ip = explode(':', $inp))==2){
+                if (count($ip = explode(':', $inp)) == 2) {
                     $inp = $ip[0];
                     $prop = $ip[1];
                 }
-                if($this->parent->{$inp}){
-                    if($prop) $val = $this->parent->{$inp}->{$prop};
+                if ($this->parent->{$inp}) {
+                    if ($prop) $val = $this->parent->{$inp}->{$prop};
                     else $val = $this->parent->{$inp}->defVal();
                     $data[$inp] = $val;
                 }
-            }elseif ($s==':') {
-                $prop = substr($raw,1);
+            } elseif ($s == ':') {
+                $prop = substr($raw, 1);
                 $data[$prop] = $prop;
             }
         }
@@ -666,13 +684,13 @@ trait InputTypes{
     public function parseInputParams($raw = null)
     {
         $data = [];
-        if(is_array($raw)){
+        if (is_array($raw)) {
             foreach ($raw as $key => $value) {
                 $data[$key] = $this->getInputDataFromString($value);
             }
-        }elseif (is_callable($raw)) {
+        } elseif (is_callable($raw)) {
             $data = $raw();
-        }elseif ($raw) {
+        } elseif ($raw) {
             $data = $this->getInputDataFromString($raw);
         }
         return $data;
@@ -680,33 +698,31 @@ trait InputTypes{
 
     public function getInputDataFromString($raw)
     {
-        if (in_array($s = substr($raw,0,1), ['#', ':', '@'])) {
-            $nsp = substr($raw,1);
-            if($s == '#' && $this->parent){
+        if (in_array($s = substr($raw, 0, 1), ['#', ':', '@'])) {
+            $nsp = substr($raw, 1);
+            if ($s == '#' && $this->parent) {
                 $prop = null;
                 $inp = $nsp;
-                if(count($ip = explode(':', $nsp))==2){
+                if (count($ip = explode(':', $nsp)) == 2) {
                     $inp = $ip[0];
                     $prop = $ip[1];
                 }
-                if($this->parent->{$inp}){
-                    if($prop) $val = $this->parent->{$inp}->{$prop};
+                if ($this->parent->{$inp}) {
+                    if ($prop) $val = $this->parent->{$inp}->{$prop};
                     else $val = $this->parent->{$inp}->defVal();
                     return $val;
                 }
-            }elseif ($s==':') {
-                if($nsp == 'defval'){
+            } elseif ($s == ':') {
+                if ($nsp == 'defval') {
                     $prop = $this->defVal();
-                }
-                else{
+                } else {
                     $prop = $this->{$nsp};
                 }
                 return $prop;
-            }elseif(is_callable($nsp)){
+            } elseif (is_callable($nsp)) {
                 return $nsp();
             }
-        }
-        elseif(is_array($raw)){
+        } elseif (is_array($raw)) {
             $data = [];
             foreach ($raw as $key => $value) {
                 $data[$key] = $this->getInputDataFromString($value);
@@ -735,11 +751,9 @@ trait InputTypes{
     public function prepareSEOData()
     {
         $this->template = 'seo';
-        
     }
     public function prepareContentSEOData()
     {
         $this->template = 'content-seo';
-        
     }
 }

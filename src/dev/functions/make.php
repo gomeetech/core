@@ -201,6 +201,11 @@ function make_model($args = [], $name = null, $table = null)
         echo "Tham so:\n\$name -- Ten Model\n\$table -- Tên bảng\n...\$args -- tham số\n";
         return null;
     }
+
+    $names = explode('/', str_replace("\\", "/", $name));
+    $name = ucfirst(array_pop($names));
+    $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
+    
     if(!$table) $table = Str::tableName($name);
 
     $find = ['NAME','TABLE', 'FILLABLE', '//PROPS', 'MODEL_TYPE'];
