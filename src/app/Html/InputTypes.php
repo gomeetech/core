@@ -80,7 +80,7 @@ trait InputTypes
      */
     public static function addTemplate($template, $type = null, $prepare = null)
     {
-        if(!array_key_exists($template, static::$templateConfig)){
+        if(array_key_exists($template, static::$templateConfig)){
             if(is_array($type)){
                 static::$templateConfig[$template]['type'] = array_merge(static::$templateConfig[$template]['type'], $type);
             }elseif($type){
