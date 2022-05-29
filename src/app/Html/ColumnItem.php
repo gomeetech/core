@@ -40,9 +40,9 @@ class ColumnItem{
         $content = '';
         $options = new Arr(static::$options);
         $type = $options->type;
-        $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->data));
+        $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->parseData));
         if($type == 'text' || $options->text){
-            $content = htmlentities(static::getDataFromString($options->text));
+            $content = static::getDataFromString($options->text);
         }
         elseif($type == 'order' || $options->order){
             $content = static::$order + ($options->order?$options->order:0);
@@ -66,7 +66,7 @@ class ColumnItem{
         elseif ($type == 'input' || $options->input) {
             $args = static::parseTemplateData($options->input);
             $input = new Input($args);
-            if($input->template && is_support_template($input->template, $input->type)){
+            if($input->template && Input::checkSupportTemplate($input->template, $input->type)){
                 $content = view(static::$baseView . 'forms.templates.' . $input->template, ['input' => $input])->render();
             }
             else{
