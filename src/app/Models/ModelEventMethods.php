@@ -190,6 +190,30 @@ trait ModelEventMethods
         return $data;
     }
 
+
+    public function entityArray($array = [])
+    {
+        if(is_array($array)){
+            foreach ($array as $key => $value) {
+                if(is_array($value)){
+                    $array[$key] = $this->entityArray($value);
+                }elseif(is_numeric($value)){
+
+                }elseif(is_string($value)){
+                    $array[$key] = htmlentities($value);
+                }
+            }
+        }
+        return $array;
+    }
+
+    public function toColumnData()
+    {
+        $data = $this->toArray();
+        $data = $this->entityArray($data);
+        return $data;
+    }
+
     /**
      * lấy ra tất cả các thuộc tính dưới dạng mãng
      *

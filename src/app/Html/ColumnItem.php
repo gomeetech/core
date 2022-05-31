@@ -42,22 +42,22 @@ class ColumnItem{
         $type = $options->type;
         $mergData = array_merge(static::$item->toArray(), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->parseData));
         if($type == 'text' || $options->text){
-            $content = static::getDataFromString($options->text);
+            $content = htmlentities(static::getDataFromString($options->text));
         }
         elseif($type == 'order' || $options->order){
             $content = static::$order + ($options->order?$options->order:0);
         }
         elseif($type == 'data' && $options->data_key && $options->value_key){
             $vkey = static::getDataFromString($options->value_key);
-            $content = static::$config->get('data.'.$options->data_key.'.'.$vkey);
+            $content = htmlentities(static::$config->get('data.'.$options->data_key.'.'.$vkey));
         }
         elseif($options->data_access){
             $key = str_eval($options->data_access, $mergData, 0, '');
-            $content = static::$config->get('data.'.$key);
+            $content = htmlentities(static::$config->get('data.'.$key));
         }
         elseif($type == 'template' || $options->template){
-            $content = str_eval($options->template, $mergData, 0, '');
-            $content = str_eval($content, $mergData, 0, '');
+            $content = str_eval($options->template, Arr::entities($mergData), 0, '');
+            $content = str_eval($content, Arr::entities($mergData), 0, '');
         }
         elseif (in_array(str_replace('_', '', $type), ['html', 'htmldom', 'htmltag']) || $options->html) {
             $ob = new Arr($options->html);

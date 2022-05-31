@@ -28,6 +28,9 @@ use Illuminate\Contracts\Support\Arrayable;
  *
  * @method array match(string $key, \Closure|int|string $check) Kiểm tra phần tử theo key
  * @method static array match(array $array, string $key, \Closure|int|string $check) Kiểm tra phần tử theo key
+ * 
+ * @method $this entities(array $array) htmlentities for all element of array
+ * @method static array entities(array $array) htmlentities for all element of array
  */
 Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable {
     const DEFVAL = '<!-----------------s2--------2025----------->';
@@ -669,6 +672,25 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         return $results;
     }
 
+    
+    
+    protected static function _entities($array = [])
+    {
+
+        if(is_array($array)){
+            foreach ($array as $key => $value) {
+                if(is_array($value)){
+                    $array[$key] = static::_entities($value);
+                }elseif(is_numeric($value)){
+
+                }elseif(is_string($value)){
+                    $array[$key] = htmlentities($value);
+                }
+            }
+        }
+        return $array;
+    }
+
     /**
      * gọi hàm với tên thuộc tính với tham số là giá trị default
      * @param string $name
@@ -679,6 +701,10 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         if($name == 'prefix') return static::__prefix($this->data, ...$arguments);
         if($name == 'setPrefix') return static::__setPrefix($this->data, ...$arguments);
         if($name == 'match') return static::__match($this->data, ...$arguments);
+        if($name == 'entities') {
+            $this->data = static::_entities($this->data, ...$arguments);
+            return $this;
+        }
         return $this->get($name, ...$arguments);
     }
 
@@ -688,6 +714,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         if($name == 'prefix') return static::__prefix(...$arguments);
         if($name == 'setPrefix') return static::__setPrefix(...$arguments);
         if($name == 'match') return static::__match(...$arguments);
+        if($name == 'entities') return static::_entities(...$arguments);
 
     }
 

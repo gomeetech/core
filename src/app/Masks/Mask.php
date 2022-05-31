@@ -410,6 +410,31 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         return json_encode($this->toArray());
     }
 
+
+    
+    public function entityArray($array = [])
+    {
+        if(is_array($array)){
+            foreach ($array as $key => $value) {
+                if(is_array($value)){
+                    $array[$key] = $this->entityArray($value);
+                }elseif(is_numeric($value)){
+
+                }elseif(is_string($value)){
+                    $array[$key] = htmlentities($value);
+                }
+            }
+        }
+        return $array;
+    }
+
+    public function toColumnData()
+    {
+        $data = $this->toArray();
+        $data = $this->entityArray($data);
+        return $data;
+    }
+
     public function __toString()
     {
         return $this->toJson();
