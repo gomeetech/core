@@ -1,6 +1,6 @@
 <?php
 
-namespace Gomee\Controllers\Traits;
+namespace Gomee\Services\Traits;
 
 use BadMethodCallException;
 use Closure;

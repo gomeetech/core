@@ -1,6 +1,6 @@
 <?php
 
-namespace Gomee\Controllers\Traits;
+namespace Gomee\Services\Traits;
 
 use Gomee\Helpers\Arr;
 use Illuminate\Http\Request;
@@ -270,7 +270,7 @@ trait BaseCrud
                     
                     $this->fire('ajax' . $action . 'd', $this, $request, $model);
                     $this->fire('ajaxSaved', $this, $request, $model);
-                    $data = $this->repository->detail($model->{MODEL_PRIMARY_KEY});
+                    $data = $this->repository->detail($model->{$this->repository->getKeyName()});
                     if ($rss = $this->callCrudEvent('ajaxSaveSuccess', $request, $data)) {
                         return $rss;
                     }

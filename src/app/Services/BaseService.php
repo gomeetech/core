@@ -1,6 +1,6 @@
 <?php
 
-namespace Gomee\Controllers;
+namespace Gomee\Services;
 
 use BadMethodCallException;
 use Gomee\Services\Traits\BaseCrud;
@@ -17,13 +17,11 @@ use Gomee\Services\Traits\ViewMethods;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
 
 
 
 
-class Controller extends BaseController
-{
+class BaseService {
     use AuthorizesRequests,
         DispatchesJobs,
         ValidatesRequests,
@@ -125,6 +123,6 @@ class Controller extends BaseController
 
 }
 
-Controller::globalStaticFunc('on', '_on');
-Controller::globalFunc('on', 'addEvent');
+BaseService::globalStaticFunc('on', '_on');
+BaseService::globalFunc('on', 'addEvent');
 

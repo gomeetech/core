@@ -124,6 +124,7 @@ if(!function_exists('make_controller')){
 }
 
 
+
 function make_repository($args = [], $name = null, $model = null)
 {
     if(!$name){
@@ -660,5 +661,71 @@ function create_provider($params = [], $name = null, ...$args){
         echo "Tạo Provider {$name} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
     }else{
         echo "Lỗi không xác định\n";
+    }
+}
+
+
+if(!function_exists('create_service')){
+    /**
+     * create_service
+     * 
+     */
+    function create_service($args = [], $type = 'client', $name=null, $repo=null, $title=null, $module=null)
+    {
+        if(!$name){
+            echo "Tham so:\n\t\$type -- loai service (client, admin, manager, api, custom)\n\t\$name -- Ten service\n\t\$repo -- ten class Repository/Model\n\t\$title -- ten/tieu de\n\t\$module -- js module && route module\n\n";
+            return null;
+        }
+        $folders = [
+            'client' => 'Clients',
+            'admin' => 'Admin',
+            'account' => 'Accounts',
+            'manager' => 'Manager',
+            'branch' => 'Branch',
+            'cpanel' => 'CPanel',
+            'frontend' => 'Frontend',
+            'backend' => 'Backend',
+            'private' => 'Private',
+            'public' => 'Public',
+            'protected' => 'Protected',
+            'publish' => 'Publish',
+            'api' => 'Apis',
+            'custom' => null
+        ];
+        $ac = explode('/', str_replace("\\", "/", $name));
+        $name = array_pop($ac);
+        if(!array_key_exists($t = strtolower($type), $folders) || !$name) return null;
+        $s = implode('/', array_map('ucfirst', $ac));
+        $folder = $folders[$t] . ($s?'/'.$s:'');
+        $master = ucfirst($t);
+        $prectr = $master;
+        if($master){
+            $prectr = $folders[$t]."\\".$master;
+        }
+        $sub = null;
+        if($folder){
+            $folder = '/'.trim($folder, '/');
+            $sub = str_replace("/", "\\", $folder);
+        }
+        if(!$repo) $repo = $name;
+        $repos = explode('/', str_replace("\\", "/", $repo));
+        $repo = ucfirst(array_pop($repos));
+        $repf = count($repos) ? implode('/', array_map('ucfirst', $repos)) : ucfirst(Str::plural($repo));
+
+        if(!$title) $title = $name;
+        if(!$module) $module = strtolower(Str::plural($name));
+        
+        $find = ['NAME', 'MASTER', 'SUB', 'REPO', 'REPF', 'MODULE', 'TITLE', 'PRECTRL', '#use service;'];
+        $replace = [$name, $master, $sub, $repo, $repf, $module, $title, $prectr, $s?'':'# '];
+
+        $template = file_get_contents(DEVPATH.'/templates/service.php');
+        $code = str_replace($find, $replace, $template);
+        $filemanager = new Filemanager();
+        $filemanager->setDir((BASEDIR.'/app/Services'.$folder.'/'));
+        if($a = $filemanager->save($name.'Service.php', $code, 'php')){
+            echo "Tạo {$name}Service thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+        }else{
+            echo "Lỗi không xác định\n";
+        }
     }
 }

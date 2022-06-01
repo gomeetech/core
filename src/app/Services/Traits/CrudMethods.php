@@ -1,6 +1,6 @@
 <?php
 
-namespace Gomee\Controllers\Traits;
+namespace Gomee\Services\Traits;
 
 use Gomee\Models\Model;
 use Gomee\Helpers\Arr;
@@ -152,7 +152,8 @@ trait CrudMethods
     public function getIdListFromRequest(Request $request)
     {
         $ids = [];
-        $listKey = ['id', 'ids', MODEL_PRIMARY_KEY];
+        $listKey = ['ids', MODEL_PRIMARY_KEY];
+        // $listKey[] = MODEL_PRIMARY_KEY;
         if($this->primaryKeyName != MODEL_PRIMARY_KEY){
             $listKey[] = $this->primaryKeyName;
         }

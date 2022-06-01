@@ -1,6 +1,6 @@
 <?php
 
-namespace Gomee\Controllers\Traits;
+namespace Gomee\Services\Traits;
 
 use Gomee\Helpers\Arr;
 use Illuminate\Http\Request;
@@ -23,9 +23,9 @@ trait ApiCrud
     public function save(Request $request)
     {
         extract($this->apiDefaultData);
-        $this->repository->resetDefaultParams('delwted');
+        $this->repository->resetDefaultParams('trashed_status');
         // gan id de sac minh la update hay them moi
-        $id = $request->{MODEL_PRIMARY_KEY};
+        $id = $request->{$this->repository->getKeyName()};
         // is update
         if($id){
             if($record = $this->repository->find($id)){

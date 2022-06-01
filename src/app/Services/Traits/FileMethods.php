@@ -1,14 +1,12 @@
 <?php
 
-namespace Gomee\Controllers\Traits;
+namespace Gomee\Services\Traits;
 
 use Gomee\Helpers\Arr;
 use Illuminate\Http\Request;
 
 use Gomee\Files\Filemanager;
 use Gomee\Files\Image;
-use Storage;
-use File;
 use Gomee\Engines\Helper;
 /**
  * các thuộc tính và phương thức của form sẽ được triển trong ManagerController
