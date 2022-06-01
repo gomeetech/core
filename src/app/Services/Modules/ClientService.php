@@ -4,7 +4,7 @@ use Gomee\Core\System;
 use Gomee\Engines\Helper;
 use Gomee\Services\BaseService;
 
-class Clientervice extends BaseService
+class ClientService extends BaseService
 {
     
 }
