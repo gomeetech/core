@@ -688,6 +688,9 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
                 }
             }
         }
+        elseif(is_string($array)){
+            return htmlentities($array);
+        }
         return $array;
     }
 

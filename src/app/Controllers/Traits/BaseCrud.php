@@ -26,7 +26,7 @@ trait BaseCrud
      */
     public $validator;
 
-    protected $rederectData = [];
+    protected $redirectData = [];
     /**
      * cập nhật form
      * @param Request $request
@@ -143,8 +143,8 @@ trait BaseCrud
         } else {
             $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->id]);
         }
-        if ($this->rederectData) {
-            return $r->with($this->rederectData);
+        if ($this->redirectData) {
+            return $r->with($this->redirectData);
         }
         return $r->with('success', $message);
     }
@@ -300,7 +300,7 @@ trait BaseCrud
      */
     public function addRedirectData($key, $value = null)
     {
-        if (is_array($key)) $this->rederectData = $key;
-        if (is_string($key)) $this->rederectData[$key] = $value;
+        if (is_array($key)) $this->redirectData = array_merge($this->redirectData, $key);
+        if (is_string($key)) $this->redirectData[$key] = $value;
     }
 }

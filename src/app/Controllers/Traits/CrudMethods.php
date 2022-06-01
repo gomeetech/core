@@ -160,6 +160,9 @@ trait CrudMethods
             if($list = $request->input($key)){
                 if(is_array($list)) $ids = array_merge($ids, $list);
                 else $ids[] = $list;
+            }elseif($list = $request->{$key}){
+                if(is_array($list)) $ids = array_merge($ids, $list);
+                else $ids[] = $list;
             }
         }
         return $ids;

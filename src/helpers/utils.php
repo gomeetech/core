@@ -9,6 +9,15 @@ if(!defined('MODEL_PRIMARY_KEY') && class_exists('Gomee\Core\System')){
     define('MODEL_PRIMARY_KEY', env('MODEL_PRIMARY_KEY', 'id'));
 }
 
+if(!function_exists('entities')){
+    /**
+     * htmlentities
+     */
+    function entities($any = null)
+    {
+        return CrazyArr::entities($any);
+    }
+}
 if(!function_exists('get_domain')){
     /**
      * lấy tên miên dược cấu hình
