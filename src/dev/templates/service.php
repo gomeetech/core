@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\ServicesSUB;
+namespace App\ServicesSUB;
 
-#use service;use App\Http\Services\PRECTRLService;
+#use service;use App\Services\PRECTRLService;
 
 use Illuminate\Http\Request;
 use Gomee\Helpers\Arr;
