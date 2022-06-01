@@ -24,7 +24,9 @@ function __call__($args = [])
             switch ($f) {
                 case "make":
                 case 'create':
+                case 'generate':
                 case 'm':
+                case 'g':
                 case 'c':
                     if (isset($param[0])) {
                         $t = array_shift($param);
@@ -32,7 +34,7 @@ function __call__($args = [])
                         $args = array_merge([$p['params']], $p['args']);
                         if ($t == 'table') {
                             call_user_func_array("create_{$t}", $args);
-                        } elseif (in_array(strtolower($t), ['service', 'provider', 'serviceproviders'])) {
+                        } elseif (in_array(strtolower($t), ['provider', 'serviceproviders'])) {
                             call_user_func_array("create_provider", $args);
                         } else {
                             $t = strtolower($t);
@@ -81,13 +83,21 @@ function __call__($args = [])
                                     break;
 
 
+                                case 's':
+                                case 'service':
+                                case 'serv':
+                                case 'sv':
+                                    call_user_func_array("create_service", $args);
+                                    break;
+
+
                                 default:
-                                    echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line";
+                                echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line\n\t - s, service, sv, serv";
                                     break;
                             }
                         }
                     } else {
-                        echo "what you want to make? \n\t - c, controller\n\t - m, model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, command";
+                        echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line\n\t - s, service, sv, serv";
                     }
                     break;
 
