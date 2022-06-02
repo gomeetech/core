@@ -88,10 +88,25 @@ trait BaseCrud
         // tao doi tuong data de de truy cap phan tu
         $data = new Arr($validator->inputs());
         // goi cac ham su kien truoc khi luu
-        $this->callCrudEvent('before' . $action, $request, $data, $result);
-        $this->callCrudEvent('beforeSave', $request, $data, $result);
-        $this->fire($action.'ing', $this, $request, $data, $result);
-        $this->fire('saving', $this, $request, $data, $result);
+        if ($rs = $this->callCrudEvent('before' . $action, $request, $data, $result)) {
+            return $rs;
+        }
+        
+        
+        if ($rs = $this->callCrudEvent('beforeSave', $request, $data, $result)) {
+            return $rs;
+        }
+        
+        if ($rs = $this->fire($action.'ing', $this, $request, $data, $result)) {
+            return $rs;
+        }
+        
+        if ($rs = $this->fire('saving', $this, $request, $data, $result)) {
+            return $rs;
+        }
+        
+        
+        
 
         // lấy thông tin bản ghi mới tạo
         $model = $this->repository->save($data->all(), $id);
