@@ -903,6 +903,33 @@ if (!function_exists('get_date_range')) {
         return [];
     }
 }
+if (!function_exists('get_datetime_range')) {
+    /**
+     * kiểm tra và lấy dữ liệu date range
+     * @param string $string chuỗi chứa thời gian cần kiểm tra
+     * @param string $split_char chuỗi ngăn cch1 2 vế
+     * @return array Trả về mảng định dạng thời gian hoạc mảng rỗng
+     */
+
+    function get_datetime_range($string, $split_char = ' - '){
+        $dates = [];
+        if(count($date = array_map('trim', explode($split_char, $string))) == 2){
+            foreach ($date as $datetime) {
+                if($datet = parse_date_time($datetime)){
+                    if(!is_date($datet['day'], $datet['month'], $datet['year'])) return false;
+                    $dates[] = "$datet[day]-$datet[month]-$datet[year] $datet[hour]:$datet[minute]:$datet[second]";
+                }
+            }
+            return [
+                'from' => $dates[0],
+                'to' => $dates[1]
+            ];
+        }
+        return false;
+    
+    }
+    
+}
 
 
 if (!function_exists('get_date_str')) {
