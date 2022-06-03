@@ -1065,8 +1065,9 @@ trait FormMethods
 
 
 
-        return $back ? $back : ($this->cancelButtonUrl ? $this->cancelButtonUrl : (
-                ($route = $this->getModuleRoute('list')) ? $route : 'javascript:history.back();'
+        return $this->cancelButtonUrl ? $this->cancelButtonUrl : (
+            ($route = $this->getModuleRoute('list')) ? $route : (
+                $back ? $back : 'javascript:history.back();'
             )
         );
     }
