@@ -362,7 +362,7 @@ trait FormMethods
         $array_config = [];
 
         $config = new Arr($config);
-        $this->hasConfigFile = true;
+        $this->hasConfigFile = false;
         // layout co trong danh sách
         if ($config->layout_type && in_array($clt = strtolower($config->layout_type), ['single', 'columns', 'column', 'tabs', 'tab'])) {
             $layout_type = $clt;
@@ -702,7 +702,7 @@ trait FormMethods
 
         $form_config = array_merge([
             'title' => $this->getFormTitle($action),
-            'can_edit_form_config' => $this->hasConfigFile ? true : false,
+            'can_edit_config' => $c->can_edit_config ? true : false,
             'save_button_text' => $this->getSaveButtonText($action),
             'cancel_button_text' => $this->getCancelButtonText(),
             'cancel_button_url' => $this->getCancelButtonUrl(),
