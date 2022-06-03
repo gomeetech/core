@@ -76,7 +76,7 @@ class ColumnItem{
                         ];
                     }elseif(is_callable($f)){
                         $parseFns[] = [
-                            'call' => [self::$item, $f],
+                            'call' => $f,
                             'args' => $args
                         ];
                     }
