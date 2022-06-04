@@ -24,30 +24,19 @@ trait ZipMethods{
     public function extract($filename = null, $dir = null, $list = [])
     {
         // lấy dừng dẫn tuyệt đối và kiểm tra xem tập tin có tồn tại hay ko?
-        if(!file_exists($path = $this->parseFilename($filename))) {
-            dd("Sai đương dẫn");
-            return false;
-        }
+        if(!file_exists($path = $this->parseFilename($filename))) return false;
 
         // kiểm tra tập tin xem có phải là file zip hay ko
-        if($this->getType($filename)!='application/zip') {
-            dd("Sai filetype");
-            return false;
-        }
+        if($this->getType($filename)!='application/zip') return false;
         // kiểm tra và chỉnh sửa dường dẫn giải nén
         if(!$dir) $dir = $this->_dir.'/'.str_slug(preg_replace('/\.'.$this->_extension.'$/i', '', $this->_filename));
         elseif(!$this->checkDirAccepted($dir)) $dir = Helper::publicPath($dir);
         // tạo dường dẫn nếu ko tồn tại
-        if(!is_dir($dir)){
-
-            $this->makeDir($dir, 0755);
-
-        };
-        if(!is_dir($dir)) {
-            dd("cannot create folder");
-            return false;}
-        dump($dir);
         
+        if(!is_dir($dir)){
+            $this->makeDir($dir, 0755);
+        };
+        if(!is_dir($dir)) return false;
         // đọc file và giải nén
         $zip = $this->_zip;
         if ($zip->open($path) === TRUE) {
@@ -63,10 +52,7 @@ trait ZipMethods{
             $zip->close();
             return true;
         } else {
-            dd("x");
-        
             return false;
-
         }
     }
 
