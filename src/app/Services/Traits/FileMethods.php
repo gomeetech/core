@@ -145,7 +145,6 @@ trait FileMethods
             $file = $request->file($field);
             return $this->uploadSingleFile($file, $filenameWithoutExtension, $destinationPath);
         }
-        die;
         return false;
     }
 
