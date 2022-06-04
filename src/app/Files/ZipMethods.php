@@ -23,7 +23,6 @@ trait ZipMethods{
      */
     public function extract($filename = null, $dir = null, $list = [])
     {
-        dd($filename);
         // lấy dừng dẫn tuyệt đối và kiểm tra xem tập tin có tồn tại hay ko?
         if(!file_exists($path = $this->parseFilename($filename))) {
             dd("Sai đương dẫn");
