@@ -39,9 +39,13 @@ trait ZipMethods{
         elseif(!$this->checkDirAccepted($dir)) $dir = Helper::publicPath($dir);
         // tạo dường dẫn nếu ko tồn tại
         if(!is_dir($dir)){
+
             $this->makeDir($dir, 0755);
+
         };
-        if(!is_dir($dir)) return false;
+        if(!is_dir($dir)) {
+            dd("cannot create folder");
+            return false;}
         dump($dir);
         
         // đọc file và giải nén
