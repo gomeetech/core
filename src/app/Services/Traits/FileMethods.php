@@ -135,7 +135,7 @@ trait FileMethods
      */
     public function uploadFile(Request $request, $field = 'file', $filenameWithoutExtension = true, $path = null)
     {
-        dd($request->file($field));
+        dd($_FILES);
         if ($request->hasFile($field)) {
             if (!$path) $path = $this->parsePath($this->module);
             $this->filemanager->setDir($path, true);
