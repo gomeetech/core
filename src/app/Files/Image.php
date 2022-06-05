@@ -29,7 +29,7 @@ class Image
 
     public function newImage($image = null)
     {
-        if (self::isImageFile($image) || (is_resource($image) && get_resource_type($image) == 'gd')) {
+        if (self::isImageFile($image) || (is_resource($image) && \get_resource_type($image) == 'gd')) {
             if (self::isImageFile($image)) {
                 $i = self::getsity($image);
                 $im  = self::create($image);
@@ -586,28 +586,28 @@ class Image
             $img = self::getsity($image_url);
             $type = $img['type'];
             if ($type == "png") {
-                $image = imagecreatefrompng($image_url);
+                $image = \imagecreatefrompng($image_url);
             } elseif ($type == "jpg") {
-                $image = imagecreatefromjpeg($image_url);
+                $image = \imagecreatefromjpeg($image_url);
             } elseif ($type == "gif") {
-                $image = imagecreatefromgif($image_url);
+                $image = \imagecreatefromgif($image_url);
             } else {
                 $image = file_get_contents($image_url);
             }
         } else {
             if (is_array($color) && isset($color[0]) && isset($color[1]) && isset($color[2])) {
-                $image = imagecreatetruecolor($image_w, $image_h);
+                $image = \imagecreatetruecolor($image_w, $image_h);
                 imagecolorallocate($image, $color[0], $color[1], $color[2]);
             } elseif (is_string($color)) {
                 $color = explode(',', $color);
                 if (is_array($color) && isset($color[0]) && isset($color[1]) && isset($color[2])) {
-                    $image = imagecreatetruecolor($image_w, $image_h);
+                    $image = \imagecreatetruecolor($image_w, $image_h);
                     imagecolorallocate($image, $color[0], $color[1], $color[2]);
                 } else {
-                    $image = imagecreatetruecolor($image_w, $image_h);
+                    $image = \imagecreatetruecolor($image_w, $image_h);
                 }
             } else
-                $image = imagecreatetruecolor($image_w, $image_h);
+                $image = \imagecreatetruecolor($image_w, $image_h);
             //$txtColor = imagecolorallocate($image, 245, 250, 254);
 
         }
