@@ -216,7 +216,7 @@ class Input extends HtmlDom
                 $slt = '';
                 $this->attr('type', null);
                 $this->tagName = 'div';
-                $this->className = 'inp-radio-group';
+                $this->className = 'inp-radio-group crazy-radio';
 
                 $change = $this->hidden('change');
                 if(!$change) $change = $this->data('on-change');
@@ -226,6 +226,7 @@ class Input extends HtmlDom
                 if ($change) {
                     $this->addClass('crazy-radio-group');
                     $this->attr('crazy-on-change', $change);
+                    $this->attr('on-change', $change);
                 }
                 // die('');
                 

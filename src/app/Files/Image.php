@@ -7,10 +7,17 @@
 
 namespace Gomee\Files;
 
+use GdImage;
+
 class Image
 {
     use FileType;
     protected $source;
+    /**
+     * Undocumented variable
+     *
+     * @var GdImage
+     */
     protected $data;
     protected $Original;
     protected $type = null;
@@ -60,7 +67,7 @@ class Image
     /**
      * lấy dữ liệu ảnh
      *
-     * @return GD
+     * @return GdImage
      */
     public function get()
     {

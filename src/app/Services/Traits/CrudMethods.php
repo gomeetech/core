@@ -31,9 +31,12 @@ use Gomee\Laravel\Router;
  * @method mixed beforeStore( Request $request, Arr $data ) 
  * @method mixed beforeUpdate( Request $request, Arr $data, Model $model )
  * @method mixed beforeAjaxUpdate( Request $request, Arr $data, \Gomee\Models\Model $old )
- * @method mixed beforeMoveToTrash( Request $request, Arr $data ) 
- * @method mixed beforeRestore( Request $request)
- * @method mixed beforeDelete( Request $request)
+ * @method mixed beforeMoveToTrash( \Gomee\Models\Model $model ) 
+ * @method mixed beforeRestore( \Gomee\Models\Model $model )
+ * @method mixed beforeDelete( \Gomee\Models\Model $model )
+ * @method mixed prepareMoveToTrash( Request $request) thực hiện hành động trước khi move to trash
+ * @method mixed prepareRestore( Request $request) thực hiện hành động trước khi restore
+ * @method mixed prepareDelete( Request $request) thực hiện hành động trước khi delete
  * 
  * @method mixed afterSave( Request $request, \Gomee\Models\Model $result )
  * @method mixed afterAjaxSave( Request $request, \Gomee\Models\Model $result )
@@ -50,7 +53,7 @@ use Gomee\Laravel\Router;
  */
 trait CrudMethods
 {
-   
+
     /**
      * route chuyển hướng sau khi lưu
      * @var string $redirectRoute
@@ -85,9 +88,9 @@ trait CrudMethods
      * danh sách trả về9
      * @var array $apiSystemVars
      */
-    protected $apiSystemVars = ['status', 'data','message', 'errors'];
+    protected $apiSystemVars = ['status', 'data', 'message', 'errors'];
 
-    
+
     protected $crudAction = null;
 
     /**
@@ -98,7 +101,7 @@ trait CrudMethods
      */
     public function crudInit()
     {
-        if($this->repository) $this->primaryKeyName = $this->repository->getKeyName();
+        if ($this->repository) $this->primaryKeyName = $this->repository->getKeyName();
         // do some thing
     }
 
@@ -110,7 +113,7 @@ trait CrudMethods
      */
     public final function callCrudEvent(string $event, ...$params)
     {
-        if(method_exists($this, $event)){
+        if (method_exists($this, $event)) {
             return call_user_func_array([$this, $event], $params);
         }
         return null;
@@ -133,7 +136,7 @@ trait CrudMethods
         return $this->save($request);
     }
 
-    
+
     /**
      * luu data cap nhat
      * @param \Illuminate\Http\Request $request
@@ -154,15 +157,15 @@ trait CrudMethods
         $ids = [];
         $listKey = ['ids', MODEL_PRIMARY_KEY];
         // $listKey[] = MODEL_PRIMARY_KEY;
-        if($this->primaryKeyName != MODEL_PRIMARY_KEY){
+        if ($this->primaryKeyName != MODEL_PRIMARY_KEY) {
             $listKey[] = $this->primaryKeyName;
         }
         foreach ($listKey as $key) {
-            if($list = $request->input($key)){
-                if(is_array($list)) $ids = array_merge($ids, $list);
+            if ($list = $request->input($key)) {
+                if (is_array($list)) $ids = array_merge($ids, $list);
                 else $ids[] = $list;
-            }elseif($list = $request->{$key}){
-                if(is_array($list)) $ids = array_merge($ids, $list);
+            } elseif ($list = $request->{$key}) {
+                if (is_array($list)) $ids = array_merge($ids, $list);
                 else $ids[] = $list;
             }
         }
@@ -177,13 +180,14 @@ trait CrudMethods
     {
         extract($this->apiDefaultData);
         $ids = $this->getIdListFromRequest($request);
+        $this->callCrudEvent('prepareMoveToTrash', $request);
         // nếu có id
-        if(count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))){
+        if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
             foreach ($list as $result) {
                 $id = $result->{$this->primaryKeyName};
-                if($result->canMoveToTrash()){
-                    
+                if ($result->canMoveToTrash()) {
+
                     // gọi hàm sự kiện truoc khi xóa
                     $this->callCrudEvent('beforeMoveToTrash', $result);
 
@@ -195,34 +199,32 @@ trait CrudMethods
                     // gọi hàm sự kiện truoc khi xóa
                     $this->callCrudEvent('afterMoveToTrash', $result);
                     $this->fire('trashed', $this, $result);
-                    
+
                     $data[] = $id;
 
                     $status = true;
-                }else{
+                } else {
                     $errors[] = "Bạn không thể di chuyển mục có id $id này vào thùng rác được";
                 }
             }
-            if($status){
-                if(($t = count($data)) > 1){
+            if ($status) {
+                if (($t = count($data)) > 1) {
                     $message = "Đã xóa thành công $t $this->moduleName";
-                }
-                else{
+                } else {
                     $message = "Đã xóa $this->moduleName thành công!";
                 }
-            }else{
+            } else {
                 $message = "Không thể chuyển một số mục vào thùng rác được!";
             }
-        }else{
+        } else {
             $message = 'Không có mục nào được chọn';
         }
         return $this->json(compact(...$this->apiSystemVars));
-        
     }
 
-    
 
-    
+
+
     /**
      * xóa vĩnh viễn bản gi
      * @param Request $request
@@ -234,16 +236,17 @@ trait CrudMethods
         // nếu có id
         $this->repository->resetDefaultParams();
         $this->repository->resetTrashed();
-        if(count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))){
+        $this->callCrudEvent('prepareDelete', $request);
+        if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
             foreach ($list as $result) {
                 $id = $result->{$this->primaryKeyName};
-                if($result->canDelete()){
-                    
+                if ($result->canDelete()) {
+
                     // gọi hàm sự kiện truoc khi xóa
                     $this->callCrudEvent('beforeDelete', $result);
                     $this->fire('deleting', $this, $result);
-                    
+
                     // chuyen vao thung ra
 
                     $this->repository->delete($id);
@@ -252,23 +255,22 @@ trait CrudMethods
                     $this->callCrudEvent('afterDelete', $result);
 
                     $this->fire('deleted', $this, $result);
-                    
+
                     $data[] = $id;
 
                     $status = true;
-                }else{
+                } else {
                     $errors[] = "Bạn không thể xóa mục có id $id này được";
                 }
             }
 
-            if(!$status){
+            if (!$status) {
                 $message = 'Có vẻ như thao tác không hợp lệ';
             }
-        }else{
+        } else {
             $message = 'Không có mục nào được chọn';
         }
         return $this->json(compact(...$this->apiSystemVars));
-        
     }
 
 
@@ -283,36 +285,35 @@ trait CrudMethods
         $ids = $this->getIdListFromRequest($request);
         // nếu có id
         // return $ids;
-        if(count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))){
+        $this->callCrudEvent('prepareRestore', $request);
+        if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
-            
+
             foreach ($list as $result) {
                 $id = $result->{$this->primaryKeyName};
                 // gọi hàm sự kiện truoc khi khôi phục
-                $this->callCrudEvent('beforeRestore',$result);
+                $this->callCrudEvent('beforeRestore', $result);
                 $this->fire('restoring', $this, $result);
-                    
+
                 // chuyen vao thung ra
 
                 $this->repository->restore($id);
 
                 // gọi hàm sự kiện truoc khi khôi phục
                 $this->callCrudEvent('afterRestore', $result);
-                
+
                 $this->fire('restored', $this, $result);
-                
+
                 $data[] = $id;
 
                 $status = true;
-
             }
-            if(!$status){
+            if (!$status) {
                 $message = 'Có vẻ như thao tác không hợp lệ';
             }
-        }else{
+        } else {
             $message = 'Không có mục nào được chọn';
         }
         return $this->json(compact(...$this->apiSystemVars));
-        
     }
 }
