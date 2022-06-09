@@ -3,6 +3,7 @@
 namespace Gomee\Repositories;
 
 use Illuminate\Support\Facades\DB;
+
 /**
  * @property \Gomee\Models\Model _model
  */
@@ -96,7 +97,7 @@ trait BaseQuery
         'take' => 'take',
 
         'distinct' => 'distinct',
-        
+
         'with' => 'with',
         'load' => 'load',
 
@@ -426,12 +427,11 @@ trait BaseQuery
         if (count($this->defaultParams)) {
             foreach ($this->defaultParams as $key => $param) {
                 $param[0] = (count(explode('.', $param[0])) > 1) ? $param[0] : $prefix . $param[0];
-                if(count($param) == 2 && is_array($param[1])){
+                if (count($param) == 2 && is_array($param[1])) {
                     call_user_func_array([$query, 'whereIn'], $param);
-                }else{
+                } else {
                     call_user_func_array([$query, 'where'], $param);
                 }
-                
             }
         }
         // kiểm tra và tạo query các tham số truyền vào
@@ -473,36 +473,35 @@ trait BaseQuery
 
                         case 'softdelete':
                         case 'trashed':
-                        case 'deleted': 
-                            
-                            if($this->_model->isSoftDeleteMode() && $softDeleteColumn = $this->_model->getDeletedAtColumn()){
-                                if($vl){
-                                    if(is_numeric($vl) && $vl > 0){
-                                        $date = date('Y-m-d', time() - 3600*24*$vl);
-                                        $query->where(function($q) use($date, $prefix, $softDeleteColumn){
-                                            $q->whereNull($prefix.$softDeleteColumn)
-                                            ->orWhereDate($prefix.$softDeleteColumn, '>=', $date);
+                        case 'deleted':
+
+                            if ($this->_model->isSoftDeleteMode() && $softDeleteColumn = $this->_model->getDeletedAtColumn()) {
+                                if ($vl) {
+                                    if (is_numeric($vl) && $vl > 0) {
+                                        $date = date('Y-m-d', time() - 3600 * 24 * $vl);
+                                        $query->where(function ($q) use ($date, $prefix, $softDeleteColumn) {
+                                            $q->whereNull($prefix . $softDeleteColumn)
+                                                ->orWhereDate($prefix . $softDeleteColumn, '>=', $date);
                                         });
-                                    }else{
-                                        $query->whereNotNull($prefix.$softDeleteColumn);
+                                    } else {
+                                        $query->whereNotNull($prefix . $softDeleteColumn);
                                     }
-                                    
-                                }else{
-                                    $query->whereNull($prefix.$softDeleteColumn);
+                                } else {
+                                    $query->whereNull($prefix . $softDeleteColumn);
                                 }
                             }
-                            if(in_array('trashed_status', $fields)){
-                                if($vl){
-                                    $query->where($prefix.'trashed_status', 1);
-                                }else{
-                                    $query->where($prefix.'trashed_status', 0);
+                            if (in_array('trashed_status', $fields)) {
+                                if ($vl) {
+                                    $query->where($prefix . 'trashed_status', 1);
+                                } else {
+                                    $query->where($prefix . 'trashed_status', 0);
                                 }
                             }
                             break;
-                        
+
                         case 'order_by':
                         case 'sortby':
-                            
+
                             // order by
                             $orderby = $vl;
                             break;
@@ -539,12 +538,11 @@ trait BaseQuery
                                     $param = is_array($vl) ? $vl : [$vl];
                                     call_user_func_array([$query, $func], $param);
                                 }
-                            }
-                            elseif (in_array($eager = substr($f, 0, 4), ['with', 'load'])) {
+                            } elseif (in_array($eager = substr($f, 0, 4), ['with', 'load'])) {
                                 $this->eager($eager, substr($ff, 4), $vl);
                             }
-                            
-                            
+
+
                             break;
                     }
                 }
@@ -556,30 +554,24 @@ trait BaseQuery
                     $ftype = null;
                     if (count($spactor = explode(':', $field)) == 2) {
                         $ifield = $spactor[0];
-                        if(in_array($stype = strtolower($spactor[1]), ['date', 'fromdate','from_date'. 'todate', 'to_date','daterange', 'date_range'])){
+                        if (in_array($stype = strtolower($spactor[1]), ['date', 'fromdate', 'from_date' . 'todate', 'to_date', 'daterange', 'date_range'])) {
                             $ftype = str_replace('_', '', $stype);
                             $funcfield = 'addDate';
                         }
-                    } 
+                    }
                     $hasPrefix = (count(explode('.', $ifield)) > 1);
                     if (!$hasPrefix) {
-                        
-                        // nếu không có prefix và ko có trong fillable thì bỏ qua
-                        if (isset($this->whereable) && array_key_exists($ifield, $this->whereable)) 
-                        {
-                            $f = $this->whereable[$ifield];
-                        } 
-                        elseif (!in_array($ifield, $fields) && $ifield != $this->_primaryKeyName) continue;
-                        else $f = $prefix . $ifield;
 
-                        
-                    
+                        // nếu không có prefix và ko có trong fillable thì bỏ qua
+                        if (isset($this->whereable) && array_key_exists($ifield, $this->whereable)) {
+                            $f = $this->whereable[$ifield];
+                        } elseif (!in_array($ifield, $fields) && $ifield != $this->_primaryKeyName) continue;
+                        else $f = $prefix . $ifield;
                     } else $f = $ifield;
 
-                    if($funcfield){
+                    if ($funcfield) {
                         call_user_func_array([$this, $funcfield], [$query, $ftype, $f, $vl]);
-                    }
-                    elseif (is_array($vl)) {
+                    } elseif (is_array($vl)) {
                         // nếu value là mảng sẽ gọi where in
                         $query->whereIn($f, $vl);
                     } else {
@@ -592,7 +584,6 @@ trait BaseQuery
 
 
         $actions = array_merge($this->actions, $actions);
-        if(static::class == 'App\Repositories\Products\CategoryRepository') dd($actions);
         // tim kiem trong bang dua tren cac cot
         if ($keywords) $this->buildSearchQuery($query, $keywords, $search_by, $prefix);
         // thao tac voi query builder thong qua tham so actions
@@ -642,8 +633,8 @@ trait BaseQuery
     public function eager($type = 'with', $relation = null, $func = null, $queryBuilder = null)
     {
 
-        if(!$queryBuilder) $queryBuilder = $this;
-        $trla = strtolower(substr($relation,0, 1)).substr($relation, 1);
+        if (!$queryBuilder) $queryBuilder = $this;
+        $trla = strtolower(substr($relation, 0, 1)) . substr($relation, 1);
         if (is_numeric($func)) {
             $queryBuilder->{$type}([
                 $trla => function ($query) use ($func) {
@@ -664,17 +655,14 @@ trait BaseQuery
                             if ($kl == 'limit') {
                                 $this->buildLimitQuery($query, $value);
                             } elseif (in_array($kl, ['sortby', 'orderby', 'sort', 'sortby', 'sorttype'])) {
-                                if(is_numeric($value)){
-                                    if(isset($this->sortByRules[$value])){
+                                if (is_numeric($value)) {
+                                    if (isset($this->sortByRules[$value])) {
                                         $this->buildOrderByQuery($query, $this->sortByRules[$value]);
                                     }
-                                }
-                                else{
+                                } else {
                                     $this->buildOrderByQuery($query, $value);
                                 }
-                                
-                            }
-                            else {
+                            } else {
                                 $func = null;
                                 if (in_array($kl, $this->sqlclause))  $func = $kl;
                                 elseif (array_key_exists($kl, $this->sqlclause)) $func = $this->sqlclause[$kl];
@@ -693,14 +681,13 @@ trait BaseQuery
                                         $param = is_array($value) ? $value : [$value];
                                         call_user_func_array([$query, $func], $param);
                                     }
-                                }
-                                elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
+                                } elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
                                     $this->eager($eager, substr($key, 5), $value, $query);
-                                }elseif (in_array($eager2 = substr($kl, 0, 9), ['withCount', 'loadCount'])) {
+                                } elseif (in_array($eager2 = substr($kl, 0, 9), ['withCount', 'loadCount'])) {
                                     $this->eager($eager2, substr($key, 10), $value, $query);
                                 }
                             }
-                        }else{
+                        } else {
                             if (is_array($value)) {
                                 // nếu value là mảng sẽ gọi where in
                                 $query->whereIn($key, $value);
@@ -728,29 +715,27 @@ trait BaseQuery
      */
     public function addDate($query, $type, $field, $val = null)
     {
-        if(($type=='date' && is_array($val)) || $type == 'daterange'){
-            if(is_array($val)){
-                if(isset($val[0]) && $dateStr = get_date_str($val[0])){
+        if (($type == 'date' && is_array($val)) || $type == 'daterange') {
+            if (is_array($val)) {
+                if (isset($val[0]) && $dateStr = get_date_str($val[0])) {
                     $query->whereDate($field, '>=', $dateStr);
                 }
-                if(isset($val['from']) && $dateStrl = get_date_str($val['from'])){
+                if (isset($val['from']) && $dateStrl = get_date_str($val['from'])) {
                     $query->whereDate($field, '>=', $dateStrl);
                 }
-                if(isset($val[1]) && $dateStr2 = get_date_str($val[1])){
+                if (isset($val[1]) && $dateStr2 = get_date_str($val[1])) {
                     $query->whereDate($field, '<=', $dateStr2);
                 }
-                if(isset($val['to']) && $dateStrp = get_date_str($val['to'])){
+                if (isset($val['to']) && $dateStrp = get_date_str($val['to'])) {
                     $query->whereDate($field, '<=', $dateStrp);
                 }
             }
-        }
-        elseif ($dateStr = get_date_str($val)) {
-            if($type=='fromdate'){
+        } elseif ($dateStr = get_date_str($val)) {
+            if ($type == 'fromdate') {
                 $query->whereDate($field, '>=', $dateStr);
-            }
-            elseif ($type == 'todate') {
+            } elseif ($type == 'todate') {
                 $query->whereDate($field, '<=', $dateStr);
-            }else{
+            } else {
                 $query->whereDate($field, $dateStr);
             }
         }
@@ -806,20 +791,21 @@ trait BaseQuery
     {
         if (!$query) {
             $prefix = '';
-            $model = $this->model();
-            if ($pre = $this->getTable()) {
+            $modelType = $this->_model->__getModelType__();
+            if ($modelType == 'default' && ($pre = $this->getTable())) {
                 $prefix = $pre . '.';
             }
-            $required = $prefix . $this->required;
-            // tao query builder
-            $query = $model->whereNotNull($required);
+            $query = $this->_model->newQuery();
         }
         $fields = $this->getFields();
+
         if (is_array($actions)) {
+            
 
             foreach ($actions as $act) {
                 // duyet qua cac action
                 if (is_array($act)) {
+                    dump($act['method'], in_array($act['method'], $this->sqlclause));
                     if (isset($act['method']) && in_array($act['method'], $this->sqlclause)) {
                         //
                         call_user_func_array([$query, $act['method']], (isset($act['params']) && is_array($act['params'])) ? $act['params'] : []);
@@ -894,6 +880,7 @@ trait BaseQuery
                     }
                 }
             }
+            if (static::class == 'App\Repositories\Products\CategoryRepository') dd($actions);
         }
         return $query;
     }
@@ -1029,7 +1016,7 @@ trait BaseQuery
 
     public function __get($name)
     {
-        if(in_array(strtolower($name), ['primarykey', 'primarykeyname'])) return $this->_primaryKeyName;
+        if (in_array(strtolower($name), ['primarykey', 'primarykeyname'])) return $this->_primaryKeyName;
         if (isset($this->params[$name])) return $this->params[$name];
         return null;
     }
@@ -1044,9 +1031,9 @@ trait BaseQuery
      */
     public function param($key = null, $value = null)
     {
-        if(is_array($key)){
-            $this->params = array_merge($this->params, $key); 
-        }elseif(!is_null($key) && (is_string($key) || is_null($key))){
+        if (is_array($key)) {
+            $this->params = array_merge($this->params, $key);
+        } elseif (!is_null($key) && (is_string($key) || is_null($key))) {
             $this->params[$key] = $value;
         }
         return $this;
@@ -1156,11 +1143,10 @@ trait BaseQuery
      */
     public function paginate($paginate = null)
     {
-        if($paginate === false) {
+        if ($paginate === false) {
             $this->paginate = false;
             $this->_paginate = 0;
-        }
-        elseif(is_numeric($paginate) && $paginate > 0) $this->_paginate = $paginate;
+        } elseif (is_numeric($paginate) && $paginate > 0) $this->_paginate = $paginate;
         return $this;
     }
 
@@ -1178,8 +1164,8 @@ trait BaseQuery
             if (!isset($this->actions) || !is_array($this->actions)) {
                 $this->actions = [];
             }
-            if($f == 'groupby'){
-                if(count($params) == 1 && is_string($params[0])){
+            if ($f == 'groupby') {
+                if (count($params) == 1 && is_string($params[0])) {
                     $params = array_map('trim', explode(',', $params[0]));
                 }
                 foreach ($params as $column) {
@@ -1188,21 +1174,18 @@ trait BaseQuery
                         'params' => [$column]
                     ];
                 }
-                
-            }else{
+            } else {
                 $this->actions[] = compact('method', 'params');
             }
-        }
-
-        elseif(count($params)){
+        } elseif (count($params)) {
             $value = $params[0];
             $fields = array_merge([$this->required], $this->getFields());
 
             // lấy theo tham số request (set where)
-            if($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))){
-                if(isset($this->whereable[$key])){
+            if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
+                if (isset($this->whereable[$key])) {
                     $this->where($this->whereable[$key], $value);
-                }else{
+                } else {
                     $this->where($key, $value);
                 }
             }
@@ -1213,10 +1196,9 @@ trait BaseQuery
             //         $this->where($f, $value);
             //     }
             // }
-            elseif(in_array($key, $fields)){
+            elseif (in_array($key, $fields)) {
                 $this->where($key, $value);
             }
-            
         }
         return $this;
     }
