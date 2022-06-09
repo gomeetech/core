@@ -34,9 +34,9 @@ use Gomee\Laravel\Router;
  * @method mixed beforeMoveToTrash( \Gomee\Models\Model $model ) 
  * @method mixed beforeRestore( \Gomee\Models\Model $model )
  * @method mixed beforeDelete( \Gomee\Models\Model $model )
- * @method mixed prepareMoveToTrash( Request $request) thực hiện hành động trước khi move to trash
- * @method mixed prepareRestore( Request $request) thực hiện hành động trước khi restore
- * @method mixed prepareDelete( Request $request) thực hiện hành động trước khi delete
+ * @method mixed prepareMoveToTrash( Request $request, array $ids = []) thực hiện hành động trước khi move to trash
+ * @method mixed prepareRestore( Request $request, array $ids = []) thực hiện hành động trước khi restore
+ * @method mixed prepareDelete( Request $request, array $ids = []) thực hiện hành động trước khi delete
  * 
  * @method mixed afterSave( Request $request, \Gomee\Models\Model $result )
  * @method mixed afterAjaxSave( Request $request, \Gomee\Models\Model $result )
@@ -180,7 +180,7 @@ trait CrudMethods
     {
         extract($this->apiDefaultData);
         $ids = $this->getIdListFromRequest($request);
-        $this->callCrudEvent('prepareMoveToTrash', $request);
+        $this->callCrudEvent('prepareMoveToTrash', $request, $ids);
         // nếu có id
         if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
@@ -236,7 +236,7 @@ trait CrudMethods
         // nếu có id
         $this->repository->resetDefaultParams();
         $this->repository->resetTrashed();
-        $this->callCrudEvent('prepareDelete', $request);
+        $this->callCrudEvent('prepareDelete', $request, $ids);
         if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
             foreach ($list as $result) {
@@ -285,7 +285,7 @@ trait CrudMethods
         $ids = $this->getIdListFromRequest($request);
         // nếu có id
         // return $ids;
-        $this->callCrudEvent('prepareRestore', $request);
+        $this->callCrudEvent('prepareRestore', $request, $ids);
         if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
 
