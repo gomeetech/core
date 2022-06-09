@@ -72,6 +72,7 @@ trait ModuleMethods
      */
     public function getResults(Request $request, array $args = [])
     {
+        if($this->repository::class == '\App\Repositories\Products\CategoryRepository') dd($this->repository);
         return $this->repository->getResults($request, $args);
     }
 
