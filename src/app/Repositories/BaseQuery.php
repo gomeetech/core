@@ -805,7 +805,7 @@ trait BaseQuery
             foreach ($actions as $act) {
                 // duyet qua cac action
                 if (is_array($act)) {
-                    dump($act['method'], in_array($act['method'], $this->sqlclause));
+                    // dump($act['method'], in_array($act['method'], $this->sqlclause));
                     if (isset($act['method']) && in_array($act['method'], $this->sqlclause)) {
                         //
                         call_user_func_array([$query, $act['method']], (isset($act['params']) && is_array($act['params'])) ? $act['params'] : []);
@@ -880,7 +880,6 @@ trait BaseQuery
                     }
                 }
             }
-            if (static::class == 'App\Repositories\Products\CategoryRepository') dd($actions);
         }
         return $query;
     }
