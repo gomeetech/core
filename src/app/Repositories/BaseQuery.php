@@ -596,7 +596,7 @@ trait BaseQuery
         if ($keywords) $this->buildSearchQuery($query, $keywords, $search_by, $prefix);
         // thao tac voi query builder thong qua tham so actions
         if ($actions) $this->doAction($actions, $query);
-        dd($actions);
+        if(static::class == '\App\Repositories\Products\CategoryRepository') dd($actions);
         // build orderby
         if ($orderby) $this->buildOrderByQuery($query, $orderby, $prefix);
         // build limit
