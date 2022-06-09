@@ -72,7 +72,7 @@ trait ModuleMethods
      */
     public function getResults(Request $request, array $args = [])
     {
-        dd($this->repository);
+        dump($this->repository);
         return $this->repository->getResults($request, $args);
     }
 
