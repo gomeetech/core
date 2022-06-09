@@ -782,6 +782,7 @@ trait BaseQuery
     /**
      * goi cac phuong thuc cua QueryBuilder
      *
+     * 
      * @param array $actions
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $prefix
