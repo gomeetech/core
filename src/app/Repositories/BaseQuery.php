@@ -592,7 +592,7 @@ trait BaseQuery
 
 
         $actions = array_merge($this->actions, $actions);
-        if(static::class == '\App\Repositories\Products\CategoryRepository') dd($actions);
+        if(static::class == 'App\Repositories\Products\CategoryRepository') dd($actions);
         // tim kiem trong bang dua tren cac cot
         if ($keywords) $this->buildSearchQuery($query, $keywords, $search_by, $prefix);
         // thao tac voi query builder thong qua tham so actions
