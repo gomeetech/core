@@ -17,7 +17,7 @@ trait ModuleMethods
     /**
      * @var \Gomee\Repositories\BaseRepository
      */
-    public $repository;
+    protected $repository;
 
     /**
      * @var string $module day là tên module cung la ten thu muc view va ten so it cua bang, thu muc trong asset
