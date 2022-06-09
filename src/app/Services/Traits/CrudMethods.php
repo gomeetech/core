@@ -186,7 +186,8 @@ trait CrudMethods
             $data = [];
             foreach ($list as $result) {
                 $id = $result->{$this->primaryKeyName};
-                if ($result->canMoveToTrash()) {
+                $canDel = $result->canMoveToTrash();
+                if ($canDel === true) {
 
                     // gọi hàm sự kiện truoc khi xóa
                     $this->callCrudEvent('beforeMoveToTrash', $result);
@@ -203,8 +204,11 @@ trait CrudMethods
                     $data[] = $id;
 
                     $status = true;
-                } else {
-                    $errors[] = "Bạn không thể di chuyển mục có id $id này vào thùng rác được";
+                } elseif(!is_bool($canDel) && is_string($canDel) && strlen($canDel)){
+                    $errors[] = $canDel;
+                }
+                else{
+                    $errors[] = "Bạn không thể di chuyển $this->moduleName ".($result->title?$result->title:($result->name?$result->name:($result->label?$result->label:'có id '.$id)))." này vào thùng rác được";
                 }
             }
             if ($status) {
@@ -214,7 +218,7 @@ trait CrudMethods
                     $message = "Đã xóa $this->moduleName thành công!";
                 }
             } else {
-                $message = "Không thể chuyển một số mục vào thùng rác được!";
+                $message = count($errors) == 1 ? $errors[0] : "Không thể chuyển một số mục vào thùng rác được!";
             }
         } else {
             $message = 'Không có mục nào được chọn';
@@ -237,12 +241,13 @@ trait CrudMethods
         $this->repository->resetDefaultParams();
         $this->repository->resetTrashed();
         $this->callCrudEvent('prepareDelete', $request, $ids);
+        $errors = [];
         if (count($ids) && count($list = $this->repository->get([$this->primaryKeyName => $ids]))) {
             $data = [];
             foreach ($list as $result) {
                 $id = $result->{$this->primaryKeyName};
-                if ($result->canDelete()) {
-
+                $canDel = $result->canDelete();
+                if ($canDel === true) {
                     // gọi hàm sự kiện truoc khi xóa
                     $this->callCrudEvent('beforeDelete', $result);
                     $this->fire('deleting', $this, $result);
@@ -259,13 +264,22 @@ trait CrudMethods
                     $data[] = $id;
 
                     $status = true;
-                } else {
-                    $errors[] = "Bạn không thể xóa mục có id $id này được";
+                } elseif(!is_bool($canDel) && is_string($canDel) && strlen($canDel)){
+                    $errors[] = $canDel;
+                }
+                else{
+                    $errors[] = "Bạn không thể xóa $this->moduleName ".($result->title?$result->title:($result->name?$result->name:($result->label?$result->label:'có id '.$id)))." này vào thùng rác được";
                 }
             }
 
-            if (!$status) {
-                $message = 'Có vẻ như thao tác không hợp lệ';
+            if ($status) {
+                if (($t = count($data)) > 1) {
+                    $message = "Đã xóa thành công $t $this->moduleName";
+                } else {
+                    $message = "Đã xóa $this->moduleName thành công!";
+                }
+            } else {
+                $message = count($errors) == 1 ? $errors[0] : "Không thể chuyển một số mục vào thùng rác được!";
             }
         } else {
             $message = 'Không có mục nào được chọn';
