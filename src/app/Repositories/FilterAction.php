@@ -58,7 +58,7 @@ trait FilterAction
      * ví dụ: ['(Select count(1) from comments where comments.post_id = posts.id) as comment_count', ...]
      */
     
-    protected $selectRaw = [];
+    protected $selectRawable = [];
     
     /**
      * @var array $whereable các cot hoặc dịnh danh cột có thể được bind theo request
@@ -753,8 +753,8 @@ trait FilterAction
             $this->select(...$select);
         }
 
-        if($this->selectRaw){
-            foreach ($this->selectRaw as $select) {
+        if($this->selectRawable){
+            foreach ($this->selectRawable as $select) {
                 $this->selectRaw($select);
             }
         }
@@ -1108,7 +1108,7 @@ trait FilterAction
     public function setSelectRaw(array $params = [])
     {
         if(is_array($params) && count($params)){
-            $this->selectRaw = array_merge($this->selectRaw, $params);
+            $this->selectRawable = array_merge($this->selectRawable, $params);
         }
         return $this;
     }
