@@ -767,6 +767,23 @@ trait ModelEventMethods
         return $desc;
     }
 
+    
+    public function sub($column = null, $length = 0, $after = '')
+    {
+        if(is_string($column) && is_string($a = $this->{$column})){
+            $a = strip_tags($a);
+            if(!$length || $length >= strlen($a)) return $a;
+            $b = substr($a, 0, $length);
+            $c = explode(' ', $b);
+            $d = array_pop($c);
+            $e = implode(' ', $c);
+            $f = $e.$after;
+        }else{
+            $f = null;
+        }
+        return $f;
+    }
+
     public function shortContent($length=null, $after = '...')
     {
         $desc = null;

@@ -132,6 +132,15 @@ trait DefaultMethods{
             return true;
         });
 
+        static::extend('check_number', function($name, $value, $parameters){
+            if(is_null($value)) return true;
+            if(!is_numeric($value)) return false;
+            if($parameters && $params = $this->parseParameters($parameters)){
+                return in_array($value, $params);
+            }
+            return true;
+        });
+
         
         static::extend('in_list', function($name, $value, $parameters){
             if(is_null($value)) return true;

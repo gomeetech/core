@@ -285,6 +285,7 @@ class MenuItem extends HtmlDom
         );
     }
 
+    
     /**
      * lấy thuộc tính
      * @param string $name
