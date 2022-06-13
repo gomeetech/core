@@ -89,6 +89,7 @@ class ColumnItem{
         }
         elseif($type == 'order' || $options->order){
             $content = static::$order + ($options->order?$options->order:0);
+            $options->class.=" order-col";
         }
         elseif($type == 'data' && $options->data_key && $options->value_key){
             $vkey = static::getDataFromString($options->value_key);
