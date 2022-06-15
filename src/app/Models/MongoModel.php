@@ -8,9 +8,11 @@ use Jenssegers\Mongodb\Eloquent\SoftDeletes;
 
 class MongoModel extends BaseModel
 {
-    use ModelEventMethods, ModelFileMethods;
+    use ModelEventMethods, ModelFileMethods, CommonMethods;
 
     const MODEL_TYPE = 'mongo'; 
+    const UNTRASHED = 0;
+    const TRASHED = 1;
 
     protected $connection = DbConnectionConstant::NOSQL;
 

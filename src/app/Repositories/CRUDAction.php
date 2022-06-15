@@ -13,6 +13,12 @@ use Illuminate\Http\Request;
 
 /**
  * Các phuong thức để crud
+ * @method array beforeCreate(array $data) can thiep va tra ve mang du lieu truoc khi tao moi
+ * @method array beforeUpdate(array $data, int $id) can thiep va tra ve mang du lieu truoc khi cap nhat
+ * @method array beforeSave(array $data, int $id = null) can thiep va tra ve mang du lieu truoc khi cap nhat hoac tao moi
+ * @method void afterCreate(Model $result) thuc hien hanh dong sau khi khoi tao
+ * @method void afterUpdate(Model $result) thuc hien hanh dong sau khi khi cap nhat
+ * @method void afterSave(Model $result) thuc hien hanh dong sau khi cap nhat hoac tao moi
  */
 trait CRUDAction
 {
@@ -20,7 +26,7 @@ trait CRUDAction
      * @var string $validatorClass
      * full class name 
      */
-    protected $validatorClass = 'Base\ExampleValidator';
+    protected $validatorClass = 'ExampleValidator';
     
     /**
      *

@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model as BaseModel;
 class Model extends BaseModel
 {
     //
-    use ModelEventMethods, ModelFileMethods;
+    use ModelEventMethods, ModelFileMethods, CommonMethods;
     const MODEL_TYPE = 'default';
+    const UNTRASHED = 0;
+    const TRASHED = 1;
+
 
     public function __getModelType__()
     {

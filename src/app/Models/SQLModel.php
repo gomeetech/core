@@ -13,11 +13,13 @@ use Illuminate\Database\Eloquent\Model as BaseModel;
 class SQLModel extends BaseModel
 {
     //
-    use HasFactory, ModelEventMethods, ModelFileMethods;
+    use HasFactory, ModelEventMethods, ModelFileMethods, CommonMethods;
 
     protected $connection = DbConnectionConstant::SQL;
 
     const MODEL_TYPE = 'sql';
+    const UNTRASHED = 0;
+    const TRASHED = 1;
 
     public function __getModelType__()
     {

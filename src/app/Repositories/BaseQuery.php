@@ -628,7 +628,7 @@ trait BaseQuery
      * @param string $type
      * @param string $relation
      * @param mixed $func
-     * @return static
+     * @return $this
      */
     public function eager($type = 'with', $relation = null, $func = null, $queryBuilder = null)
     {
