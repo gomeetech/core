@@ -200,10 +200,10 @@ abstract class Validator{
             foreach($rules as $key => $rule){
                 $explode = explode('.', $key);
                 if(count($explode) == 1){
-                    $rs = array_map(function($v){
+                    $rs =  array_map(function($v){
                         $b = explode(':', $v);
                         return $b[0];
-                    }, explode('|', str_replace(' ', '', $rule)));
+                    }, is_array($rule)? $rule : explode('|', str_replace(' ', '', $rule)));
                     if(in_array('strdate', $rs)){
                         $strdate[] = $key;
                         continue;

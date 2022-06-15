@@ -31,10 +31,6 @@ class NAMERepository extends BaseRepository
      */
     protected $maskCollectionClass = MODELCollection::class;
 
-    /**
-     * @var \App\Models\MODEL
-     */
-    static $__Model__;
 
     /**
      * get model
