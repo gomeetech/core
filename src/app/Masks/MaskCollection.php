@@ -1,4 +1,5 @@
 <?php
+
 namespace Gomee\Masks;
 
 // biến đổi model thành một object để tránh bị crack
@@ -16,7 +17,8 @@ use Illuminate\Pagination\AbstractPaginator;
 
 use ReflectionClass;
 
-abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable {
+abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable
+{
 
     protected $mask = '';
 
@@ -34,28 +36,29 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
 
     public function __construct($collection, $total = 0, $mask = null)
     {
-        if($mask && class_exists($mask)){
+        if ($mask && class_exists($mask)) {
             $this->mask = $mask;
-        }
-        elseif(method_exists($this, 'getMask')){
+        } elseif (method_exists($this, 'getMask')) {
             $this->mask = $this->getMask();
         }
         $this->total = $total;
-        if(count($collection)){
-            if(is_a($collection, LengthAwarePaginator::class) || is_a($collection, AbstractPaginator::class)){
+        if ($t = count($collection)) {
+            if (!$total) $this->total = $t;
+            if (is_a($collection, LengthAwarePaginator::class) || is_a($collection, AbstractPaginator::class)) {
                 $this->paginator = $collection;
                 $this->isPaginator = true;
-                $this->total = $collection->total();
-
-            }
-            if($this->mask && class_exists($this->mask)){
-                foreach($collection as $key => $item){
-                    $rc = new ReflectionClass($this->mask);
-                    $this->items[$key] = $rc->newInstanceArgs( [$item] );
+                if ($tal = $collection->total()) {
+                    $this->total = $tal;
                 }
-            }else{
-                foreach($collection as $key => $item){
-                    $this->items[$key] = new MaskExample($this->mask);
+            }
+            if ($this->mask && class_exists($this->mask)) {
+                foreach ($collection as $key => $item) {
+                    $rc = new ReflectionClass($this->mask);
+                    $this->items[$key] = $rc->newInstanceArgs([$item]);
+                }
+            } else {
+                foreach ($collection as $key => $item) {
+                    $this->items[$key] = new ExampleMask($this->mask);
                 }
             }
         }
@@ -70,9 +73,9 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      */
     public function links(string $blade, array $args = [])
     {
-        if($this->isPaginator){
+        if ($this->isPaginator) {
             $paginator = $this->paginator;
-            if($args) $paginator->appends($args);
+            if ($args) $paginator->appends($args);
             return $paginator->links($blade);
         }
         return null;
@@ -93,24 +96,24 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     //         }
     //     })();
     // }
-    
+
     /**
      * Get an iterator for the items.
      *
      * @return \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->items);
     }
 
-    
+
     /**
      * Count the number of items in the collection.
      *
      * @return int
      */
-    public function count()
+    public function count() : int
     {
         return count($this->items);
     }
@@ -119,7 +122,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     {
         return $this->total;
     }
-    
+
 
     /**
      * Bắt dầu hiển thị từ số
@@ -128,14 +131,14 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      */
     public function from()
     {
-        if($this->isPaginator){
+        if ($this->isPaginator) {
             $currrent = $this->currentPage();
-            if($currrent < 1) $currrent = 1;
+            if ($currrent < 1) $currrent = 1;
             $perPage = $this->perPage();
-            if(!$perPage) $perPage = 10;
-            return ($currrent -1) * $perPage + 1;
+            if (!$perPage) $perPage = 10;
+            return ($currrent - 1) * $perPage + 1;
         }
-        return $this->total()?1:0;
+        return $this->total() ? 1 : 0;
     }
 
     /**
@@ -146,11 +149,11 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     public function to()
     {
         $total = $this->total;
-        if($this->isPaginator){
+        if ($this->isPaginator) {
             $currrent = $this->currentPage();
-            if($currrent < 1) $currrent = 1;
+            if ($currrent < 1) $currrent = 1;
             $perPage = $this->perPage();
-            if(!$perPage) $perPage = 10;
+            if (!$perPage) $perPage = 10;
             $t = $currrent * $perPage;
             return $t > $total ? $total : $t;
         }
@@ -165,7 +168,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      * @param  mixed  $key
      * @return bool
      */
-    public function offsetExists($key)
+    public function offsetExists($key): bool
     {
         return array_key_exists($key, $this->items);
     }
@@ -188,7 +191,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      * @param  mixed  $value
      * @return void
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value) : void
     {
         if (is_null($key)) {
             $this->items[] = $value;
@@ -203,12 +206,12 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      * @param  string  $key
      * @return void
      */
-    public function offsetUnset($key)
+    public function offsetUnset($key) : void
     {
         unset($this->items[$key]);
     }
 
-    
+
     /**
      * Convert the object into something JSON serializable.
      *
@@ -230,11 +233,11 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     }
 
 
-    
+
     public function toArray()
     {
         $data = [];
-        if(count($this->items)){
+        if (count($this->items)) {
             foreach ($this->items as $key => $item) {
                 $data[$key] = $item->toArray();
             }
@@ -250,7 +253,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
 
     public function __call($name, $arguments)
     {
-        if(in_array($name, $this->accessAllowed) && $this->isPaginator){
+        if (in_array($name, $this->accessAllowed) && $this->isPaginator) {
             return call_user_func_array([$this->paginator, $name], $arguments);
         }
         return null;
@@ -259,7 +262,4 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     {
         return $this->toJson();
     }
-
-
-    
 }
