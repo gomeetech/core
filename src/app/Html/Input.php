@@ -234,8 +234,8 @@ class Input extends HtmlDom
                     $properties = $this->_attrs;
                     $df = $this->defVal();
                     foreach ($opts as $k => $v) {
-                        $slt .= ' <label class="inp-label checkbox-label ' . $this->label_class . ' pr-3"><input type="radio" name="' . $this->name . '" value="' . $k . '"' . (($df == $k) ? ' checked="checked"' : "") . ' class="' . $this->className . '"';
-                        $slt .= '> <span></span> <i>' . $v . '</i></label>';
+                        $slt .= ' <label class="inp-label checkbox-label ' . $this->label_class . ' pr-3" id="radio-label-type--' . $k . '"><input type="radio" name="' . $this->name . '" value="' . htmlentities($k) . '"' . (($df == $k) ? ' checked="checked"' : "") . ' class="' . $this->className . '"';
+                        $slt .= '> <span></span> <i>' . htmlentities($v) . '</i></label>';
                     }
                     $this->html($slt);
                 }
@@ -248,7 +248,7 @@ class Input extends HtmlDom
                 }
                 if ($this->is_free) return parent::render();
                 $this->before('<label class="checkbox-label ' . $this->label_class . '">');
-                $this->after(' <span class="check-spacing"></span> <i class="checkbox-label-span">' . $this->_data['check_label'] . '</i></label>');
+                $this->after(' <span class="check-spacing"></span> <i class="checkbox-label-span">' . htmlentities($this->_data['check_label']) . '</i></label>');
                 return parent::render();
                 break;
             case 'check':
