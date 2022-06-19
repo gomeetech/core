@@ -1138,7 +1138,7 @@ trait BaseQuery
 
     /**
      * phân trang
-     * @param integer"bool|null
+     * @param integer|bool|null
      * @return static
      */
     public function paginate($paginate = null)

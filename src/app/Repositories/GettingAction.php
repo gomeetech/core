@@ -49,6 +49,11 @@ trait GettingAction
         return null;
     }
 
+    public function beforeGetData($data = [])
+    {
+        # code...
+    }
+
     /**
      * lấy nhanh thông tin theo một trường nào đó
      * @param string $column
@@ -74,7 +79,7 @@ trait GettingAction
     public function get($args = [])
     {
         $this->hasPaginateParam = false;
-        $this->beforeGetData($args);
+        if(is_array($a = $this->beforeGetData($args))) $args = $a;
         $paginate = null;
         $limit = null;
         if(is_array($args)){
@@ -96,7 +101,7 @@ trait GettingAction
             $this->totalCount = $query->count();
             $this->buildLimitQuery($query, $limit);
         }
-        if($paginate){
+        elseif($paginate){
             $this->hasPaginateParam = true;
             $collection = $query->paginate($paginate);
             $this->totalCount = $collection->total();
@@ -118,7 +123,7 @@ trait GettingAction
     public function getOnly($args = [])
     {
         $this->hasPaginateParam = false;
-        $this->beforeGetData($args);
+        if(is_array($a = $this->beforeGetData($args))) $args = $a;
         $paginate = null;
         $limit = null;
         if(is_array($args)){
@@ -154,7 +159,7 @@ trait GettingAction
      */
     public function first($args = [])
     {
-        $this->beforeGetData($args);
+        if(is_array($a = $this->beforeGetData($args))) $args = $a;
         $query = $this->query($args);
         // $this->last_query_builder = $query;
         if(is_array($args)){
@@ -172,7 +177,7 @@ trait GettingAction
      */
     public function count($args = [])
     {
-        $this->beforeGetData($args);
+        if(is_array($a = $this->beforeGetData($args))) $args = $a;
         if(is_array($args)){
             if(isset($args['@paginate'])){
                 unset($args['@paginate']);
@@ -211,7 +216,7 @@ trait GettingAction
      */
     public function sum($column, $args = [])
     {
-        $this->beforeGetData($args);
+        if(is_array($a = $this->beforeGetData($args))) $args = $a;
         return $this->query($args)->sum($column);
     }
 
@@ -224,7 +229,7 @@ trait GettingAction
      */
     public function avg($column, $args = [])
     {
-        $this->beforeGetData($args);
+        if(is_array($a = $this->beforeGetData($args))) $args = $a;
         return $this->query($args)->avg($column);
     }
 
