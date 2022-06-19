@@ -101,7 +101,7 @@ trait GettingAction
             $this->totalCount = $query->count();
             $this->buildLimitQuery($query, $limit);
         }
-        elseif($paginate){
+        if($paginate){
             $this->hasPaginateParam = true;
             $collection = $query->paginate($paginate);
             $this->totalCount = $collection->total();
