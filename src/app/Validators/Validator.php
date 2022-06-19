@@ -204,6 +204,7 @@ abstract class Validator{
                         $b = explode(':', $v);
                         return $b[0];
                     }, is_array($rule)? $rule : explode('|', str_replace(' ', '', $rule)));
+                    
                     if(in_array('strdate', $rs)){
                         $strdate[] = $key;
                         continue;
@@ -230,18 +231,15 @@ abstract class Validator{
                         continue;
                     }elseif(in_array('strdatetime', $rs)){
                         $datetimes[] = $key;
-                        $val = $this->datetimes[$key];
-                        $data[$key] = $val??null;
+                        $data[$key] = $this->datetimes[$key]??null;
                         continue;
                     }elseif(in_array('arrdate', $rs)){
                         $arrdate[] = $key;
-                        $val = $this->arrdate[$key];
-                        $data[$key] = $val??null;
+                        $data[$key] = $this->arrdate[$key]??null;
                         continue;
                     }elseif(in_array('datetimerange', $rs)){
                         $datetimes[] = $key;
-                        $val = $this->datetimes[$key];
-                        $data[$key] = $val??null;
+                        $data[$key] = $this->datetimes[$key]??null;
                         continue;
                     }
                 }
