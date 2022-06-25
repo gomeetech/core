@@ -36,7 +36,7 @@ trait FileMethods
             $p = $this->storagePath;
         }
         else{
-            $p = Helper::public_path();
+            $p = Helper::public_path('static/contents');
         }
         return rtrim($p, '/') . '/' . ltrim($path);
     }
