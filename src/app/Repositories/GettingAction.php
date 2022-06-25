@@ -110,7 +110,9 @@ trait GettingAction
         }
 
         // if($this->mode == 'mask') return $this->parseCollection($collection);
-
+        if($this->loadAfter){
+            $this->lazyLoad($collection);
+        }
         return $collection;
     }
 
@@ -147,7 +149,9 @@ trait GettingAction
         }else{
             $collection = $query->get();
         }
-
+        if($this->loadAfter){
+            $this->lazyLoad($collection);
+        }
         return $collection;
     }
 
@@ -165,7 +169,11 @@ trait GettingAction
         if(is_array($args)){
             //
         }
-        return $query->first();
+        $rs = $query->first();
+        if($this->loadAfter){
+            $this->lazyLoad($rs);
+        }
+        return $rs;
     }
 
 

@@ -105,6 +105,8 @@ trait BaseQuery
 
     ];
 
+
+
     /**
      * các tham số mặc định
      * @var array
@@ -146,6 +148,7 @@ trait BaseQuery
      */
     protected $args = [];
 
+    protected $loadAfter = [];
     /**
      * phan trang
      * @var integer
@@ -778,6 +781,15 @@ trait BaseQuery
         return $query;
     }
 
+    protected function lazyLoad($collection)
+    {
+        if($this->loadAfter){
+            foreach ($this->loadAfter as $key => $act) {
+                call_user_func_array([$collection, $act['method']], $act['params']);
+            }
+        }
+        $this->loadAfter = [];
+    }
 
     /**
      * goi cac phuong thuc cua QueryBuilder
@@ -801,7 +813,7 @@ trait BaseQuery
         $fields = $this->getFields();
 
         if (is_array($actions)) {
-            
+
 
             foreach ($actions as $act) {
                 // duyet qua cac action
@@ -809,7 +821,8 @@ trait BaseQuery
                     // dump($act['method'], in_array($act['method'], $this->sqlclause));
                     if (isset($act['method']) && in_array($act['method'], $this->sqlclause)) {
                         //
-                        call_user_func_array([$query, $act['method']], (isset($act['params']) && is_array($act['params'])) ? $act['params'] : []);
+                        if (in_array($act['method'], ['load', 'loadCount'])) $this->loadAfter[] = $act;
+                        else call_user_func_array([$query, $act['method']], (isset($act['params']) && is_array($act['params'])) ? $act['params'] : []);
                         continue;
                     }
                     $aract = $act;
