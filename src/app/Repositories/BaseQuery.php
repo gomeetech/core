@@ -542,7 +542,7 @@ trait BaseQuery
                                     call_user_func_array([$query, $func], $param);
                                 }
                             } elseif (in_array($eager = substr($f, 0, 9), ['withcount', 'loadcount'])) {
-                                $this->eager($eager, substr($ff, 10), $vl);
+                                $this->eager($eager, substr($ff, 9), $vl);
                             }
                             elseif (in_array($eager2 = substr($f, 0, 4), ['with', 'load'])) {
                                 $this->eager($eager2, substr($ff, 4), $vl);
