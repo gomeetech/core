@@ -686,7 +686,7 @@ trait BaseQuery
                                     }
                                 } elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
                                     $this->eager($eager, substr($key, 5), $value, $query);
-                                } elseif (in_array($eager2 = substr($kl, 0, 9), ['withCount', 'loadCount'])) {
+                                } elseif (in_array($eager2 = substr($kl, 0, 9), ['withcount', 'loadcount'])) {
                                     $this->eager($eager2, substr($key, 10), $value, $query);
                                 }
                             }
