@@ -541,8 +541,11 @@ trait BaseQuery
                                     $param = is_array($vl) ? $vl : [$vl];
                                     call_user_func_array([$query, $func], $param);
                                 }
-                            } elseif (in_array($eager = substr($f, 0, 4), ['with', 'load'])) {
-                                $this->eager($eager, substr($ff, 4), $vl);
+                            } elseif (in_array($eager = substr($f, 0, 9), ['withcount', 'loadcount'])) {
+                                $this->eager($eager, substr($ff, 10), $vl);
+                            }
+                            elseif (in_array($eager2 = substr($f, 0, 4), ['with', 'load'])) {
+                                $this->eager($eager2, substr($ff, 4), $vl);
                             }
 
 
@@ -684,11 +687,11 @@ trait BaseQuery
                                         $param = is_array($value) ? $value : [$value];
                                         call_user_func_array([$query, $func], $param);
                                     }
-                                } elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
-                                    $this->eager($eager, substr($key, 5), $value, $query);
                                 } elseif (in_array($eager2 = substr($kl, 0, 9), ['withcount', 'loadcount'])) {
                                     $this->eager($eager2, substr($key, 10), $value, $query);
-                                }
+                                }elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
+                                    $this->eager($eager, substr($key, 5), $value, $query);
+                                } 
                             }
                         } else {
                             if (is_array($value)) {
