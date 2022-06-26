@@ -542,9 +542,8 @@ trait BaseQuery
                                     call_user_func_array([$query, $func], $param);
                                 }
                             } elseif (in_array($eager = substr($f, 0, 9), ['withcount', 'loadcount'])) {
-                                $this->eager($eager, substr($ff, 9), $vl);
-                            }
-                            elseif (in_array($eager2 = substr($f, 0, 4), ['with', 'load'])) {
+                                $this->eager(substr($ff, 0, 9), substr($ff, 9), $vl);
+                            } elseif (in_array($eager2 = substr($f, 0, 4), ['with', 'load'])) {
                                 $this->eager($eager2, substr($ff, 4), $vl);
                             }
 
@@ -688,10 +687,10 @@ trait BaseQuery
                                         call_user_func_array([$query, $func], $param);
                                     }
                                 } elseif (in_array($eager2 = substr($kl, 0, 9), ['withcount', 'loadcount'])) {
-                                    $this->eager($eager2, substr($key, 10), $value, $query);
-                                }elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
+                                    $this->eager(substr($key, 1, 9), substr($key, 10), $value, $query);
+                                } elseif (in_array($eager = substr($kl, 0, 4), ['with', 'load'])) {
                                     $this->eager($eager, substr($key, 5), $value, $query);
-                                } 
+                                }
                             }
                         } else {
                             if (is_array($value)) {
@@ -786,7 +785,7 @@ trait BaseQuery
 
     protected function lazyLoad($collection)
     {
-        if($this->loadAfter){
+        if ($this->loadAfter) {
             foreach ($this->loadAfter as $key => $act) {
                 call_user_func_array([$collection, $act['method']], $act['params']);
             }
