@@ -16,7 +16,7 @@ if(!function_exists('compilejs')){
             echo "File không tồn tại";
             return;
         }
-        $file->cd($cf->path);
+        $file->cd(base_path($cf->path));
         $list = [];
         $cnt = "";
         if($cf->sources){
