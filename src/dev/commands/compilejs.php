@@ -11,7 +11,7 @@ if(!function_exists('compilejs')){
             echo "Bạn chưa nhập file config";
             return;
         }
-        $file = new Filemanager(base_path());
+        $file = new Filemanager(base_path('json/compiler'));
         if(!($cf = $file->getJson($config, true))){
             echo "File không tồn tại";
             return;
