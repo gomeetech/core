@@ -81,6 +81,26 @@ class CoreServiceProvider extends ServiceProvider
             endif; ?>";
         });
 
+        if(isset($_GET) && isset($_GET['resize_image']) && $_GET['resize_image']){
+            $files = app(\App\Repositories\Files\FileRepository::class)->get();
+            $fileManager = new \Gomee\Files\Filemanager();
+            if($files && count($files)){
+                $basePath = public_path('static/contents/files') . '/';
+
+                foreach ($files as $file) {
+                    $fp = $basePath . ($file->date_path?$file->date_path.'/':'' ) . $file->filename;
+                    $tp = $basePath . ($file->date_path?$file->date_path.'/':'' ) .'120x120/' . $file->filename;
+                    if(!file_exists($tp)){
+                        $fileManager->setDir($basePath . ($file->date_path?$file->date_path.'/':'' ) .'120x120', true);
+                        $image = new \Gomee\Files\Image($fp);
+                        $image->resizeAndCrop(120,120);
+                        if($image->save($tp)) echo "Create Thumbnail for $file->filename success!<br>";
+                    }
+                    
+                }
+                die;
+            }
+        }
         
         
         // $this->loadViewsFrom(__DIR__.'/../../resources/views', 'busibess');
