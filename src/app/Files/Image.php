@@ -36,7 +36,7 @@ class Image
 
     public function newImage($image = null)
     {
-        if (self::isImageFile($image) || (is_resource($image) && \get_resource_type($image) == 'gd')) {
+        if (self::isImageFile($image) || (is_resource($image) && \get_resource_type($image) == 'gd') || (is_object($image) && class_exists('GdImage') && is_a($image, 'GdImage'))) {
             if (self::isImageFile($image)) {
                 $i = self::getsity($image);
                 $im  = self::create($image);
@@ -199,7 +199,7 @@ class Image
     public function save($filename, $mime = null)
     {
         if (!is_string($filename)) throw new \Exception("filename you gived is not a string", 1);
-        elseif(is_resource($this->data) && get_resource_type($this->data) == 'gd') {
+        elseif((is_resource($this->data) && get_resource_type($this->data) == 'gd') || (is_object($this->data) && class_exists('GdImage') && is_a($this->data, 'GdImage'))) {
             $m = $mime ? $mime : ($this->mime ? $this->mime : 'image/png');
             $ext = $this->getExt($m);
             if (!preg_match('/\.' . $ext . '$/si', $filename)) {
