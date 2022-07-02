@@ -22,7 +22,7 @@ trait BaseCrud
     public $updateMessage = null;
 
     /**
-     * @var \Gomee\Validators\BaseValidator
+     * @var \Gomee\Validators\Validator
      */
     public $validator;
 

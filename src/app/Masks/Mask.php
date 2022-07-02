@@ -310,7 +310,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
      *
      * @return \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator():ArrayIterator
     {
         return new ArrayIterator($this->data);
     }
@@ -370,13 +370,13 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
      * đếm phần tử
      * @return int
      */
-    public function count()
+    public function count():int
     {
         return count($this->data);
     }
 
      
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value):void {
         if (is_null($offset)) {
             $this->data[] = $value;
         } else {
@@ -384,11 +384,11 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         }
     }
 
-    public function offsetExists($offset) {
+    public function offsetExists($offset):bool {
         return isset($this->data[$offset]);
     }
 
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset):void {
         unset($this->data[$offset]);
     }
 
@@ -404,6 +404,27 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         
         return array_merge($this->data, $this->getRelationsLoaded());
     }
+
+    public function toDeepArray()
+    {
+        return array_map(function ($value) {
+            if (is_a($value, static::class)) {
+                return $value->toDeepArray();
+            }
+            elseif (is_object($value) && is_callable([$value, 'toDeepArray'])) {
+                return $value->toArray();
+            }
+            elseif ($value instanceof Arrayable) {
+                return $value->toArray();
+            }
+            elseif (is_object($value) && is_callable([$value, 'toArray'])) {
+                return $value->toArray();
+            }
+
+            return $value;
+        }, $this->toArray());
+    }
+
 
     public function toJson($options = 0)
     {

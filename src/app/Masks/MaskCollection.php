@@ -245,6 +245,28 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
         return $data;
     }
 
+    
+    public function toDeepArray()
+    {
+        return array_map(function ($value) {
+            if (is_a($value, static::class)) {
+                return $value->toDeepArray();
+            }
+            elseif (is_object($value) && is_callable([$value, 'toDeepArray'])) {
+                return $value->toArray();
+            }
+            elseif ($value instanceof Arrayable) {
+                return $value->toArray();
+            }
+            elseif (is_object($value) && is_callable([$value, 'toArray'])) {
+                return $value->toArray();
+            }
+
+            return $value;
+        }, $this->toArray());
+    }
+
+
     public function toJson($options = 0)
     {
         return json_encode($this->toArray());
