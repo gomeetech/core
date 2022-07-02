@@ -700,7 +700,8 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     {
 
         if(is_array($array)){
-            foreach ($array as $key => $value) {
+            $a = $array;
+            foreach ($a as $key => $value) {
                 if(is_array($value)){
                     $array[$key] = static::_entities($value);
                 }elseif(is_numeric($value)){
@@ -716,6 +717,9 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         return $array;
     }
 
+    protected static $funcs = [
+        'prefix', 'setPrefix', 'match', 'entities'
+    ];
     /**
      * gọi hàm với tên thuộc tính với tham số là giá trị default
      * @param string $name
