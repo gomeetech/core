@@ -32,7 +32,8 @@ trait FileMethods
     public function parsePath($path)
     {
         if($path == substr($base = base_path(), 0, strlen($path))) return $path;
-        if($this->storagePath == substr($base, 0, strlen($this->storagePath))){
+        if(str_replace('static/contents', '', $path)  != $path) $p = Helper::public_path('/');
+        elseif($this->storagePath == substr($base, 0, strlen($this->storagePath))){
             $p = $this->storagePath;
         }
         else{
