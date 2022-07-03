@@ -696,14 +696,14 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
 
     
     
-    protected static function _entities($array = [])
+    protected static function __entities($array = [])
     {
 
         if(is_array($array)){
             $a = $array;
             foreach ($a as $key => $value) {
                 if(is_array($value)){
-                    $array[$key] = static::_entities($value);
+                    $array[$key] = static::__entities($value);
                 }elseif(is_numeric($value)){
 
                 }elseif(is_string($value)){
@@ -727,12 +727,13 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function __call($name, $arguments)
     {
-        if($name == 'prefix') return static::__prefix($this->data, ...$arguments);
-        if($name == 'setPrefix') return static::__setPrefix($this->data, ...$arguments);
-        if($name == 'match') return static::__match($this->data, ...$arguments);
         if($name == 'entities') {
-            $this->data = static::_entities($this->data, ...$arguments);
+            $this->data = static::__entities($this->data, ...$arguments);
             return $this;
+        }
+        elseif (in_array($name, static::$funcs)) {
+            array_unshift($arguments, $this->data);
+            return call_user_func_array('static::__' . $name, $arguments);
         }
         return $this->get($name, ...$arguments);
     }
@@ -740,11 +741,12 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
 
     public static function __callStatic($name, $arguments)
     {
-        if($name == 'prefix') return static::__prefix(...$arguments);
-        if($name == 'setPrefix') return static::__setPrefix(...$arguments);
-        if($name == 'match') return static::__match(...$arguments);
-        if($name == 'entities') return static::_entities(...$arguments);
-
+        if (in_array($name, static::$funcs)) {
+            return call_user_func_array('static::__' . $name, $arguments);
+        }
+        if (in_array(str_replace('__', '', $name), static::$funcs)) {
+            return call_user_func_array('static::' . $name, $arguments);
+        }
     }
 
     /**
