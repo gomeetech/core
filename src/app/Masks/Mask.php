@@ -383,6 +383,9 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if(array_key_exists($name, $this->data)){
             return $this->data[$name];
         }
+        if(!$this->isLock && array_key_exists($name, $this->relationMap) && $this->hasRelation($name)){
+            return $this->relation($name);
+        }
         if(!$this->isLock || in_array($name, $this->accessAllowed)){
             return $this->model->{$name};
         }
