@@ -22,6 +22,11 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
 
     protected $mask = '';
 
+    /**
+     * danh sach item
+     *
+     * @var Mask[]
+     */
     protected $items = [];
 
     protected $total = 0;
@@ -270,6 +275,25 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
         return json_encode($this->toArray());
     }
 
+
+    /**
+     * set thuoc tinh cho toan bo item
+     *
+     * @param string|array $attr
+     * @param mixed $value
+     * @return $this
+     */
+    protected function set($attr, $value = null, $setEachModel = false)
+    {
+        if(is_array($attr)) $data = $attr;
+        elseif (is_string($attr) || is_numeric($attr)) {
+            $data = [$attr=>$value];
+        }
+        array_map(function($item) use($data, $setEachModel){
+            $item->set($data, null, $setEachModel);
+        }, $this->items);
+        return $this;
+    }
 
     public function __call($name, $arguments)
     {

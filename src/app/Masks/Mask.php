@@ -309,6 +309,36 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
     //     return [];
     // }
 
+
+    
+    /**
+     * set thuoc tinh cho toan bo item
+     *
+     * @param string|array $attr
+     * @param mixed $value
+     * @return $this
+     */
+    public function set($attr, $value = null, $setInModel = false)
+    {
+        if(is_array($attr)) $data = $attr;
+        elseif (is_string($attr) || is_numeric($attr)) {
+            $data = [$attr=>$value];
+        }
+        if ($setInModel) {
+            foreach ($data as $key => $value) {
+                $this->data[$key] = $value;
+                $this->model->{$key} = $value;
+            }
+            return $this;
+        }
+        foreach ($data as $key => $value) {
+            $this->data[$key] = $value;
+        }
+        return $this;
+    }
+
+
+
     /**
      * Get an iterator for the items.
      *
