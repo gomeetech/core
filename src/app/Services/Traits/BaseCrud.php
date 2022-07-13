@@ -20,6 +20,7 @@ trait BaseCrud
 {
     public $createMessage = null;
     public $updateMessage = null;
+    public $handleMessage = null;
 
     /**
      * @var \Gomee\Validators\Validator
@@ -205,7 +206,7 @@ trait BaseCrud
 
         $redirect = $this->redirectAfterHandle();
 
-        return $redirect->with('success', "Thao tác thành công");
+        return $redirect->with('success', $this->handleMessage?$this->handleMessage: "Thao tác thành công");
     }
 
 

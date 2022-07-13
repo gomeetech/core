@@ -120,7 +120,7 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
             $name = $input->name;
 
             // set id neu trong
-            if (!$input->{MODEL_PRIMARY_KEY}) {
+            if (!$input->id) {
                 $input->id = str_replace(['[', ']'], ['-', ''], $name);
             }
 
@@ -518,7 +518,7 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
 
 
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value):void
     {
         if (is_null($offset)) {
             $this->_data[] = $value;
@@ -527,12 +527,12 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
         }
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset):bool
     {
         return isset($this->_data[$offset]);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset):void
     {
         unset($this->_data[$offset]);
     }
@@ -548,13 +548,13 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
      *
      * @return \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator():ArrayIterator
     {
         return new ArrayIterator($this->_data);
     }
 
 
-    public function count()
+    public function count():int
     {
         return count($this->_data);
     }

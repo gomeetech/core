@@ -42,8 +42,15 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
             $this->mask = $this->getMask();
         }
         $this->total = $total;
+
         if ($t = count($collection)) {
             if (!$total) $this->total = $t;
+
+            // đầu tiên phải chạy qua init để thiết lập thông sớ
+            if (method_exists($this, 'init')) {
+                $this->init();
+            }
+            
             if (is_a($collection, LengthAwarePaginator::class) || is_a($collection, AbstractPaginator::class)) {
                 $this->paginator = $collection;
                 $this->isPaginator = true;
@@ -60,6 +67,11 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
                 foreach ($collection as $key => $item) {
                     $this->items[$key] = new ExampleMask($this->mask);
                 }
+            }
+
+            // gọi hàm onloaded khi hoàn tất quá trình
+            if (method_exists($this, 'onLoaded')) {
+                $this->onLoaded();
             }
         }
     }
@@ -86,17 +98,6 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
         return $this->links($blade, $args);
     }
 
-    // protected abstract function getMask();
-
-    // public function getIterator()
-    // {
-    //     return (function () {
-    //         while(list($key, $val) = each($this->items)) {
-    //             yield $key => $val;
-    //         }
-    //     })();
-    // }
-
     /**
      * Get an iterator for the items.
      *
@@ -113,7 +114,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      *
      * @return int
      */
-    public function count() : int
+    public function count(): int
     {
         return count($this->items);
     }
@@ -191,7 +192,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      * @param  mixed  $value
      * @return void
      */
-    public function offsetSet($key, $value) : void
+    public function offsetSet($key, $value): void
     {
         if (is_null($key)) {
             $this->items[] = $value;
@@ -206,7 +207,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      * @param  string  $key
      * @return void
      */
-    public function offsetUnset($key) : void
+    public function offsetUnset($key): void
     {
         unset($this->items[$key]);
     }
@@ -245,20 +246,17 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
         return $data;
     }
 
-    
+
     public function toDeepArray()
     {
         return array_map(function ($value) {
             if (is_a($value, static::class)) {
                 return $value->toDeepArray();
-            }
-            elseif (is_object($value) && is_callable([$value, 'toDeepArray'])) {
+            } elseif (is_object($value) && is_callable([$value, 'toDeepArray'])) {
                 return $value->toArray();
-            }
-            elseif ($value instanceof Arrayable) {
+            } elseif ($value instanceof Arrayable) {
                 return $value->toArray();
-            }
-            elseif (is_object($value) && is_callable([$value, 'toArray'])) {
+            } elseif (is_object($value) && is_callable([$value, 'toArray'])) {
                 return $value->toArray();
             }
 

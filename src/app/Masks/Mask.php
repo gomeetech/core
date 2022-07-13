@@ -271,15 +271,19 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
      */
     final protected function checkRelation($key)
     {
-        if(array_key_exists($key, $this->relationMap)){
-            // đã được load
-            if(array_key_exists($key, $this->relations)){
-                return true;
-            }
-        }
-        return false;
+        return array_key_exists($key, $this->relationMap) && array_key_exists($key, $this->relations);
     }
 
+    /**
+     * lấy dữ liệu qua hê đã được map
+     *
+     * @param string $key
+     * @return bool
+     */
+    final protected function hasRelation($key)
+    {
+        return array_key_exists($key, $this->relations);
+    }
 
     public function sub($column = null, $length = 0, $after = '')
     {
