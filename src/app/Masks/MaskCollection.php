@@ -23,6 +23,13 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     protected $mask = '';
 
     /**
+     * poarent
+     *
+     * @var Mask
+     */
+    protected $parent = null;
+
+    /**
      * danh sach item
      *
      * @var Mask[]
@@ -39,8 +46,9 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
         'perPage', 'currentPage', 'lastPage'
     ];
 
-    public function __construct($collection, $total = 0, $mask = null)
+    public function __construct($collection, $total = 0, $mask = null, $parent = null)
     {
+        $this->parent = $parent;
         if ($mask && class_exists($mask)) {
             $this->mask = $mask;
         } elseif (method_exists($this, 'getMask')) {

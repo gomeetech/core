@@ -24,6 +24,13 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         'shortContent', 'calculator_time', 'calculatorTime', 'timeAgo', 'getTimeAgo', 'timeFormat'
     ];
 
+    /**
+     * poarent
+     *
+     * @var Mask
+     */
+    protected $parent = null;
+
     protected $alias = [];
 
     /**
@@ -45,8 +52,9 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
      * @param Gomee\Models\Model
      * @return void
      */
-    public function __construct($model, $collectionClass = null)
+    public function __construct($model, $collectionClass = null, $onSuccess = null, $parent = null)
     {
+        $this->parent = $parent;
         $this->setup($model, $collectionClass);
     }
 
@@ -224,7 +232,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         }
 
         $rc = new ReflectionClass($mask);
-        return $rc->newInstanceArgs( [$relation] );
+        return $rc->newInstanceArgs( [$relation, null, null, $this] );
     }
 
 
