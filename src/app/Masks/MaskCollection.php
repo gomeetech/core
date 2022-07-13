@@ -36,6 +36,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      */
     protected $items = [];
 
+    protected $itemMap = [];
     protected $total = 0;
 
     protected $paginator = null;
@@ -75,10 +76,14 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
                 foreach ($collection as $key => $item) {
                     $rc = new ReflectionClass($this->mask);
                     $this->items[$key] = $rc->newInstanceArgs([$item]);
+                    $id = $item->_id??$item->id;
+                    if($id) $this->itemMap[$id] = $key;
                 }
             } else {
                 foreach ($collection as $key => $item) {
                     $this->items[$key] = new ExampleMask($this->mask);
+                    $id = $item->_id??$item->id;
+                    if($id) $this->itemMap[$id] = $key;
                 }
             }
 
@@ -179,6 +184,32 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     }
 
 
+    public function getItem($attr, $value = null)
+    {
+        if(!is_array($attr)){
+            if($value === null){
+                if(array_key_exists($attr, $this->itemMap)){
+                    return $this->items[$this->itemMap[$attr]]??null;
+                }
+                return null;
+            }
+            foreach ($this->items as $item) {
+                if($item->{$attr} == $value) return $item;
+            }
+
+            return null;
+        }
+        if(count($attr)){
+            foreach ($this->items as $item) {
+                $s = true;
+                foreach ($attr as $key => $value) {
+                    if($item->{$key} != $value) $s = false;
+                }
+                if($s) return $item;
+            }
+        }
+        return null;
+    }
 
     /**
      * Determine if an item exists at an offset.

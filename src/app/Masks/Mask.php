@@ -84,6 +84,11 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $this->data = $model->toArray();
         }
 
+        // gọi hàm onloaded khi hoàn tất quá trình
+        if(method_exists($this, 'onBeforeLoadRelations')){
+            $this->onBeforeLoadRelations();
+        }
+
         // kiểm tra các quan hệ dữ liệu. nếu được thiết lập map thì sẽ tạo ra các mặt mna5 tương ứng
         $this->checkRelationLoaded();
         // gọi hàm onloaded khi hoàn tất quá trình
