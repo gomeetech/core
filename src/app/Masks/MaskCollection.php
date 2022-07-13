@@ -74,10 +74,14 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
                 }
             }
 
+
+
             // gọi hàm onloaded khi hoàn tất quá trình
             if (method_exists($this, 'onLoaded')) {
                 $this->onLoaded();
             }
+
+            array_map(function($item){$item->__lock();}, $this->items);
         }
     }
 
