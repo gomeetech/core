@@ -495,7 +495,9 @@ trait FilterAction
         
         if($resourceClass = $this->getMaskClass()){
             $rc = new ReflectionClass($resourceClass);
-            return $rc->newInstanceArgs( [$data] );
+            $mask = $rc->newInstanceArgs( [$data] );
+            $mask->__lock();
+            return $mask;
         }
         return $data;
     }
