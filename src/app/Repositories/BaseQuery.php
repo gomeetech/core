@@ -2,6 +2,7 @@
 
 namespace Gomee\Repositories;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -142,6 +143,7 @@ trait BaseQuery
      */
     protected $actions = [];
 
+    protected $__queryAfter = [];
 
     /**
      * @var array $args tham so truy van
@@ -357,6 +359,7 @@ trait BaseQuery
     }
 
 
+
     /**
      * xóa giá trị tham số mặt định
      * @return static
@@ -387,9 +390,18 @@ trait BaseQuery
         return array_merge([$this->_primaryKeyName], $this->_model->__get_fields());
     }
 
+
+    public function queryAfter($action)
+    {
+        if(is_callable($action)){
+            $this->__queryAfter[] = $action;
+        }
+        return $this;
+    }
+
     /**
      * tạo qury builder 
-     * @param array $args            Mảng các tham số hoặc têm hàm và tham số hàm
+     * @param array $args Mảng các tham số hoặc têm hàm và tham số hàm
      * @return \Illuminate\Database\Eloquent\Builder
      * 
      */
@@ -593,6 +605,8 @@ trait BaseQuery
         if ($keywords) $this->buildSearchQuery($query, $keywords, $search_by, $prefix);
         // thao tac voi query builder thong qua tham so actions
         if ($actions) $this->doAction($actions, $query);
+        // do all Query After 
+        $this->runQueryAfter($query);
         // build orderby
         if ($orderby) $this->buildOrderByQuery($query, $orderby, $prefix);
         // build limit
@@ -602,6 +616,24 @@ trait BaseQuery
         return $query;
     }
 
+
+
+    /**
+     * run all query action in query after
+     *
+     * @param Builder $query
+     * @return $this
+     */
+    protected function runQueryAfter($query)
+    {
+        if(is_array($this->__queryAfter) && count($this->__queryAfter)){
+            foreach ($this->__queryAfter as $action) {
+                $action($query);
+            }
+        }
+        $this->__queryAfter = [];
+        return $this;
+    }
 
     /**
      * xử lý data
