@@ -461,8 +461,13 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if(!$this->isLock){
             return $this->model->toArray();
         }
+        $related = $this->getRelationsLoaded();
+        $relations = [];
+        foreach ($related as $key => $value) {
+            $relations[$key] = $value->toArray();
+        }
         
-        return array_merge($this->data, $this->getRelationsLoaded());
+        return array_merge($this->data, $relations);
     }
 
     public function toDeepArray()
