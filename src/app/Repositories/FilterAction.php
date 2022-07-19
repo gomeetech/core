@@ -570,7 +570,7 @@ trait FilterAction
                         if(isset($this->whereable[$key])){
                             $this->where($this->whereable[$key], $value);
                         }else{
-                            $this->where($prefix.$key, $value);
+                            $this->where($key, $value);
                         }
                     }
                     // elseif($this->searchable && is_array($this->searchable) && (isset($this->searchable[$f]) || in_array($f, $this->searchable))){
@@ -581,7 +581,7 @@ trait FilterAction
                     //     }
                     // }
                     elseif(in_array($key, $fields)){
-                        $this->where($key, $value);
+                        $this->where($prefix.$key, $value);
                     }
                 }
             }
