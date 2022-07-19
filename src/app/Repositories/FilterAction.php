@@ -529,6 +529,11 @@ trait FilterAction
         $this->buildOrderBy($request);
         if($data = $request->all()){
             
+            $prefix = '';
+        $modelType = $this->_model->__getModelType__();
+        if ($modelType == 'default' && ($pre = $this->getTable())) {
+            $prefix = $pre . '.';
+        }
             foreach ($data as $key => $value) {
                 // build order by from request
                 if(preg_match('/^orderby_/i', $key)){
@@ -565,7 +570,7 @@ trait FilterAction
                         if(isset($this->whereable[$key])){
                             $this->where($this->whereable[$key], $value);
                         }else{
-                            $this->where($key, $value);
+                            $this->where($prefix.$key, $value);
                         }
                     }
                     // elseif($this->searchable && is_array($this->searchable) && (isset($this->searchable[$f]) || in_array($f, $this->searchable))){
