@@ -567,7 +567,7 @@ trait FilterAction
                 
                 elseif(is_string($value) && strlen($value)){
                     // lấy theo tham số request (set where)
-                    if(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value))){
+                    if(!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value)))){
                         if($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))){
                             if(isset($this->whereable[$key])){
                                 $this->where($this->whereable[$key], $value);
