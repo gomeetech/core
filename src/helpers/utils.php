@@ -260,6 +260,14 @@ if (!function_exists('array_val_type')) {
     }
 }
 
+if(!function_exists('isSecure')){
+    function isSecure() {
+        return
+          (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+          || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+      }
+}
+
 if (!function_exists('get_video_from_url')) {
     /**
      * lây thong tin video từ url.
@@ -272,23 +280,24 @@ if (!function_exists('get_video_from_url')) {
     {
         if (!$url) return null;
         $a = [];
+        $protoccol = isSecure()?'https':'http';
         if (preg_match_all('/.*youtu\.be\/(.*?)($|\?|#)/si', $url, $m)) {
             $a['id'] = $m[1][0];
             $a['server'] = 'youtube';
-            $a['thumbnail'] = 'http://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
-            $a['embed_url'] = "http://www.youtube.com/embed/$a[id]";
+            $a['thumbnail'] = $protoccol.'://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
+            $a['embed_url'] = $protoccol."://www.youtube.com/embed/$a[id]";
         } elseif (preg_match_all('/youtube\.com\/watch\?.*v=(.*?)($|&|#)/si', $url, $m)) {
             $a['id'] = $m[1][0];
             $a['server'] = 'youtube';
-            $a['thumbnail'] = 'http://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
-            $a['embed_url'] = "http://www.youtube.com/embed/$a[id]";
+            $a['thumbnail'] = $protoccol.'://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
+            $a['embed_url'] = $protoccol."://www.youtube.com/embed/$a[id]";
         } elseif (preg_match_all('/\.*vimeo.com\/(.*?)($|\?)/si', $url, $m)) {
             $v = explode('/', $m[1][0]);
             $a['id'] = $v[count($v) - 1];
             $a['server'] = 'vimeo';
-            $hash = unserialize(file_get_contents("http://vimeo.com/api/v2/video/" . $a['id'] . ".php"));
+            $hash = unserialize(file_get_contents($protoccol."://vimeo.com/api/v2/video/" . $a['id'] . ".php"));
             $a['thumbnail'] = $hash[0]['thumbnail_large'];
-            $a['embed_url'] = "http://player.vimeo.com/video/$a[id]?wmode=opaque";
+            $a['embed_url'] = $protoccol."://player.vimeo.com/video/$a[id]?wmode=opaque";
         } elseif (preg_match_all('/.*facebook.com\/(.*?)\/videos\/(.*?)\//si', $url, $m)) {
             $a['id'] = $m[2][0];
             $a['page_id'] = $m[1][0];
