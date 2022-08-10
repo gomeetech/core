@@ -154,10 +154,10 @@ if (!function_exists('nl2array')) {
                         $b[] = $c;
                     }
                 }
-            } else {
+            } elseif(strlen($string)) {
                 $b = [$string];
             }
-        } else {
+        } elseif(strlen($string)) {
             $b = [$string];
         }
         return $b;
