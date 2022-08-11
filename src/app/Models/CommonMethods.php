@@ -292,36 +292,13 @@ trait CommonMethods
         if (!$date1) $date1 = 'created_at';
         $date = time();
         if ($this->{$date1}) {
-            $date = strtotime($this->{$date1});
+            $date = $this->{$date1};
         } else {
-            $date = strtotime($date1);
+            $date = Carbon::parse($date1);
         }
-        if (!$date2) $date2 = Carbon::now()->toDateTimeString();
-        $s = 1;
-        $i = $s * 60;
-        $h = $i * 60;
-        $d = $h * 24;
-        $m = $d * 30;
-        $y = $d * 365;
-
-        $diff = abs(strtotime($date2) - $date);
-        $years = floor($diff / $y);
-        if ($years > 0)
-            return $years . ' năm trước';
-        $months = floor(($diff - $years * $y) / ($m));
-        if ($months > 0)
-            return $months . ' tháng trước';
-        $days = floor(($diff - $years * $y - $months * $m) / $d);
-        if ($days > 0)
-            return $days . ' ngày trước';
-        $hours = floor(($diff - $years * $y - $months * $m - $days * $d) / $h);
-        if ($hours > 0)
-            return $hours . ' giờ trước';
-        $minutes = floor(($diff - $years * $y - $months * $m - $days * $d - $hours * $h) / $i);
-        if ($minutes > 0)
-            return $minutes . ' phút trước';
-        $seconds = floor(($diff - $years * $y - $months * $m - $days * $d - $hours * $h - $minutes * $i));
-        return $seconds . ' giây trước';
+        if($date1 && !is_a($date2, Carbon::class)) $date2 = Carbon::parse($date2);
+        if (!$date2) $date2 = Carbon::now();
+        $date->diffForHumans($date2); //1 giờ trước
     }
     public function calculator_time($date1 = null, $date2 = null)
     {
