@@ -37,7 +37,7 @@ trait CommonMethods
     public function dateFormat($format = null)
     {
         if (!$format) $format = 'H:i - d/m/Y';
-        return date($format, strtotime($this->created_at));
+        return $this->created_at?$this->created_at->format($format):'';
     }
 
     /**
@@ -49,7 +49,7 @@ trait CommonMethods
     public function getDatetime($column = 'created_at', $format = null)
     {
         if (!$format) $format = 'Y-m-d H:i:s';
-        return date($format, strtotime($this->{$column}));
+        return is_object($this->{$column})?$this->{$column}->format($format): ($this->created_at?$this->created_at->format($format):'');
     }
 
 
@@ -62,7 +62,7 @@ trait CommonMethods
     public function updateTimeFormat($format = null)
     {
         if (!$format) $format = 'H:i - d/m/Y';
-        return date($format, strtotime($this->updated_at));
+        return $this->updated_at?$this->updated_at->format($format):'';
     }
 
     /**
