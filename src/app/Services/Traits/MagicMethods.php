@@ -130,10 +130,11 @@ trait MagicMethods
             return static::_funcExists(...$params);
         }
         elseif ($mt = static::getStaticFunc($method)) {
-            
+             
             if(is_string($mt)){
-                if(is_callable(static::class . '::' . $method)){
-                    return call_user_func_array(static::class . '::' . $method, $params);
+                if(is_callable('static::' . $mt)){
+                    
+                    return call_user_func_array('static::' . $mt, $params);
                 }elseif (is_callable($method)) {
                     return call_user_func_array($method, $params);
                 }
