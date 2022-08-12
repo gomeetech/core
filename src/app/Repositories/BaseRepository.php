@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author DoanLN
  * @copyright 2018-2019
@@ -6,9 +7,12 @@
 
 namespace Gomee\Repositories;
 
+use BadMethodCallException;
 use Gomee\Models\Model;
 use Gomee\Models\MongoModel;
 use Gomee\Models\SQLModel;
+use Gomee\Services\Traits\Events;
+use Gomee\Services\Traits\MagicMethods;
 
 /**
  * danh sách method
@@ -62,7 +66,7 @@ use Gomee\Models\SQLModel;
 
 abstract class BaseRepository
 {
-    use BaseQuery, GettingAction, CRUDAction, FilterAction, OwnerAction, FileAction, DataAction, CacheAction;
+    use BaseQuery, GettingAction, CRUDAction, FilterAction, OwnerAction, FileAction, DataAction, CacheAction, Events, MagicMethods;
 
     // tự động kiểm tra owner
     protected $checkOwner = true;
@@ -88,12 +92,12 @@ abstract class BaseRepository
         $this->setModel();
         $this->_primaryKeyName = $this->_model->getKeyName();
         // $this->ownerInit();
-        if($this->required == MODEL_PRIMARY_KEY && $this->_primaryKeyName){
+        if ($this->required == MODEL_PRIMARY_KEY && $this->_primaryKeyName) {
             $this->required = $this->_primaryKeyName;
         }
         $this->modelType = $this->_model->__getModelType__();
         $this->init();
-        if(!$this->defaultValues){
+        if (!$this->defaultValues) {
             $this->defaultValues = $this->_model->getDefaultValues();
         }
     }
@@ -112,13 +116,12 @@ abstract class BaseRepository
      */
     abstract public function getModel();
 
-    
+
     /**
      * chạy các lệnh thiết lập
      */
     protected function init()
     {
-        
     }
     /**
      * Get one
@@ -150,9 +153,9 @@ abstract class BaseRepository
     public function exists(...$args)
     {
         $t = count($args);
-        if($t >= 2){
+        if ($t >= 2) {
             return $this->countBy(...$args) ? true : false;
-        }elseif($t == 1){
+        } elseif ($t == 1) {
             return $this->countBy($this->_primaryKeyName, $args[0]) ? true : false;
         }
         return false;
@@ -161,4 +164,93 @@ abstract class BaseRepository
     {
         return (new static())->exists($id);
     }
+
+
+
+    /**
+     * gọi hàm không dược khai báo từ trước
+     *
+     * @param string $method
+     * @param array $params
+     * @return static
+     */
+    public function __call($method, $params)
+    {
+        $f = array_key_exists($key = strtolower($method), $this->sqlclause) ? $this->sqlclause[$key] : null;
+        if ($f) {
+            if (!isset($this->actions) || !is_array($this->actions)) {
+                $this->actions = [];
+            }
+            if ($f == 'groupby') {
+                if (count($params) == 1 && is_string($params[0])) {
+                    $params = array_map('trim', explode(',', $params[0]));
+                }
+                foreach ($params as $column) {
+                    $this->actions[] = [
+                        'method' => $method,
+                        'params' => [$column]
+                    ];
+                }
+            } else {
+                $this->actions[] = compact('method', 'params');
+            }
+
+        } elseif (count($params)) {
+            $value = $params[0];
+            $fields = array_merge([$this->required], $this->getFields());
+
+            // lấy theo tham số request (set where)
+            if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
+                if (isset($this->whereable[$key])) {
+                    $this->where($this->whereable[$key], $value);
+                } else {
+                    $this->where($key, $value);
+                }
+            }
+            // elseif($this->searchable && is_array($this->searchable) && (isset($this->searchable[$f]) || in_array($f, $this->searchable))){
+            //     if(isset($this->searchable[$f])){
+            //         $this->where($this->searchable[$f], $value);
+            //     }else{
+            //         $this->where($f, $value);
+            //     }
+            // }
+            elseif (in_array($key, $fields)) {
+                $this->where($key, $value);
+                
+            }
+            elseif($this->_funcExists($method)){
+                $this->_nonStaticCall($method, $params);
+            }
+            elseif (substr($method, 0, 2) == 'on' && strlen($event = substr($method, 2)) > 0 && ctype_upper(substr($event, 0, 1)) && count($params) && is_callable($params[0])) {
+    
+                $this->addEvent($event, $params[0]);
+            }
+        }elseif($this->_funcExists($method)){
+            $this->_nonStaticCall($method, $params);
+        }
+        elseif (substr($method, 0, 2) == 'on' && strlen($event = substr($method, 2)) > 0 && ctype_upper(substr($event, 0, 1)) && count($params) && is_callable($params[0])) {
+
+            $this->addEvent($event, $params[0]);
+        }
+        return $this;
+    }
+    /**
+     * Handle calls to missing methods on the controller.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return mixed
+     *
+     * @throws \BadMethodCallException
+     */
+    public static function __callStatic($method, $parameters)
+    {
+        return static::_staticCall($method, $parameters);
+    }
+
+
 }
+
+BaseRepository::globalStaticFunc('on', '_on');
+BaseRepository::globalFunc('on', 'addEvent');
+

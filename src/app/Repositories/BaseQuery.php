@@ -1196,60 +1196,6 @@ trait BaseQuery
         } elseif (is_numeric($paginate) && $paginate > 0) $this->_paginate = $paginate;
         return $this;
     }
-
-    /**
-     * gọi hàm không dược khai báo từ trước
-     *
-     * @param string $method
-     * @param array $params
-     * @return static
-     */
-    public function __call($method, $params)
-    {
-        $f = array_key_exists($key = strtolower($method), $this->sqlclause) ? $this->sqlclause[$key] : null;
-        if ($f) {
-            if (!isset($this->actions) || !is_array($this->actions)) {
-                $this->actions = [];
-            }
-            if ($f == 'groupby') {
-                if (count($params) == 1 && is_string($params[0])) {
-                    $params = array_map('trim', explode(',', $params[0]));
-                }
-                foreach ($params as $column) {
-                    $this->actions[] = [
-                        'method' => $method,
-                        'params' => [$column]
-                    ];
-                }
-            } else {
-                $this->actions[] = compact('method', 'params');
-            }
-        } elseif (count($params)) {
-            $value = $params[0];
-            $fields = array_merge([$this->required], $this->getFields());
-
-            // lấy theo tham số request (set where)
-            if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
-                if (isset($this->whereable[$key])) {
-                    $this->where($this->whereable[$key], $value);
-                } else {
-                    $this->where($key, $value);
-                }
-            }
-            // elseif($this->searchable && is_array($this->searchable) && (isset($this->searchable[$f]) || in_array($f, $this->searchable))){
-            //     if(isset($this->searchable[$f])){
-            //         $this->where($this->searchable[$f], $value);
-            //     }else{
-            //         $this->where($f, $value);
-            //     }
-            // }
-            elseif (in_array($key, $fields)) {
-                $this->where($key, $value);
-            }
-        }
-        return $this;
-    }
-
     /**
      * kiểm tra các phương thức có chứa tham số là chuỗi
      *
