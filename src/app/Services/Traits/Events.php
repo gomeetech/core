@@ -14,6 +14,7 @@ use Closure;
  * @method static void addEventListener(string $event, Closure $closure) lắng nghe sự kiện
  * @method static void trigger(string $event, ...$params) Kích hoạt sự kiện
  * @method static void fire(string $event, ...$params) Kích hoạt sự kiện
+ * @method static void emit(string $event, ...$params) Kích hoạt sự kiện
  * 
  * 
  */

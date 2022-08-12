@@ -407,6 +407,7 @@ trait BaseQuery
      */
     public function query($args = [])
     {
+        $this->fire('beforequery', $args);
         $keywords = null;
         $search_by = null;
         $orderby = null;
@@ -613,6 +614,7 @@ trait BaseQuery
         if ($limit) $this->buildLimitQuery($query, $limit);
 
         $this->resetActionParams();
+        $this->fire('query', $query);
         return $query;
     }
 

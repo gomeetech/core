@@ -104,7 +104,7 @@ trait CRUDAction
         if($validatorClass){
             $this->setValidatorClass($validatorClass);
         }
-
+        $this->fire('beforegetvalidator', $this, $request);
         if($this->validatorClass){
             $c = null;
 
@@ -129,6 +129,7 @@ trait CRUDAction
      */
     public function validator(Request $request, $validatorClass = null)
     {
+        $this->fire('beforevalidator', $this, $request);
         $validator = $this->getValidator($request, is_string($validatorClass)?$validatorClass:null);
         $validator->check(is_array($validatorClass)?$validatorClass:[]);
         return $validator;
@@ -143,6 +144,7 @@ trait CRUDAction
      */
     public function validate(Request $request, $ruleOrvalidatorClass = null, $messages = [])
     {
+        $this->fire('beforevalidate', $this, $request);
         return $this->getValidator(
             $request, 
             is_string($ruleOrvalidatorClass)?$ruleOrvalidatorClass:null
@@ -206,6 +208,7 @@ trait CRUDAction
      */
     public function beforeUpdate(array $data, $id = null)
     {
+        
         return $data;
     }
     
@@ -223,15 +226,17 @@ trait CRUDAction
             $this->crudAction = 'update';
             $this->currentID = $id;
             $data = $this->beforeUpdate($data, $id);
-
+            $this->fire('beforeupdate', $this,$data, $id, $m);
         }else{
+            $this->fire('beforecreate', $this, $data);
             $model = $this->model();
             if($this->defaultValues){
                 $data = array_merge($this->defaultValues, $data);
             }
             $data = $this->beforeCreate($data);
         }
-
+        $this->fire('beforesave', $this,$data, $id);
+        
         if(is_array($d = $this->beforeSave($data))){
             $data = $d;
         }
@@ -244,10 +249,13 @@ trait CRUDAction
         $model->save();
         if($id && $id == $model->{$this->_primaryKeyName}){
             $this->afterUpdate($model);
+            $this->fire('afterupdate', $this,$model);
         }else{
             $this->afterCreate($model);
+            $this->fire('aftercreate', $this,$model);
         }
         $this->afterSave($model);
+        $this->fire('aftersave', $this,$model);
         $this->crudAction = null;
         $this->currentID = 0;
             
@@ -374,7 +382,10 @@ trait CRUDAction
         if(!$id){
             // 
             if(count($this->params) || count($this->actions)){
-                return $this->query()->delete();
+                $this->fire('beforedelete', $this,$id);
+                $rs = $this->query()->delete();
+                $this->fire('afterdelete', $this,$id);
+                return $rs;
             }
             return false;
         }
@@ -383,18 +394,22 @@ trait CRUDAction
             $ids = [];
             $list = $this->get([$this->_primaryKeyName => $id]);
             if(count($list)){
+                $this->fire('beforedelete', $this,$id);
                 foreach ($list as $item) {
                     if(!$item->canDelete()) continue;
                     $ids[] = $item->{$this->_primaryKeyName};
                     $item->delete();
                 }
+                $this->fire('afterdelete', $this,$ids);
             }
             return $ids;
         }
         $result = $this->find($id);
         if($result) {
             if($result->canDelete()){
+                $this->fire('befordelete', $this,$id, $result);
                 $result->delete();
+                $this->fire('afterdelete', $this,$id, $result);
                 return true;
             }
             
@@ -416,11 +431,13 @@ trait CRUDAction
             $ids = [];
             $list = $this->get();
             if(count($list)){
+                $this->fire('beforeForceDelete', $this,$id, $list);
                 foreach ($list as $item) {
                     if(!$item->canForceDelete()) continue;
                     $ids[] = $item->{$this->_primaryKeyName};
                     $item->forceDelete();
                 }
+                $this->fire('afterForceDelete', $this,$ids, $list);
             }
             return $ids;
         }
@@ -429,18 +446,23 @@ trait CRUDAction
             $ids = [];
             $list = $this->get([$this->_primaryKeyName => $id]);
             if(count($list)){
+                $this->fire('beforeForceDelete', $this,$id, $list);
                 foreach ($list as $item) {
                     if(!$item->canForceDelete()) continue;
                     $ids[] = $item->{$this->_primaryKeyName};
                     $item->forceDelete();
                 }
+                $this->fire('afterForceDelete', $this,$ids, $list);
             }
             return $ids;
         }
         $result = $this->find($id);
         if($result) {
+            
             if($result->canForceDelete()){
+                $this->fire('beforeForceDelete', $this,$id, $result);
                 $result->forceDelete();
+                $this->fire('afterForceDelete', $this,$id, $result);
                 return true;
             }
             
@@ -461,7 +483,10 @@ trait CRUDAction
     {
         $result = $this->find($id);
         if($result && $result->canMoveToTrash()) {
-            return $result->moveToTrash();
+            $this->fire('beforeMoveToTrash', $this,$id, $result);
+            $rs = $result->moveToTrash();
+            $this->fire('afterMoveToTrash', $this,$id, $result);
+            return $rs;
         }
 
         return false;
@@ -478,7 +503,10 @@ trait CRUDAction
     {
         $result = $this->find($id);
         if($result && $result->canMoveToTrash()) {
-            return $result->moveToTrash();
+            $this->fire('beforeMoveToTrash', $this,$id, $result);
+            $rs = $result->moveToTrash();
+            $this->fire('afterMoveToTrash', $this,$id, $result);
+            return $rs;
         }
 
         return false;
@@ -492,7 +520,10 @@ trait CRUDAction
     {
         $result = $this->find($id);
         if($result) {
-            return $result->restore();
+            $this->fire('beforerestore', $this,$id, $result);
+            $rs = $result->restore();
+            $this->fire('afterrestore', $this,$id, $result);
+            return $rs;
         }
 
         return false;

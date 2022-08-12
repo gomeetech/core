@@ -1,6 +1,7 @@
 <?php
 
 namespace Gomee\Repositories;
+
 use ReflectionClass;
 
 use Gomee\Masks\Mask;
@@ -50,16 +51,16 @@ trait FilterAction
      * @var array tất cả các cot duoc select
      * ví dụ: ['posts.*', 'categories.name as cate_name', ...]
      */
-    
+
     protected $selectable = [];
 
     /**
      * @var array 
      * ví dụ: ['(Select count(1) from comments where comments.post_id = posts.id) as comment_count', ...]
      */
-    
+
     protected $selectRawable = [];
-    
+
     /**
      * @var array $whereable các cot hoặc dịnh danh cột có thể được bind theo request
      * ví dụ: ['id', 'name', 'column' => 'table.column']
@@ -177,10 +178,10 @@ trait FilterAction
 
     public function mode($mode = null)
     {
-        if(in_array($mode, ['resource', 'mask', 'collection', 'default', 'raw'])) $this->responseMode = $mode;
+        if (in_array($mode, ['resource', 'mask', 'collection', 'default', 'raw'])) $this->responseMode = $mode;
         return $this;
     }
-    
+
     /**
      * tương tự filter
      * lấy ra kết quả bao gồm paginate
@@ -191,29 +192,36 @@ trait FilterAction
      */
     public function getResults($request, array $args = [])
     {
+        $this->fire('preparegetResults', $this, $request, $args);
+
+
         // xu ly truc khi loc data
         $this->beforeFilter($request);
         // build query
         $this->buildFilter($request);
-        
+
         // merge tham so vs paginate
         $args = $this->parsePaginateParam($request, $args);
         // lấy kết qua
         // dd($args);
-        
-        if(!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy){
+        $this->fire('beforegetResults', $this, $request, $args);
+
+
+        if (!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy) {
             $args['@order_by'] = $this->defaultSortBy;
         }
         $results = $this->get($args);
         // nếu tham số có yêu cau paginate
-        if($this->hasPaginateParam){
-            if($params = array_remove_key($request->all(), 'page')){
+        if ($this->hasPaginateParam) {
+            if ($params = array_remove_key($request->all(), 'page')) {
                 // them query string vào url
                 $results->appends($params);
             }
-            
         }
-        return $this->parseCollection($results);
+
+        $rs = $this->parseCollection($results);
+        $this->fire('aftergetResults', $this, $request, $rs);
+        return $rs;
     }
 
     /**
@@ -224,7 +232,10 @@ trait FilterAction
      */
     public function getData(array $args = [])
     {
-        return $this->parseCollection($this->get($args));
+        $this->fire('beforegetData', $this, $args);
+        $rs = $this->parseCollection($this->get($args));
+        $this->fire('aftergetResults', $this,$args, $rs);
+        return $rs;
     }
 
 
@@ -271,7 +282,7 @@ trait FilterAction
         $this->buildJoin();
         $this->buildSelect();
     }
-    
+
     /**
      * ham lấy và lọc dử liệu
      * @param illuminate\Http\Request $request
@@ -281,15 +292,18 @@ trait FilterAction
      */
     public function getFilter($request, array $args = [])
     {
+        $this->fire('preparegetFilter', $this, $request, $args);
         $this->beforeFilter($request);
         $this->buildFilter($request);
         $args = array_merge($this->getPaginateArgs($request), $args);
-        
-        if(!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy){
+        $this->fire('beforegetFilter', $this, $request, $args);
+        if (!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy) {
             $args['@order_by'] = $this->defaultSortBy;
         }
-
-        return $this->get($args);
+        
+        $rs = $this->get($args);
+        $this->fire('aftergetFilter', $this, $request,$args, $rs);
+        return $rs;
     }
 
     /**
@@ -299,14 +313,18 @@ trait FilterAction
      */
     public function getDetail(array $args = [])
     {
+        $this->fire('beforegetDetail', $this, $args);
         $this->buildJoin();
         $this->buildSelect();
         $this->buildEager();
         $this->buildGroupBy();
-        return $this->first($args);
+        $rs = $this->first($args);
+        $this->fire('aftergetDetail', $this, $args, $rs);
+        return $rs;
+        
     }
 
-    
+
     /**
      * ham lấy và lọc dử liệu
      * 
@@ -319,6 +337,15 @@ trait FilterAction
         $this->buildSelect();
         $this->buildGroupBy();
         return $this->first($args);
+
+        $this->fire('beforegetFormData', $this, $args);
+        $this->beforeGetFormData($args);
+        $this->buildJoin();
+        $this->buildSelect();
+        $this->buildGroupBy();
+        $rs = $this->first($args);
+        $this->fire('aftergetFormData', $this, $args, $rs);
+        return $rs;
     }
 
 
@@ -332,9 +359,12 @@ trait FilterAction
      */
     public function filter($request, array $args = [])
     {
-        return $this->parseCollection(
+        $this->fire('beforefilter', $this, $request, $args);
+        $rs = $this->parseCollection(
             $this->getFilter($request, $args)
         );
+        $this->fire('afterfilter', $this, $request, $args, $rs);
+        return $rs;
     }
 
 
@@ -347,14 +377,16 @@ trait FilterAction
     public function detail($args)
     {
         $d = [];
-        if(is_array($args)){
+        if (is_array($args)) {
             $d = $args;
-        }else{
-            $d[$this->_primaryKeyName]=$args;
+        } else {
+            $d[$this->_primaryKeyName] = $args;
         }
-        
-        if($data = $this->getDetail($d)){
-            return $this->parseDetail($data);
+        $this->fire('beforedetail', $this, $args);
+        if ($data = $this->getDetail($d)) {
+            $rs = $this->parseDetail($data);
+            $this->fire('afterdetail', $this, $args, $rs);
+            return $rs;
         }
         return null;
     }
@@ -369,9 +401,7 @@ trait FilterAction
      */
     public function parseCollection($collection)
     {
-        return $this->responseMode == 'mask' ? $this->maskCollection($collection, $this->total()) : (
-            $this->responseMode == 'resource' ? $this->resourceCollection($collection) : (
-                $collection
+        return $this->responseMode == 'mask' ? $this->maskCollection($collection, $this->total()) : ($this->responseMode == 'resource' ? $this->resourceCollection($collection) : ($collection
             )
         );
     }
@@ -384,10 +414,8 @@ trait FilterAction
      */
     public function parseDetail($data)
     {
-        if(!$data) return null;
-        return $this->responseMode == 'mask' ? $this->mask($data) : (
-            $this->responseMode == 'resource' ? $this->resource($data) : (
-                $data
+        if (!$data) return null;
+        return $this->responseMode == 'mask' ? $this->mask($data) : ($this->responseMode == 'resource' ? $this->resource($data) : ($data
             )
         );
     }
@@ -398,10 +426,10 @@ trait FilterAction
 
     protected function getResourceClass($class = null)
     {
-        if(!$class) $class = $this->resourceClass;
-        if(class_exists($class)){
+        if (!$class) $class = $this->resourceClass;
+        if (class_exists($class)) {
             return $class;
-        }elseif(class_exists($c = $this->resourceNamespace. "\\".$class)){
+        } elseif (class_exists($c = $this->resourceNamespace . "\\" . $class)) {
             return $c;
         }
         return null;
@@ -409,10 +437,10 @@ trait FilterAction
 
     protected function getResourceCollectionClass($class = null)
     {
-        if(!$class) $class = $this->collectionClass;
-        if(class_exists($class)){
+        if (!$class) $class = $this->collectionClass;
+        if (class_exists($class)) {
             return $class;
-        }elseif(class_exists($c = $this->resourceNamespace. "\\".$class)){
+        } elseif (class_exists($c = $this->resourceNamespace . "\\" . $class)) {
             return $c;
         }
         return null;
@@ -427,17 +455,18 @@ trait FilterAction
      * @param Model|SQLModel|MongoModel
      * @return resource
      */
-    public function resource($data){
-        if(!$data) return $data;
-        
-        if($resourceClass = $this->getResourceClass()){
+    public function resource($data)
+    {
+        if (!$data) return $data;
+
+        if ($resourceClass = $this->getResourceClass()) {
             $rc = new ReflectionClass($resourceClass);
-            return $rc->newInstanceArgs( [$data] );
+            return $rc->newInstanceArgs([$data]);
         }
         return $data;
     }
 
-    
+
 
     /**
      * tạo resource collection
@@ -445,11 +474,12 @@ trait FilterAction
      * 
      * @return ResourceCollection
      */
-    public function resourceCollection($data){
-        if(!count($data)) return [];
-        if($collectionClass = $this->getResourceCollectionClass()){
+    public function resourceCollection($data)
+    {
+        if (!count($data)) return [];
+        if ($collectionClass = $this->getResourceCollectionClass()) {
             $rc = new ReflectionClass($collectionClass);
-            return $rc->newInstanceArgs( [$data] );
+            return $rc->newInstanceArgs([$data]);
         }
         return $data;
     }
@@ -458,12 +488,12 @@ trait FilterAction
 
     protected function getMaskClass($class = null)
     {
-        if(!$class) $class = $this->maskClass;
-        if(class_exists($class)){
+        if (!$class) $class = $this->maskClass;
+        if (class_exists($class)) {
             return $class;
-        }elseif(class_exists($c = $this->appMaskNamespace. "\\".$class)){
+        } elseif (class_exists($c = $this->appMaskNamespace . "\\" . $class)) {
             return $c;
-        }elseif(class_exists($c = $this->maskNamespace. "\\".$class)){
+        } elseif (class_exists($c = $this->maskNamespace . "\\" . $class)) {
             return $c;
         }
         return null;
@@ -471,12 +501,12 @@ trait FilterAction
 
     protected function getMaskCollectionClass($class = null)
     {
-        if(!$class) $class = $this->maskCollectionClass;
-        if(class_exists($class)){
+        if (!$class) $class = $this->maskCollectionClass;
+        if (class_exists($class)) {
             return $class;
-        }elseif(class_exists($c = $this->appMaskNamespace. "\\".$class)){
+        } elseif (class_exists($c = $this->appMaskNamespace . "\\" . $class)) {
             return $c;
-        }elseif(class_exists($c = $this->maskNamespace. "\\".$class)){
+        } elseif (class_exists($c = $this->maskNamespace . "\\" . $class)) {
             return $c;
         }
         return null;
@@ -491,19 +521,20 @@ trait FilterAction
      * @param model
      * @return resource
      */
-    public function mask($data){
-        if(!$data) return $data;
-        
-        if($resourceClass = $this->getMaskClass()){
+    public function mask($data)
+    {
+        if (!$data) return $data;
+
+        if ($resourceClass = $this->getMaskClass()) {
             $rc = new ReflectionClass($resourceClass);
-            $mask = $rc->newInstanceArgs( [$data] );
+            $mask = $rc->newInstanceArgs([$data]);
             $mask->__lock();
             return $mask;
         }
         return $data;
     }
 
-    
+
 
     /**
      * tạo resource collection
@@ -511,10 +542,11 @@ trait FilterAction
      * 
      * @return MaskCollection|null
      */
-    public function maskCollection($data, $total = 0){
-        if($collectionClass = $this->getMaskCollectionClass()){
+    public function maskCollection($data, $total = 0)
+    {
+        if ($collectionClass = $this->getMaskCollectionClass()) {
             $rc = new ReflectionClass($collectionClass);
-            return $rc->newInstanceArgs( [$data, $total] );
+            return $rc->newInstanceArgs([$data, $total]);
         }
         return new ExampleCollection($data, $total);
     }
@@ -528,50 +560,45 @@ trait FilterAction
     {
         $fields = array_merge([$this->required], $this->getFields());
         $this->buildOrderBy($request);
-        if($data = $request->all()){
-            
+        if ($data = $request->all()) {
+
             $prefix = '';
-        $modelType = $this->_model->__getModelType__();
-        if ($modelType == 'default' && ($pre = $this->getTable())) {
-            $prefix = $pre . '.';
-        }
+            $modelType = $this->_model->__getModelType__();
+            if ($modelType == 'default' && ($pre = $this->getTable())) {
+                $prefix = $pre . '.';
+            }
             foreach ($data as $key => $value) {
                 // build order by from request
-                if(preg_match('/^orderby_/i', $key)){
+                if (preg_match('/^orderby_/i', $key)) {
                     $f = preg_replace('/^orderby_/i', '', $key);
                     $t = strtoupper($value) != 'DESC' ? 'ASC' : 'DESC';
-                    if($this->sortable && is_array($this->sortable) && (isset($this->sortable[$f]) || in_array($f, $this->sortable))){
+                    if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$f]) || in_array($f, $this->sortable))) {
                         $this->hasSortby = true;
-                        if(isset($this->sortable[$f])){
+                        if (isset($this->sortable[$f])) {
                             $this->orderBy($this->sortable[$f], $t);
-                        }else{
+                        } else {
                             $this->orderBy($f, $t);
                         }
-                    }
-                    elseif($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$f]) || in_array($f, $this->sortRawable))){
+                    } elseif ($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$f]) || in_array($f, $this->sortRawable))) {
                         $this->hasSortby = true;
-                        if(isset($this->sortRawable[$f])){
-                            $this->orderByRaw($this->sortRawable[$f].' '.$t);
-                        }else{
-                            $this->orderByRaw($f.' '.$t);
+                        if (isset($this->sortRawable[$f])) {
+                            $this->orderByRaw($this->sortRawable[$f] . ' ' . $t);
+                        } else {
+                            $this->orderByRaw($f . ' ' . $t);
                         }
-                    }
-                    
-                    elseif(!preg_match('/\w\.\w/', $f)){
-                        if(in_array($f, $fields)){
+                    } elseif (!preg_match('/\w\.\w/', $f)) {
+                        if (in_array($f, $fields)) {
                             $this->hasSortby = true;
                             $this->orderBy($f, $t);
                         }
                     }
-                }
-                
-                elseif(is_string($value) && strlen($value)){
+                } elseif (is_string($value) && strlen($value)) {
                     // lấy theo tham số request (set where)
-                    if(!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value)))){
-                        if($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))){
-                            if(isset($this->whereable[$key])){
+                    if (!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value)))) {
+                        if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
+                            if (isset($this->whereable[$key])) {
                                 $this->where($this->whereable[$key], $value);
-                            }else{
+                            } else {
                                 $this->where($key, $value);
                             }
                         }
@@ -582,17 +609,15 @@ trait FilterAction
                         //         $this->where($f, $value);
                         //     }
                         // }
-                        elseif(in_array($key, $fields)){
-                            $this->where($prefix.$key, $value);
+                        elseif (in_array($key, $fields)) {
+                            $this->where($prefix . $key, $value);
                         }
                     }
-                    
                 }
             }
-
         }
 
-        
+
         $this->buildGroupBy();
         return $this;
     }
@@ -601,18 +626,18 @@ trait FilterAction
 
     public function buildEager()
     {
-        if(count($this->withable)){
+        if (count($this->withable)) {
             foreach ($this->withable as $key => $rela) {
                 $this->with($rela);
             }
         }
-        if(count($this->withCountable)){
+        if (count($this->withCountable)) {
             foreach ($this->withCountable as $key => $rela) {
                 $this->withCount($rela);
             }
         }
-        
-        if(count($this->loadable)){
+
+        if (count($this->loadable)) {
             foreach ($this->loadable as $key => $rela) {
                 $this->load($rela);
             }
@@ -628,26 +653,21 @@ trait FilterAction
      */
     protected function buildSearch($request)
     {
-        $s = strlen($request->search)?$request->search:(
-            strlen($request->s)?$request->s:(
-                strlen($request->keyword)?$request->keyword:(
-                    strlen($request->keywords)?$request->keywords:(
-                        strlen($request->tim)?$request->tim:(
-                            $request->timkiem
+        $s = strlen($request->search) ? $request->search : (strlen($request->s) ? $request->s : (strlen($request->keyword) ? $request->keyword : (strlen($request->keywords) ? $request->keywords : (strlen($request->tim) ? $request->tim : ($request->timkiem
                         )
                     )
                 )
             )
         );
-        if(strlen($s)){
-            if($sb = $this->getSearchFields($request)){
+        if (strlen($s)) {
+            if ($sb = $this->getSearchFields($request)) {
                 $this->addSearch($s, $sb);
             }
         }
     }
 
 
-    
+
 
     /**
      * order by
@@ -655,78 +675,73 @@ trait FilterAction
      */
     protected function buildOrderBy($request)
     {
-        $odb = $request->orderby??$request->sortby;
-        if($this->sortByRules && isset($this->sortByRules[$odb])){
+        $odb = $request->orderby ?? $request->sortby;
+        if ($this->sortByRules && isset($this->sortByRules[$odb])) {
             $odb = $this->sortByRules[$odb];
         }
-        if($odb){
+        if ($odb) {
             $fields = array_merge([$this->required], $this->getFields());
             /**
              * orderby = [
              * column => ASC|DESC
              * ]
              */
-            if(is_array($odb)){
+            if (is_array($odb)) {
                 foreach ($odb as $field => $type) {
                     $t = strtoupper($type) != 'DESC' ? 'ASC' : 'DESC';
-                    if($this->sortable && is_array($this->sortable) && (isset($this->sortable[$field]) || in_array($field, $this->sortable))){
+                    if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$field]) || in_array($field, $this->sortable))) {
                         $this->hasSortby = true;
-                        if(isset($this->sortable[$field])){
+                        if (isset($this->sortable[$field])) {
                             $this->orderBy($this->sortable[$field], $t);
-                        }else{
+                        } else {
                             $this->orderBy($field, $t);
                         }
-                    }elseif($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$field]) || in_array($field, $this->sortRawable))){
+                    } elseif ($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$field]) || in_array($field, $this->sortRawable))) {
                         $this->hasSortby = true;
-                        if(isset($this->sortRawable[$field])){
+                        if (isset($this->sortRawable[$field])) {
                             $this->orderByRaw($this->sortRawable[$field], $t);
-                        }else{
+                        } else {
                             $this->orderByRaw($field, $t);
                         }
-                    }
-                    elseif(!preg_match('/\w\.\w/', $field)){
-                        if(in_array($field, $fields)){
+                    } elseif (!preg_match('/\w\.\w/', $field)) {
+                        if (in_array($field, $fields)) {
                             $this->hasSortby = true;
                             $this->orderBy($field, $t);
                         }
                     }
                 }
-            }else{
+            } else {
                 // nếu có trong bảng sortable
-                if(count($sbp = explode('-', $odb)) == 2){
+                if (count($sbp = explode('-', $odb)) == 2) {
                     $odb = $sbp[0];
                     $type = $sbp[1];
-                }else{
+                } else {
                     $type = $request->sorttype;
                 }
-                if(strtoupper($type)!='DESC') $type = 'ASC';
+                if (strtoupper($type) != 'DESC') $type = 'ASC';
                 else $type = 'DESC';
 
-                if($this->sortable && is_array($this->sortable) && (isset($this->sortable[$odb]) || in_array($odb, $this->sortable))){
+                if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$odb]) || in_array($odb, $this->sortable))) {
                     $this->hasSortby = true;
-                    if(isset($this->sortable[$odb])){
+                    if (isset($this->sortable[$odb])) {
                         $this->orderBy($this->sortable[$odb], $type);
-                    }else{
+                    } else {
                         $this->orderBy($odb, $type);
                     }
-                    
-                }
-                elseif($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$odb]) || in_array($odb, $this->sortRawable))){
+                } elseif ($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$odb]) || in_array($odb, $this->sortRawable))) {
                     $this->hasSortby = true;
-                    if(isset($this->sortRawable[$odb])){
-                        $this->orderByRaw($this->sortRawable[$odb]. ' ' .$type);
-                    }else{
-                        $this->orderByRaw($odb. ' ' .$type);
+                    if (isset($this->sortRawable[$odb])) {
+                        $this->orderByRaw($this->sortRawable[$odb] . ' ' . $type);
+                    } else {
+                        $this->orderByRaw($odb . ' ' . $type);
                     }
-                }
-                elseif(!preg_match('/\w\.\w/', $odb)){
+                } elseif (!preg_match('/\w\.\w/', $odb)) {
                     // có trong danh sách cột
-                    if(in_array($odb, $fields)){
+                    if (in_array($odb, $fields)) {
                         $this->hasSortby = true;
                         $this->orderBy($odb, $type);
                     }
-                }
-                elseif(in_array(strtolower($odb), ['random','rand()', '@rand', '@random'])){
+                } elseif (in_array(strtolower($odb), ['random', 'rand()', '@rand', '@random'])) {
                     $this->orderByRaw('RAND()');
                 }
             }
@@ -738,7 +753,7 @@ trait FilterAction
      */
     protected function buildJoin()
     {
-        if($this->joinable){
+        if ($this->joinable) {
             foreach ($this->joinable as $join) {
                 $args = $join;
                 $fun = array_shift($args);
@@ -752,19 +767,19 @@ trait FilterAction
      */
     protected function buildSelect()
     {
-        if($this->selectable){
+        if ($this->selectable) {
             $select = [];
             foreach ($this->selectable as $mask => $column) {
-                if(is_numeric($mask)){
+                if (is_numeric($mask)) {
                     $select[] = $column;
-                }else{
-                    $select[] = $column.' AS '.$mask;
+                } else {
+                    $select[] = $column . ' AS ' . $mask;
                 }
             }
             $this->select(...$select);
         }
 
-        if($this->selectRawable){
+        if ($this->selectRawable) {
             foreach ($this->selectRawable as $select) {
                 $this->selectRaw($select);
             }
@@ -773,54 +788,54 @@ trait FilterAction
 
     public function buildGroupBy()
     {
-        if(count($this->groupable)){
+        if (count($this->groupable)) {
             foreach ($this->groupable as $column) {
                 $this->groupBy($column);
             }
         }
-        if(count($this->groupableRaw)){
+        if (count($this->groupableRaw)) {
             foreach ($this->groupableRaw as $column) {
                 $this->groupByRaw($column);
             }
         }
     }
 
-    
+
     public function getSearchFields($request)
     {
         $fields = $this->getFields();
         $sb = $this->searchable;
         $sl = [];
-        if($request->searchby){
+        if ($request->searchby) {
             $s = $request->searchby;
-            if($sb){
-                if(isset($sb[$s])){
-                    if(is_array($sb[$s])){
+            if ($sb) {
+                if (isset($sb[$s])) {
+                    if (is_array($sb[$s])) {
                         foreach ($sb[$s] as $key) {
                             $sl[] = $key;
                         }
-                    }else{
+                    } else {
                         $sl[] = $sb[$s];
                     }
-                }elseif(in_array($s, $sb)){
+                } elseif (in_array($s, $sb)) {
                     $sl[] = $s;
                 }
-            }elseif(in_array($s, $fields)){
+            } elseif (in_array($s, $fields)) {
                 $sl[] = $s;
             }
-        }elseif($sb){
+        } elseif ($sb) {
             foreach ($sb as $key => $value) {
                 $sl[] = $value;
             }
-        }else{
+        } else {
             $sl = $fields;
         }
         return $sl;
     }
 
-    
 
-    
+
+
     /**
      * xử lý order by cho hàm lấy sản phẩm
      *
@@ -829,22 +844,22 @@ trait FilterAction
      */
     public function parseSortBy($sortBy)
     {
-        if(is_array($sortBy)){
+        if (is_array($sortBy)) {
             // truong hop mang toan index la so
-            if(Arr::isNumericKeys($sortBy)){
+            if (Arr::isNumericKeys($sortBy)) {
                 foreach ($sortBy as $by) {
                     $this->checkSortBy($by);
                 }
-            }else{
+            } else {
                 foreach ($sortBy as $column => $type) {
-                    if(is_numeric($column)){
+                    if (is_numeric($column)) {
                         $this->checkSortBy($type);
-                    }else{
+                    } else {
                         $this->order_by($column, $type);
                     }
                 }
             }
-        }else{
+        } else {
             $this->checkSortBy($sortBy);
         }
     }
@@ -859,24 +874,21 @@ trait FilterAction
      */
     protected function checkSortBy($sortBy = null, $type = null)
     {
-        if(in_array($sortBy, $this->sortByRules)){
+        if (in_array($sortBy, $this->sortByRules)) {
             $this->orderByRule($sortBy);
-        }elseif (array_key_exists($sortBy, $this->sortByRules)) {
+        } elseif (array_key_exists($sortBy, $this->sortByRules)) {
             $this->orderByRule($this->sortByRules[$sortBy]);
-        }
-        elseif (array_key_exists($sortBy, $this->sortByMethods)) {
-            if(method_exists($this, $this->sortByMethods[$sortBy])){
+        } elseif (array_key_exists($sortBy, $this->sortByMethods)) {
+            if (method_exists($this, $this->sortByMethods[$sortBy])) {
                 call_user_func_array([$this, $this->sortByMethods[$sortBy]], [$type]);
             }
-        }
-        elseif($sortBy){
+        } elseif ($sortBy) {
             $a = explode('-', $sortBy);
-            if(count($a) == 2){
+            if (count($a) == 2) {
                 $this->order_by($a[0], $a[1]);
-            }else{
-                $this->order_by($sortBy, $type?$type:'ASC');
+            } else {
+                $this->order_by($sortBy, $type ? $type : 'ASC');
             }
-            
         }
     }
 
@@ -889,11 +901,9 @@ trait FilterAction
      */
     protected function orderByRule($rule)
     {
-        if($rule == 'rand()'){
+        if ($rule == 'rand()') {
             $this->orderByRaw($rule);
-            
-        }
-        else{
+        } else {
             $a = explode('-', $rule);
             $this->order_by($a[0], $a[1]);
         }
@@ -911,19 +921,19 @@ trait FilterAction
      */
     public function parsePaginateParam($request, array $args = [])
     {
-        if(isset($args['@paginate']) || isset($args['@limit']) || !$this->paginate) return $args;
-        if($request->paginate && ($pn = to_number($request->paginate)) > 0){
+        if (isset($args['@paginate']) || isset($args['@limit']) || !$this->paginate) return $args;
+        if ($request->paginate && ($pn = to_number($request->paginate)) > 0) {
             $args['@paginate'] = $pn;
-        }elseif($request->per_page && ($pz = to_number($request->per_page)) > 0){
+        } elseif ($request->per_page && ($pz = to_number($request->per_page)) > 0) {
             $args['@paginate'] = $pz;
-        }elseif($this->_paginate){
+        } elseif ($this->_paginate) {
             $args['@paginate'] = $this->_paginate;
-        }elseif($this->perPage){
+        } elseif ($this->perPage) {
             $args['@paginate'] = $this->perPage;
         }
         return $args;
     }
-    
+
     /**
      * lay thong so phan trang
      * @param Request $request
@@ -941,23 +951,21 @@ trait FilterAction
         $per_page = $this->perPage;
 
         // nếu có tham số per page
-        if($request->per_page){
+        if ($request->per_page) {
             $per_page = (int) $request->per_page;
-            if($per_page < 1) $per_page = $this->perPage;
+            if ($per_page < 1) $per_page = $this->perPage;
             // start
-            
+
         }
-        if($request->page){
+        if ($request->page) {
             $page = (int) $request->page;
-            if($page < 1) $page = 1;
-        }
-        elseif($request->page){
+            if ($page < 1) $page = 1;
+        } elseif ($request->page) {
             $page = (int) $request->page;
-            if($page < 1) $page = 1;
+            if ($page < 1) $page = 1;
         }
         $current_page = $page;
         return compact('page', 'per_page', 'current_page');
-
     }
 
 
@@ -972,7 +980,7 @@ trait FilterAction
     {
         $args = []; // mảng truy vấn
         $paginate = $this->getPaginateInfo($request);
-        $pos = ($paginate['page']-1)*$paginate['per_page'];
+        $pos = ($paginate['page'] - 1) * $paginate['per_page'];
         // limit bang skip và take 
         $args['@limit'] = [$pos, $paginate['per_page']];
         return $args;
@@ -992,58 +1000,58 @@ trait FilterAction
      *     'page_total' => integer // tất cả các trang
      * ]
      */
-    public function getPaginateData($request, $count=0)
+    public function getPaginateData($request, $count = 0)
     {
         $data = $this->getPaginateInfo($request);
-        $page_total = (int) ($count/$data['per_page']);
-        if($count % $data['per_page'])
-        {
+        $page_total = (int) ($count / $data['per_page']);
+        if ($count % $data['per_page']) {
             $page_total++;
         }
 
         $data['page_total'] = $page_total;
         return $data;
     }
-    
+
     public function buildDateFilterQuery($request, $col = 'date', $ignore = null)
     {
         $view_mode = 'all';
         $dateSet = 0;
-        if($ignore=='date'){
-            if($request->date && strtolower($request->date) != 'all' && $date = strtodate($request->date)){
+        if ($ignore == 'date') {
+            if ($request->date && strtolower($request->date) != 'all' && $date = strtodate($request->date)) {
                 $this->where($col, "$date[year]-$date[month]-$date[day]");
                 $dateSet = 1;
-            }
-            else{
-                if($request->from_date && $fd = strtodate($request->from_date)){
-                    $this->whereDate($col,'>=', "$fd[year]-$fd[month]-$fd[day]");
+            } else {
+                if ($request->from_date && $fd = strtodate($request->from_date)) {
+                    $this->whereDate($col, '>=', "$fd[year]-$fd[month]-$fd[day]");
                     $dateSet = 1;
                 }
-                if($request->to_date && $td = strtodate($request->to_date)){
-                    $this->whereDate($col,'<=', "$td[year]-$td[month]-$td[day]");
+                if ($request->to_date && $td = strtodate($request->to_date)) {
+                    $this->whereDate($col, '<=', "$td[year]-$td[month]-$td[day]");
                     $dateSet = 1;
                 }
             }
         }
-        if($dateSet == 1) $view_mode = 'date';
-        else{
-            $sy = 0; $sm = 0; $sd = 0;
-            if($request->year && $ignore != 'year'){
+        if ($dateSet == 1) $view_mode = 'date';
+        else {
+            $sy = 0;
+            $sm = 0;
+            $sd = 0;
+            if ($request->year && $ignore != 'year') {
                 $sy = 1;
                 $this->whereYear($col, $request->year);
                 $view_mode = 'year';
             }
-            if($sy && $request->month && $ignore != 'month'){
+            if ($sy && $request->month && $ignore != 'month') {
                 $sm = 1;
                 $this->whereMonth($col, $request->month);
                 $view_mode = 'month';
             }
-            if($sm && $request->day && $ignore!='day'){
+            if ($sm && $request->day && $ignore != 'day') {
                 $sd = 1;
                 $this->whereDay($col, $request->day);
                 $view_mode = 'day';
             }
-            if(!$sy && strtolower($request->date) != 'all' && $ignore != 'date'){
+            if (!$sy && strtolower($request->date) != 'all' && $ignore != 'date') {
                 $this->whereDate($col, date('Y-m-d'));
                 $view_mode = 'day';
             }
@@ -1053,7 +1061,7 @@ trait FilterAction
 
     public function setJoinable(array $joinable = [])
     {
-        if(is_array($joinable) && count($joinable)){
+        if (is_array($joinable) && count($joinable)) {
             $this->joinable = array_merge($this->joinable, $joinable);
         }
         return $this;
@@ -1061,7 +1069,7 @@ trait FilterAction
 
     public function setSearchable(array $params = [])
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->searchable = $params;
         }
         return $this;
@@ -1090,54 +1098,54 @@ trait FilterAction
 
     public function setSortable(array $params = [])
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->sortable = array_merge($this->sortable, $params);
         }
         return $this;
     }
     public function setWhereable(array $params = [])
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->whereable = array_merge($this->whereable, $params);
         }
         return $this;
     }
     public function addSelectable(array $params = [])
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->selectable = array_merge($this->selectable, $params);
         }
         return $this;
     }
     public function setSelectable(array $params = [])
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->selectable = $params;
         }
         return $this;
     }
     public function setSelectRaw(array $params = [])
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->selectRawable = array_merge($this->selectRawable, $params);
         }
         return $this;
     }
     public function setGroupBy(...$params)
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->groupable = array_merge($this->groupable, $params);
         }
         return $this;
     }
     public function setGroupByRaw(...$params)
     {
-        if(is_array($params) && count($params)){
+        if (is_array($params) && count($params)) {
             $this->groupableRaw = array_merge($this->groupableRaw, $params);
         }
         return $this;
     }
-    
+
     public function setResourceClass(string $resourceClass = null)
     {
         $this->resourceClass = $resourceClass;

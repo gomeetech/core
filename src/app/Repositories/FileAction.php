@@ -16,7 +16,10 @@ trait FileAction
     public function deleteAttachFile($id)
     {
         if($result = $this->find($id)){
-            return $result->deleteAttachFile();
+            $this->fire('beforedeleteAttachFile', $this,$id, $result);
+            $rs = $result->deleteAttachFile();
+            $this->fire('afterdeleteAttachFile', $this,$id, $result);
+            return $rs;
         }
         return false;
     }
