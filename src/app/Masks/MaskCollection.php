@@ -324,7 +324,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
                 'from' => $this->firstItem(),
                 'last_page' => $this->lastPage(),
                 'last_page_url' => $this->url($this->lastPage()),
-                'links' => $this->linkCollection()->toArray(),
+                'links' => ($lc = $this->linkCollection())?$lc->toArray():[],
                 'next_page_url' => $this->nextPageUrl(),
                 'path' => $this->path(),
                 'per_page' => $this->perPage(),
