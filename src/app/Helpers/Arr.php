@@ -569,7 +569,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         unset($this->data[$offset]);
     }
 
-    public function offsetGet($offset) {
+    public function offsetGet($offset):mixed {
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
 
@@ -625,7 +625,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return array_map(function ($value) {
             if ($value instanceof JsonSerializable) {
