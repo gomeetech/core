@@ -229,7 +229,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
      * @param  mixed  $key
      * @return mixed
      */
-    public function offsetGet($key)
+    public function offsetGet($key):mixed
     {
         return $this->items[$key];
     }

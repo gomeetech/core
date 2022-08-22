@@ -466,7 +466,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         unset($this->data[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset):mixed
     {
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
