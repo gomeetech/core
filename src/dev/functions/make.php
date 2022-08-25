@@ -226,7 +226,7 @@ function make_model($args = [], $name = null, $table = null)
 
         $v = isset($params['useuuid']) ? $params['useuuid'] : (isset($params['useUuid']) ? $params['useUuid'] : true);
         $props[] = "public \$useUuid = ".(
-            $v === true ? "'uuid'" : (
+            $v === true ? "true" : (
                 $v === 'false'?'false': ($v === 'true' || $v=='' ? 'true' : ($v == 'primary' || $v == 'id' ? "'primary'": "'$v'"))
             )
         ).";";
