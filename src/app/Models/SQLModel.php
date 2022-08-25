@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model as BaseModel;
 class SQLModel extends BaseModel
 {
     //
-    use HasFactory, ModelEventMethods, ModelFileMethods, CommonMethods;
+    use HasFactory, ModelEventMethods, ModelFileMethods, CommonMethods, Uuid;
 
     protected $connection = DbConnectionConstant::SQL;
 

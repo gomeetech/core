@@ -8,7 +8,7 @@ use Jenssegers\Mongodb\Eloquent\SoftDeletes;
 
 class MongoModel extends BaseModel
 {
-    use ModelEventMethods, ModelFileMethods, CommonMethods;
+    use ModelEventMethods, ModelFileMethods, CommonMethods, Uuid;
 
     const MODEL_TYPE = 'mongo'; 
     const UNTRASHED = 0;
