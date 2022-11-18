@@ -1139,7 +1139,7 @@ if (!function_exists('get_editor_support_types')) {
      */
     function get_editor_support_types()
     {
-        return ['html', 'js', 'css', 'php', 'txt', 'json', 'jsx', 'ts', 'asp', 'aspx', 'xhtml', 'htm', 'less', 'sass', 'scss', 'py', 'java', 'xml', 'gltf', 'htaccess', 'env', 'example'];
+        return ['html', 'js', 'css', 'php', 'txt', 'json', 'jsx', 'ts', 'asp', 'aspx', 'xhtml', 'htm', 'less', 'sass', 'scss', 'py', 'java', 'xml', 'gltf', 'htaccess', 'env', 'example', 'log'];
     }
 }
 
