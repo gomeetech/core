@@ -399,6 +399,20 @@ trait BaseQuery
         return $this;
     }
 
+    protected function prepareQuery()
+    {
+        if($this->needBuildJoin && !$this->isBuildJoin){
+            $this->buildJoin();
+            $this->needBuildJoin = false;
+        }
+        if($this->needBuildSelect && !$this->isBuildSelect){
+            $this->buildSelect();
+            $this->needBuildSelect = false;
+        }
+        
+    }
+
+
     /**
      * tạo qury builder 
      * @param array $args Mảng các tham số hoặc têm hàm và tham số hàm
@@ -407,6 +421,7 @@ trait BaseQuery
      */
     public function query($args = [])
     {
+        $this->prepareQuery();
         $this->fire('beforequery', $args);
         $keywords = null;
         $search_by = null;

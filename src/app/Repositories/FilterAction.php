@@ -61,6 +61,13 @@ trait FilterAction
 
     protected $selectRawable = [];
 
+    
+
+    protected $isBuildJoin = false;
+    protected $isBuildSelect = false;
+    protected $needBuildJoin = false;
+    protected $needBuildSelect = false;
+    
     /**
      * @var array $whereable các cot hoặc dịnh danh cột có thể được bind theo request
      * ví dụ: ['id', 'name', 'column' => 'table.column']
@@ -748,11 +755,13 @@ trait FilterAction
         }
     }
 
+
     /**
      * join auto
      */
     protected function buildJoin()
     {
+        if($this->isBuildJoin) return $this;
         if ($this->joinable) {
             foreach ($this->joinable as $join) {
                 $args = $join;
@@ -760,6 +769,8 @@ trait FilterAction
                 call_user_func_array([$this, $fun], $args);
             }
         }
+        $this->isBuildJoin = true;
+        return $this;
     }
 
     /**
@@ -767,6 +778,7 @@ trait FilterAction
      */
     protected function buildSelect()
     {
+        if($this->isBuildSelect) return $this;
         if ($this->selectable) {
             $select = [];
             foreach ($this->selectable as $mask => $column) {
@@ -784,8 +796,9 @@ trait FilterAction
                 $this->selectRaw($select);
             }
         }
+        $this->isBuildSelect = true;
+        return $this;
     }
-
     public function buildGroupBy()
     {
         if (count($this->groupable)) {

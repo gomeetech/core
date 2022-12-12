@@ -24,6 +24,8 @@ trait GettingAction
         return new $this->_model;
     }
 
+
+    
     /**
      * Get All
      * @return \Gomee\Models\Model[]
@@ -47,7 +49,6 @@ trait GettingAction
     public function findBy($prop = 'name', $value = null)
     {
         if ($prop && $value !== null) {
-
             $this->fire('beforfindBy', $this, $prop, $value);
             $rs = $this->first([$prop => $value]);
             $this->fire('afterfindBy', $this, $prop, $value, $rs);
