@@ -409,7 +409,6 @@ trait BaseQuery
             $this->buildSelect();
             $this->needBuildSelect = false;
         }
-        
     }
 
 
@@ -630,6 +629,9 @@ trait BaseQuery
 
         $this->resetActionParams();
         $this->fire('query', $query);
+        
+        $this->isBuildJoin = false;
+        $this->isBuildSelect = false;
         return $query;
     }
 
