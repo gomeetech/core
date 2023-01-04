@@ -19,7 +19,6 @@
     },
     "require": {
         "guzzlehttp/guzzle": "7.x",
-        "jenssegers/mongodb": "^3.9",
         "laravel/framework": "^9.2"
     },
     "config": {

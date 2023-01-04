@@ -3,10 +3,10 @@
 namespace Gomee\Models;
 
 use Gomee\Constants\DbConnectionConstant;
-use Jenssegers\Mongodb\Eloquent\Model as BaseModel;
-use Jenssegers\Mongodb\Eloquent\SoftDeletes;
+// use Jenssegers\Mongodb\Eloquent\Model as BaseModel;
+// use Jenssegers\Mongodb\Eloquent\SoftDeletes;
 
-class MongoModel extends BaseModel
+class MongoModel extends Model
 {
     use ModelEventMethods, ModelFileMethods, CommonMethods, Uuid;
 
