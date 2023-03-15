@@ -495,6 +495,8 @@ class Image
     {
         $pex = '';
         $mime = '';
+        $w = 0;
+        $h = 0;
         if (self::isImageFile($image_url)) {
             $source = getimagesize($image_url);
             if ($source) {
