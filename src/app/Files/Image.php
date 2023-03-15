@@ -19,7 +19,7 @@ class Image
      * @var GdImage
      */
     protected $data;
-    protected $Original;
+    protected $original;
     protected $type = null;
     protected $mime = null;
     protected $width = 0;
@@ -41,12 +41,18 @@ class Image
                 $i = self::getsity($image);
                 $im  = self::create($image);
                 $this->data = $im;
-                $this->Original = $im;
-                $this->height = $i['h'];
-                $this->width = $i['w'];
-                $this->type = $i['type'];
-                $this->mime = $i['mime'];
-                $this->isImage = true;
+                $this->original = $im;
+                if ($i) {
+                    $this->height = $i['h'];
+                    $this->width = $i['w'];
+                    $this->type = $i['type'];
+                    $this->mime = $i['mime'];
+                    $this->isImage = true;
+                } else {
+
+                    $this->height = imagesy($this->data);
+                    $this->width = imagesx($this->data);
+                }
             } else {
                 $this->data = $image;
                 $this->original = $image;
@@ -78,9 +84,9 @@ class Image
      *
      * @return GD
      */
-    public function getOriginal()
+    public function getoriginal()
     {
-        return $this->Original;
+        return $this->original;
     }
     /**
      * lấy loại tập tin ảnh
@@ -199,7 +205,7 @@ class Image
     public function save($filename, $mime = null)
     {
         if (!is_string($filename)) throw new \Exception("filename you gived is not a string", 1);
-        elseif((is_resource($this->data) && get_resource_type($this->data) == 'gd') || (is_object($this->data) && class_exists('GdImage') && is_a($this->data, 'GdImage'))) {
+        elseif ((is_resource($this->data) && get_resource_type($this->data) == 'gd') || (is_object($this->data) && class_exists('GdImage') && is_a($this->data, 'GdImage'))) {
             $m = $mime ? $mime : ($this->mime ? $this->mime : 'image/png');
             $ext = $this->getExt($m);
             if (!preg_match('/\.' . $ext . '$/si', $filename)) {
@@ -491,25 +497,27 @@ class Image
         $mime = '';
         if (self::isImageFile($image_url)) {
             $source = getimagesize($image_url);
-            $mime = $source['mime'];
-            $w = $source[0];
-            $h = $source[1];
-            $typ = explode('/', $mime);
-            if ($typ[0] == 'image' && isset($typ[1])) {
-                $t = $typ[1];
-                switch ($t) {
-                    case 'png':
-                        $pex = $t;
-                        break;
-                    case 'jpeg':
-                        $pex = 'jpg';
-                        break;
-                    case 'gif':
-                        $pex = $t;
-                        break;
-                    default:
-                        $pex = $t;
-                        break;
+            if ($source) {
+                $mime = $source['mime'];
+                $w = $source[0];
+                $h = $source[1];
+                $typ = explode('/', $mime);
+                if ($typ[0] == 'image' && isset($typ[1])) {
+                    $t = $typ[1];
+                    switch ($t) {
+                        case 'png':
+                            $pex = $t;
+                            break;
+                        case 'jpeg':
+                            $pex = 'jpg';
+                            break;
+                        case 'gif':
+                            $pex = $t;
+                            break;
+                        default:
+                            $pex = $t;
+                            break;
+                    }
                 }
             }
         } elseif ($image_url) {
