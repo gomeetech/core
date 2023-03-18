@@ -24,7 +24,7 @@ use Gomee\Laravel\Router;
  * @method mixed beforeValidate( Request $request )
  * @method mixed beforeHandleValidate( Request $request )
  * 
- * @method mixed beforeSave( Request $request, Arr $data ) 
+ * @method mixed beforeSave( Request $request, Arr $data, \Gomee\Models\Model $old = null  ) 
  * @method mixed beforeAjaxSave( Request $request, Arr $data, \Gomee\Models\Model $old = null ) 
  * @method mixed beforeCreate( Request $request, Arr $data ) 
  * @method mixed beforeAjaxCreate( Request $request, Arr $data ) 
