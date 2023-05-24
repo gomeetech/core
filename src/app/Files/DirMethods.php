@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\File;
 trait DirMethods
 {
     protected $_dir = null;
-
+    public $_basePath = null;
     public function dirInit()
     {
-        $this->_dir = Helper::basePath();
+        $this->_basePath = Helper::basePath();
+        $this->_dir = $this->_basePath;
+
     }
     /**
      * thiết lập dường dẫn để quản lý file
@@ -66,6 +68,25 @@ trait DirMethods
         return $f;
     }
 
+
+    /**
+     * Create a directory.
+     *
+     * @param  string  $path
+     * @param  int  $mode
+     * @param  bool  $recursive
+     * @param  bool  $force
+     * @return bool
+     */
+    public function makeDirectory($path, $mode = 0755, $recursive = false, $force = false)
+    {
+        if ($force) {
+            return @mkdir($path, $mode, $recursive);
+        }
+
+        return mkdir($path, $mode, $recursive);
+    }
+
     /**
      * tạo dường dẫn mới
      * @param string $dir
@@ -74,33 +95,30 @@ trait DirMethods
      * 
      * @return boolean
      */
-    public function makeDir(string $dir, $mode = 0755, $recursive = false)
+    public function makeDir(string $dir, $mode = 777, $recursive = false)
     {
         if ($dir && is_string($dir)) {
-            $mng = app(static::class); // tao doi tuong moi tranh bi conflict
-            $date = date('Y-m-d');
-
             // nếu không bắt dầu từ thư mục gốc
-            if (!$this->checkDirAccepted($dir)) $dir =Helper::publicPath($dir);
-            $parseDir = rtrim(str_replace("\\",  "/",  $dir), '/');
-            // chia thành các part
+            if (!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
 
-            $dlist = explode('/', $parseDir);
-            $end = array_pop($dlist);
-            $parent = implode('/', $dlist);
-            if (!is_dir($parseDir)) {
-                if (!$this->mkdir($parseDir, $mode, $recursive)) {
-                    $msg = "Crazy Make dir $parseDir fail!";
-                    $mng->append("\n" . $msg, storage_path('crazy/logs/' . $date . '.log'));
-                    chmod($parent, 0755);
-                    if (!$this->mkdir($parseDir, $mode, $recursive)) {
-                        $msg = "Crazy re-Make dir $parseDir fail!";
-                        $mng->append("\n" . $msg, storage_path('crazy/logs/' . $date . '.log'));
+            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->_basePath, "\\"), '/'), '', $dir)));
+
+            $xdir = rtrim(rtrim($this->_basePath, "\\"), '/');
+
+            if (count($dlist)) {
+                foreach ($dlist as $subPath) {
+                    if (strlen($subPath)) {
+                        if (!is_dir($xdir .= '/' . $subPath)) {
+                            $this->makeDirectory($xdir, $mode, $recursive, true);
+                            // $oldumask = umask(0);
+                            // // mkdir('mydir', 0777); // or even 01777 so you get the sticky bit set
+                            // @mkdir($xdir, $mode, $recursive);
+                            // umask($oldumask);
+                        }
+                        // chmod($xdir, 0766);
                     }
                 }
             }
-
-
             return true;
         }
         return false;
@@ -134,7 +152,7 @@ trait DirMethods
     {
         if ($dir && is_string($dir)) {
             // nếu không bắt dầu từ thư mục gốc
-            if (!$this->checkDirAccepted($dir)) $dir =Helper::publicPath($dir);
+            if (!$this->checkDirAccepted($dir)) $dir = Helper::publicPath($dir);
 
             $d = str_replace("\\", "/", $dir);
             if (is_dir($d)) {
@@ -231,23 +249,75 @@ trait DirMethods
         }
         if (is_string($dir) && is_dir($dir)) {
             // try {
-                if ($dh = opendir($dir)) {
-                    while (($file = readdir($dh)) !== false) {
-                        $t = 1;
-                        if ($e) {
-                            $fs = explode('.', $file);
+            if ($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    $t = 1;
+                    if ($e) {
+                        $fs = explode('.', $file);
 
-                            $ex = strtolower($fs[count($fs) - 1]);
-                            $path = $this->joinPath($dir, $file);
-                            if (is_file($path) && in_array($ex, $e)) {
-                                $t = 1;
-                            } else {
-                                $t = 0;
+                        $ex = strtolower($fs[count($fs) - 1]);
+                        $path = $this->joinPath($dir, $file);
+                        if (is_file($path) && in_array($ex, $e)) {
+                            $t = 1;
+                        } else {
+                            $t = 0;
+                        }
+                        if ($t && $file != '..' && $file != '.') {
+
+                            $sd = strtolower($file);
+                            $abc[] = $sd;
+                            $rawsize = filesize($path);
+                            $size = round($rawsize / 1024, 2);
+                            $size_unit = "KB";
+                            if ($size >= 1024) {
+                                $size = round($size / 1024, 2);
+                                $size_unit = 'MB';
+                                if ($size >= 1024) {
+                                    $size = round($size / 1024, 2);
+                                    $size_unit = 'GB';
+                                    if ($size >= 1024) {
+                                        $size = round($size / 1024, 2);
+                                        $size_unit = 'TB';
+                                    }
+                                }
                             }
-                            if ($t && $file != '..' && $file != '.') {
-                                
-                                $sd = strtolower($file);
-                                $abc[] = $sd;
+                            $mod =  substr(sprintf('%o', fileperms($path)), -3);
+
+
+                            $list[$sd] = new Arr([
+                                'type' => 'file',
+                                'name' => $file,
+                                'path' => $path,
+                                'extension' => $ex,
+                                'mode' => $mod,
+                                'modified' => date("F d Y H:i:s", filemtime($path)),
+                                'size' => $rawsize,
+                                'size_total' => $size,
+                                'size_unit' => $size_unit
+                            ]);
+                        }
+                    } else {
+                        if ($file != '..' && $file != '.') {
+                            $path = $this->joinPath($dir, $file);
+                            $fs = explode('.', $file);
+                            $ex = strtolower(array_pop($fs));
+                            $type = is_dir($path) ? 'folder' : 'file';
+                            $sd = strtolower($file);
+                            $abc[] = $sd;
+
+                            $mod =  substr(sprintf('%o', fileperms($path)), -3);
+
+                            $list[$sd] = new Arr([
+                                'type' => $type,
+                                'name' => $file,
+                                'extension' => $ex,
+                                'mode' => $mod,
+                                'modified' => date("F d Y H:i:s", filemtime($path)),
+                                'path' => $path
+                            ]);
+
+                            if ($type == 'file') {
+
                                 $rawsize = filesize($path);
                                 $size = round($rawsize / 1024, 2);
                                 $size_unit = "KB";
@@ -263,87 +333,31 @@ trait DirMethods
                                         }
                                     }
                                 }
-                                $mod =  substr(sprintf('%o', fileperms($path)), -3);
-
-
-                                $list[$sd] = new Arr([
-                                    'type' => 'file',
-                                    'name' => $file,
-                                    'path' => $path,
-                                    'extension' => $ex,
-                                    'mode' => $mod,
-                                    'modified' => date("F d Y H:i:s", filemtime($path)),
-                                    'size' => $rawsize,
-                                    'size_total' => $size,
-                                    'size_unit' => $size_unit
-                                ]);
-                            }
-                        } else {
-                            if ($file != '..' && $file != '.') {
-                                $path = $this->joinPath($dir, $file);
-                                $fs = explode('.', $file);
-                                $ex = strtolower(array_pop($fs));
-                                $type = is_dir($path) ? 'folder' : 'file';
-                                $sd = strtolower($file);
-                                $abc[] = $sd;
-
-                                $mod =  substr(sprintf('%o', fileperms($path)), -3);
-
-                                $list[$sd] = new Arr([
-                                    'type' => $type,
-                                    'name' => $file,
-                                    'extension' => $ex,
-                                    'mode' => $mod,
-                                    'modified' => date("F d Y H:i:s", filemtime($path)),
-                                    'path' => $path
-                                ]);
-
-                                if ($type == 'file') {
-
-                                    $rawsize = filesize($path);
-                                    $size = round($rawsize / 1024, 2);
-                                    $size_unit = "KB";
+                                $list[$sd]->size_total = $size;
+                                $list[$sd]->size_unit = $size_unit;
+                            } else {
+                                $size = get_folder_size($path, 'k');
+                                $size_unit = "KB";
+                                if ($size >= 1024) {
+                                    $size = round($size / 1024, 2);
+                                    $size_unit = 'MB';
                                     if ($size >= 1024) {
                                         $size = round($size / 1024, 2);
-                                        $size_unit = 'MB';
+                                        $size_unit = 'GB';
                                         if ($size >= 1024) {
                                             $size = round($size / 1024, 2);
-                                            $size_unit = 'GB';
-                                            if ($size >= 1024) {
-                                                $size = round($size / 1024, 2);
-                                                $size_unit = 'TB';
-                                            }
+                                            $size_unit = 'TB';
                                         }
                                     }
-                                    $list[$sd]->size_total = $size;
-                                    $list[$sd]->size_unit = $size_unit;
-                                    
-
-                                }else{
-                                    $size = get_folder_size($path, 'k');
-                                    $size_unit = "KB";
-                                    if ($size >= 1024) {
-                                        $size = round($size / 1024, 2);
-                                        $size_unit = 'MB';
-                                        if ($size >= 1024) {
-                                            $size = round($size / 1024, 2);
-                                            $size_unit = 'GB';
-                                            if ($size >= 1024) {
-                                                $size = round($size / 1024, 2);
-                                                $size_unit = 'TB';
-                                            }
-                                        }
-                                    }
-                                    $list[$sd]->size_total = $size;
-                                    $list[$sd]->size_unit = $size_unit;
-                                    
-                                    
                                 }
+                                $list[$sd]->size_total = $size;
+                                $list[$sd]->size_unit = $size_unit;
                             }
                         }
                     }
-                    closedir($dh);
                 }
+                closedir($dh);
+            }
             // } catch (\Exception $e) {
             //     // $this->errors[__METHOD__] = $e->getMessage();
             // }
@@ -423,8 +437,8 @@ trait DirMethods
     {
 
         if (is_string($src) && is_string($dst) && $src != $dst) {
-            if (!$this->checkDirAccepted($src)) $src = $this->joinPath($this->_dir, $src);
-            if (!$this->checkDirAccepted($dst)) $dst = $this->joinPath($this->_dir, $dst);
+            if (!$this->checkDirAccepted($src)) $src = $this->joinPath($this->_basePath, $src);
+            if (!$this->checkDirAccepted($dst)) $dst = $this->joinPath($this->_basePath, $dst);
             if (!is_dir($src)) return false;
             if (!is_dir($dst)) $this->makeDir($dst, 0755, true);
             // $this->chmod($src, 777);
