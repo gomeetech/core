@@ -171,7 +171,7 @@ trait InputTypes
                             if(is_string($prepare) && is_callable([$this, $prepare])){
                                 call_user_func_array([$this, $prepare], []);
                             }elseif(is_callable($prepare)){
-                                call_user_func_array($prepare, []);
+                                call_user_func_array($prepare, [$this]);
                             }
                         }
                     }
