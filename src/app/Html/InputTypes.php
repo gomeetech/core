@@ -169,7 +169,7 @@ trait InputTypes
                     foreach (static::$templateConfig[$this->template]['prepare'] as $prepare) {
                         if($prepare){
                             if(is_string($prepare) && is_callable([$this, $prepare])){
-                                call_user_func_array([$this, $prepare], []);
+                                call_user_func_array([$this, $prepare], [$this]);
                             }elseif(is_callable($prepare)){
                                 call_user_func_array($prepare, [$this]);
                             }
